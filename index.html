@@ -1,0 +1,2864 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AERO DRONE SIM 3D — Modern World (30 Уровней)</title>
+  <style>
+    :root {
+      --panel: rgba(15, 23, 42, 0.82);
+      --panel-solid: #0f172a;
+      --border: rgba(255, 255, 255, 0.16);
+      --accent: #0ea5e9;
+      --accent-bright: #38bdf8;
+      --accent-green: #10b981;
+      --accent-warn: #f59e0b;
+      --accent-red: #ef4444;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      user-select: none;
+    }
+
+    body {
+      background: #7dd3fc;
+      color: var(--text);
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #canvas-container {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      cursor: grab;
+    }
+
+    #canvas-container.dragging {
+      cursor: grabbing;
+    }
+
+    /* ================= ЛОББИ (ГЛАВНОЕ МЕНЮ) ================= */
+    #lobby-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.78) 0%, rgba(15, 23, 42, 0.52) 100%);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      transition: opacity 0.25s ease;
+    }
+
+    #lobby-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .lobby-card {
+      width: 100%;
+      max-width: 960px;
+      max-height: 92vh;
+      background: rgba(15, 23, 42, 0.92);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 22px;
+      padding: 28px 32px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      overflow-y: auto;
+    }
+
+    .lobby-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 18px;
+    }
+
+    .lobby-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent-bright);
+      background: rgba(14, 165, 233, 0.16);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 6px;
+    }
+
+    .lobby-title {
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      color: #ffffff;
+    }
+
+    .lobby-subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .lobby-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-play-main {
+      background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+      color: #ffffff;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(14, 165, 233, 0.45);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .btn-play-main:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 30px rgba(14, 165, 233, 0.65);
+    }
+
+    .lobby-controls-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 12px;
+      color: #cbd5e1;
+      justify-content: space-between;
+    }
+
+    .lobby-controls-strip span strong {
+      color: var(--accent-bright);
+    }
+
+    .stage-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .stage-title {
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stage-title.laser {
+      color: #f87171;
+    }
+
+    .levels-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+
+    @media (max-width: 760px) {
+      .levels-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .lvl-tile {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 9px 10px;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.15s;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .lvl-tile:hover {
+      background: rgba(56, 189, 248, 0.16);
+      border-color: var(--accent-bright);
+      transform: translateY(-1px);
+    }
+
+    .lvl-tile.selected {
+      background: rgba(14, 165, 233, 0.25);
+      border-color: var(--accent-bright);
+      box-shadow: 0 0 0 1px var(--accent-bright);
+    }
+
+    .lvl-tile.completed {
+      border-color: rgba(16, 185, 129, 0.55);
+    }
+
+    .lvl-tile-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--accent-bright);
+    }
+
+    .lvl-tile.laser-tile .lvl-tile-top {
+      color: #f87171;
+    }
+
+    .lvl-tile-name {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #e2e8f0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ================= HUD ИНТЕРФЕЙС ================= */
+    .hud-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 18px 22px;
+      transition: opacity 0.2s;
+    }
+
+    .hud-layer.hidden {
+      opacity: 0;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .hud-card {
+      background: var(--panel);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 11px 15px;
+      pointer-events: auto;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.35);
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 8px;
+    }
+
+    .status-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      box-shadow: 0 0 10px var(--accent-green);
+    }
+
+    .sim-title {
+      font-size: 12.5px;
+      font-weight: 800;
+      letter-spacing: 1.4px;
+      color: var(--accent-bright);
+    }
+
+    .telemetry-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .tel-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tel-label {
+      font-size: 9.5px;
+      color: var(--muted);
+      letter-spacing: 0.8px;
+    }
+
+    .tel-val {
+      font-size: 16px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      margin-top: 2px;
+    }
+
+    .controls-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      align-items: center;
+    }
+
+    .btn, select.level-select {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      outline: none;
+    }
+
+    select.level-select option {
+      background: #0f172a;
+      color: #f8fafc;
+    }
+
+    .btn:hover, select.level-select:hover {
+      background: rgba(255, 255, 255, 0.16);
+    }
+
+    .btn.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+    }
+
+    .race-box {
+      text-align: right;
+      min-width: 245px;
+    }
+
+    .level-nav {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+      margin-bottom: 5px;
+    }
+
+    .level-desc {
+      font-size: 11px;
+      color: var(--accent-bright);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .race-score {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--accent-warn);
+    }
+
+    .race-time {
+      font-size: 11.5px;
+      color: #cbd5e1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .center-reticle {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 240px;
+      height: 240px;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+
+    .horizon-line {
+      width: 150px;
+      height: 1.5px;
+      background: #ffffff;
+      box-shadow: 0 0 6px rgba(14, 165, 233, 0.8);
+      position: relative;
+    }
+
+    .horizon-line::before, .horizon-line::after {
+      content: '';
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-top: 2px solid #ffffff;
+      top: -1px;
+    }
+
+    .horizon-line::before { left: 0; border-left: 2px solid #ffffff; }
+    .horizon-line::after { right: 0; border-right: 2px solid #ffffff; }
+
+    .crosshair-dot {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border: 1.5px solid #38bdf8;
+      border-radius: 50%;
+    }
+
+    .bottom-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 14px;
+    }
+
+    .key-cluster {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .key-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .key-row {
+      display: flex;
+      gap: 4px;
+    }
+
+    .key-cap {
+      min-width: 32px;
+      height: 32px;
+      padding: 0 7px;
+      border-radius: 7px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-bottom-width: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #cbd5e1;
+      transition: all 0.06s;
+    }
+
+    .key-cap.pressed {
+      background: var(--accent-bright);
+      color: #05080f;
+      border-color: var(--accent-bright);
+      transform: translateY(2px);
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.65);
+    }
+
+    .key-caption {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+      text-align: center;
+    }
+
+    .tips-box {
+      font-size: 11.5px;
+      color: #cbd5e1;
+      line-height: 1.45;
+      max-width: 380px;
+    }
+
+    .tips-box strong {
+      color: #ffffff;
+    }
+
+    #toast-banner {
+      position: fixed;
+      top: 19%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(16, 185, 129, 0.96);
+      color: #04130d;
+      padding: 11px 24px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      z-index: 30;
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+      text-align: center;
+    }
+
+    #crash-flash {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle, rgba(239, 68, 68, 0.18) 0%, rgba(239, 68, 68, 0.58) 100%);
+      z-index: 20;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+  <div id="canvas-container"></div>
+  <div id="crash-flash"></div>
+  <div id="toast-banner">КОЛЬЦО ПРОЙДЕНО!</div>
+
+  <!-- ЛОББИ -->
+  <div id="lobby-overlay">
+    <div class="lobby-card">
+      <div class="lobby-header">
+        <div>
+          <span class="lobby-badge">Modern City & Indoor Laser Courses</span>
+          <h1 class="lobby-title">AERO DRONE SIM 3D</h1>
+          <p class="lobby-subtitle">30 уровней: городской парк, подвижные препятствия, закрытые комнаты и лазерные ловушки</p>
+        </div>
+        <div class="lobby-actions">
+          <button class="btn" id="lobby-sound-btn">🔇 Звук: Выкл</button>
+          <button class="btn-play-main" id="btn-start-play">▶ ИГРАТЬ (Ур. 1)</button>
+        </div>
+      </div>
+
+      <div class="lobby-controls-strip">
+        <span><strong>W / S</strong> — Вперёд / Назад</span>
+        <span><strong>A / D</strong> — Влево / Вправо</span>
+        <span><strong>Пробел / Shift</strong> — Вверх / Вниз</span>
+        <span><strong>Зажать ЛКМ + Мышь</strong> (или <strong>Q / E</strong>) — Поворот</span>
+        <span><strong>V</strong> — Камера • <strong>Esc</strong> — Лобби</span>
+      </div>
+
+      <div class="stage-section">
+        <div class="stage-title">🏙️ Этап 1 (Уровни 1–10) — Современный город и парк</div>
+        <div class="levels-grid" id="grid-stage-1"></div>
+      </div>
+
+      <div class="stage-section">
+        <div class="stage-title">⚙️ Этап 2 (Уровни 11–20) — Динамические препятствия и турбины</div>
+        <div class="levels-grid" id="grid-stage-2"></div>
+      </div>
+
+      <div class="stage-section">
+        <div class="stage-title laser">🚨 Этап 3 (Уровни 21–30) — Комнаты, коридоры и лазерные системы</div>
+        <div class="levels-grid" id="grid-stage-3"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FPV Горизонт -->
+  <div class="center-reticle" id="reticle">
+    <div class="horizon-line" id="horizon-bar"></div>
+    <div class="crosshair-dot"></div>
+  </div>
+
+  <!-- HUD -->
+  <div class="hud-layer hidden" id="hud-layer">
+    <div class="top-bar">
+      <div class="hud-card">
+        <div class="brand-row">
+          <div class="status-dot" id="status-dot"></div>
+          <span class="sim-title">AERO DRONE SIM 3D</span>
+        </div>
+        <div class="telemetry-grid">
+          <div class="tel-item">
+            <span class="tel-label">ВЫСОТА</span>
+            <span class="tel-val" id="hud-alt">0.0 м</span>
+          </div>
+          <div class="tel-item">
+            <span class="tel-label">СКОРОСТЬ</span>
+            <span class="tel-val" id="hud-spd">0 км/ч</span>
+          </div>
+          <div class="tel-item">
+            <span class="tel-label">КУРС</span>
+            <span class="tel-val" id="hud-hdg">0°</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hud-card controls-bar">
+        <button class="btn" id="btn-open-lobby" title="Клавиша Esc">🏠 Лобби</button>
+        <button class="btn active" id="btn-cam" title="Клавиша V">🎥 Камера: 3-е лицо</button>
+        <button class="btn" id="btn-sound">🔇 Звук: Выкл</button>
+        <button class="btn" id="btn-reset" title="Клавиша R">↺ Рестарт (R)</button>
+      </div>
+
+      <div class="hud-card race-box">
+        <div class="level-nav">
+          <button class="btn" id="btn-prev-lvl" title="Предыдущий уровень">◀</button>
+          <select class="level-select" id="level-select"></select>
+          <button class="btn" id="btn-next-lvl" title="Следующий уровень">▶</button>
+        </div>
+        <div class="level-desc" id="hud-level-desc">Уровень 1</div>
+        <div class="race-score" id="hud-rings">0 / 4 колец</div>
+        <div class="race-time" id="hud-timer">Время: 00:00.0</div>
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      <div class="hud-card key-cluster">
+        <div class="key-group">
+          <div class="key-row">
+            <div class="key-cap" id="key-KeyQ">Q</div>
+            <div class="key-cap" id="key-KeyW">W</div>
+            <div class="key-cap" id="key-KeyE">E</div>
+          </div>
+          <div class="key-row">
+            <div class="key-cap" id="key-KeyA">A</div>
+            <div class="key-cap" id="key-KeyS">S</div>
+            <div class="key-cap" id="key-KeyD">D</div>
+          </div>
+          <span class="key-caption">W/S: Вперёд-Назад • A/D: Крен • Q/E: Поворот</span>
+        </div>
+
+        <div class="key-group">
+          <div class="key-cap" id="key-Space" style="width: 116px;">ПРОБЕЛ (Вверх)</div>
+          <div class="key-cap" id="key-ShiftLeft" style="width: 116px;">SHIFT (Вниз)</div>
+          <span class="key-caption">Высота / Тяга</span>
+        </div>
+
+        <div class="key-group">
+          <div class="key-cap" id="mouse-indicator" style="width: 108px; height: 68px; flex-direction: column; gap: 2px;">
+            <span style="font-size: 15px;">🖱️</span>
+            <span>ЛКМ + Сдвиг</span>
+          </div>
+          <span class="key-caption">Поворот дрона</span>
+        </div>
+      </div>
+
+      <div class="hud-card tips-box">
+        <strong>Классический режим:</strong><br/>
+        • Пролетайте строго <strong>внутрь</strong> колец. Касание стен комнат, лазеров, арок, ёлок и ободов колец уничтожает дрон.<br/>
+        • Уровни <strong>21–30</strong> — закрытые комнаты и лазерные системы!
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // 1. ИНИЦИАЛИЗАЦИЯ 3D СЦЕНЫ, РЕАЛИСТИЧНОГО ДНЕВНОГО НЕБА И ОСВЕЩЕНИЯ
+    // =========================================================================
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x9fd3f5, 0.0021);
+
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 900);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.08;
+    container.appendChild(renderer.domElement);
+
+    // Процедурный купол дневного неба с облаками и солнцем
+    function createModernSkyTexture() {
+      const c = document.createElement('canvas');
+      c.width = 1024;
+      c.height = 512;
+      const ctx = c.getContext('2d');
+
+      const grad = ctx.createLinearGradient(0, 0, 0, 512);
+      grad.addColorStop(0.0, '#1d5fa7');
+      grad.addColorStop(0.32, '#4ba3e3');
+      grad.addColorStop(0.48, '#a6dcf8');
+      grad.addColorStop(0.54, '#e0f2fe');
+      grad.addColorStop(1.0, '#64748b');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 1024, 512);
+
+      // Мягкие перистые и кучевые облака на небесной полусфере
+      for (let i = 0; i < 65; i++) {
+        const cx = (i * 173) % 1024;
+        const cy = 65 + ((i * 61) % 165);
+        const rx = 45 + (i % 5) * 24;
+        const ry = 10 + (i % 3) * 6;
+        const cloudGrad = ctx.createRadialGradient(cx, cy, 4, cx, cy, rx);
+        cloudGrad.addColorStop(0, 'rgba(255, 255, 255, 0.65)');
+        cloudGrad.addColorStop(0.55, 'rgba(255, 255, 255, 0.25)');
+        cloudGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        ctx.fillStyle = cloudGrad;
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      const tex = new THREE.CanvasTexture(c);
+      return tex;
+    }
+
+    const skyDome = new THREE.Mesh(
+      new THREE.SphereGeometry(480, 32, 24),
+      new THREE.MeshBasicMaterial({ map: createModernSkyTexture(), side: THREE.BackSide, fog: false })
+    );
+    scene.add(skyDome);
+
+    // Объёмные 3D-облака в небе
+    const cloudsGroup = new THREE.Group();
+    const cloudMat = new THREE.MeshLambertMaterial({ color: 0xffffff, transparent: true, opacity: 0.82 });
+    for (let i = 0; i < 24; i++) {
+      const cloud = new THREE.Group();
+      const puffs = 3 + (i % 3);
+      for (let p = 0; p < puffs; p++) {
+        const puff = new THREE.Mesh(new THREE.SphereGeometry(5 + (p % 2) * 3, 12, 10), cloudMat);
+        puff.scale.set(1.8, 0.55, 1.2);
+        puff.position.set((p - 1) * 6.5, (p % 2) * 1.2, ((p * 3) % 3) - 1.5);
+        cloud.add(puff);
+      }
+      const angle = (i / 24) * Math.PI * 2;
+      const dist = 60 + (i % 4) * 55;
+      cloud.position.set(Math.cos(angle) * dist, 75 + (i % 4) * 14, Math.sin(angle) * dist);
+      cloudsGroup.add(cloud);
+    }
+    scene.add(cloudsGroup);
+
+    // Реалистичное дневное освещение
+    const hemiLight = new THREE.HemisphereLight(0xdbeafe, 0x3f6212, 0.92);
+    scene.add(hemiLight);
+
+    const sunLight = new THREE.DirectionalLight(0xfffbeb, 1.65);
+    sunLight.position.set(110, 165, 95);
+    sunLight.castShadow = true;
+    sunLight.shadow.mapSize.width = 2048;
+    sunLight.shadow.mapSize.height = 2048;
+    sunLight.shadow.camera.near = 10;
+    sunLight.shadow.camera.far = 420;
+    const d = 140;
+    sunLight.shadow.camera.left = -d;
+    sunLight.shadow.camera.right = d;
+    sunLight.shadow.camera.top = d;
+    sunLight.shadow.camera.bottom = -d;
+    sunLight.shadow.bias = -0.0005;
+    scene.add(sunLight);
+
+    const sunDisc = new THREE.Mesh(
+      new THREE.SphereGeometry(14, 24, 24),
+      new THREE.MeshBasicMaterial({ color: 0xfff7ed, fog: false })
+    );
+    sunDisc.position.set(220, 210, 190);
+    scene.add(sunDisc);
+
+    // =========================================================================
+    // 2. ПРОРАБОТАННЫЕ ТЕКСТУРЫ СОВРЕМЕННОГО МИРА (ЗЕМЛЯ, СТЕКЛО, БЕТОН, ХВОЯ)
+    // =========================================================================
+    function createModernGroundTexture() {
+      const c = document.createElement('canvas');
+      c.width = 1024;
+      c.height = 1024;
+      const ctx = c.getContext('2d');
+
+      // Сочный парковый газон
+      ctx.fillStyle = '#365e2c';
+      ctx.fillRect(0, 0, 1024, 1024);
+
+      // Естественная фактура травы
+      const grassShades = ['#3f6d34', '#2d5124', '#4d7c3f', '#355c2b'];
+      for (let i = 0; i < 16000; i++) {
+        ctx.fillStyle = grassShades[i % grassShades.length];
+        const x = (i * 73) % 1024;
+        const y = (i * 137) % 1024;
+        ctx.fillRect(x, y, 4, 4);
+      }
+
+      // Современные бетонные пешеходные дорожки
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillRect(0, 470, 1024, 84);
+      ctx.fillRect(470, 0, 84, 1024);
+
+      // Асфальтовые проспекты по краям квартала
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(0, 0, 1024, 68);
+      ctx.fillRect(0, 956, 1024, 68);
+      ctx.fillRect(0, 0, 68, 1024);
+      ctx.fillRect(956, 0, 68, 1024);
+
+      // Белая дорожная разметка
+      ctx.fillStyle = '#f8fafc';
+      for (let i = 16; i < 1008; i += 48) {
+        ctx.fillRect(i, 32, 24, 4);
+        ctx.fillRect(i, 988, 24, 4);
+        ctx.fillRect(32, i, 4, 24);
+        ctx.fillRect(988, i, 4, 24);
+      }
+
+      const tex = new THREE.CanvasTexture(c);
+      tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+      tex.repeat.set(18, 18);
+      tex.anisotropy = 8;
+      return tex;
+    }
+
+    function createHelipadTexture() {
+      const c = document.createElement('canvas');
+      c.width = 512;
+      c.height = 512;
+      const ctx = c.getContext('2d');
+
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(0, 0, 512, 512);
+
+      // Зернистость бетона
+      for (let i = 0; i < 4000; i++) {
+        ctx.fillStyle = i % 2 === 0 ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.06)';
+        ctx.fillRect((i * 41) % 512, (i * 89) % 512, 3, 3);
+      }
+
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 20;
+      ctx.beginPath();
+      ctx.arc(256, 256, 212, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 6;
+      ctx.setLineDash([22, 16]);
+      ctx.beginPath();
+      ctx.arc(256, 256, 178, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(165, 135, 36, 242);
+      ctx.fillRect(311, 135, 36, 242);
+      ctx.fillRect(165, 238, 182, 36);
+      return new THREE.CanvasTexture(c);
+    }
+
+    // Современный стеклянный фасад небоскрёбов
+    function createModernGlassBuildingTexture() {
+      const c = document.createElement('canvas');
+      c.width = 512;
+      c.height = 512;
+      const ctx = c.getContext('2d');
+
+      // Несущие стальные колонны
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(0, 0, 512, 512);
+
+      for (let y = 8; y < 504; y += 32) {
+        for (let x = 8; x < 504; x += 32) {
+          const reflection = ((x + y * 2) % 96) / 96;
+          const grad = ctx.createLinearGradient(x, y, x + 26, y + 26);
+          grad.addColorStop(0, reflection > 0.5 ? '#38bdf8' : '#0284c7');
+          grad.addColorStop(0.5, '#0369a1');
+          grad.addColorStop(1, '#1e3a8a');
+          ctx.fillStyle = grad;
+          ctx.fillRect(x, y, 26, 24);
+
+          // Блик на стекле
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.22)';
+          ctx.fillRect(x + 2, y + 2, 10, 4);
+        }
+      }
+
+      const tex = new THREE.CanvasTexture(c);
+      tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+      tex.anisotropy = 8;
+      return tex;
+    }
+
+    // Современные арки (карбон, сталь и неоновые шевроны)
+    function createModernArchTexture() {
+      const c = document.createElement('canvas');
+      c.width = 256;
+      c.height = 256;
+      const ctx = c.getContext('2d');
+
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(0, 0, 256, 256);
+
+      // Яркие сигнальные шевроны
+      ctx.fillStyle = '#0ea5e9';
+      for (let i = -256; i < 512; i += 64) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i + 28, 0);
+        ctx.lineTo(i - 96, 256);
+        ctx.lineTo(i - 124, 256);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      ctx.strokeStyle = '#e2e8f0';
+      ctx.lineWidth = 8;
+      ctx.strokeRect(4, 4, 248, 248);
+
+      const tex = new THREE.CanvasTexture(c);
+      tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+      tex.repeat.set(1, 4);
+      return tex;
+    }
+
+    // Текстура стен и потолка современных комнат/лабораторий (уровни 21–30)
+    function createRoomWallTexture() {
+      const c = document.createElement('canvas');
+      c.width = 512;
+      c.height = 512;
+      const ctx = c.getContext('2d');
+
+      ctx.fillStyle = '#cbd5e1';
+      ctx.fillRect(0, 0, 512, 512);
+
+      // Архитектурные композитные панели
+      ctx.strokeStyle = '#64748b';
+      ctx.lineWidth = 4;
+      for (let y = 0; y < 512; y += 128) {
+        for (let x = 0; x < 512; x += 128) {
+          ctx.fillStyle = ((x + y) / 128) % 2 === 0 ? '#e2e8f0' : '#cbd5e1';
+          ctx.fillRect(x + 3, y + 3, 122, 122);
+          ctx.strokeRect(x + 2, y + 2, 124, 124);
+        }
+      }
+
+      // Предупреждающая оранжевая полоса вдоль стены
+      ctx.fillStyle = '#f59e0b';
+      ctx.fillRect(0, 244, 512, 16);
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(0, 260, 512, 6);
+
+      const tex = new THREE.CanvasTexture(c);
+      tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+      tex.repeat.set(2, 2);
+      tex.anisotropy = 8;
+      return tex;
+    }
+
+    function createPineNeedleTexture() {
+      const c = document.createElement('canvas');
+      c.width = 256;
+      c.height = 256;
+      const ctx = c.getContext('2d');
+
+      ctx.fillStyle = '#16422b';
+      ctx.fillRect(0, 0, 256, 256);
+
+      const shades = ['#1f5c3d', '#2d7a53', '#123522', '#40916c'];
+      for (let i = 0; i < 1100; i++) {
+        ctx.strokeStyle = shades[i % shades.length];
+        ctx.lineWidth = 2.5;
+        const x = (i * 37) % 256;
+        const y = (i * 53) % 256;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + ((i % 3) - 1) * 7, y + 14);
+        ctx.stroke();
+      }
+
+      const tex = new THREE.CanvasTexture(c);
+      tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+      tex.repeat.set(3, 3);
+      return tex;
+    }
+
+    function createBarkTexture() {
+      const c = document.createElement('canvas');
+      c.width = 128;
+      c.height = 128;
+      const ctx = c.getContext('2d');
+
+      ctx.fillStyle = '#5c3d28';
+      ctx.fillRect(0, 0, 128, 128);
+      ctx.fillStyle = '#3b2416';
+      for (let x = 0; x < 128; x += 8) {
+        ctx.fillRect(x, (x * 13) % 64, 3, 55);
+      }
+      const tex = new THREE.CanvasTexture(c);
+      tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+      return tex;
+    }
+
+    function createHazardBlockTexture() {
+      const c = document.createElement('canvas');
+      c.width = 256;
+      c.height = 256;
+      const ctx = c.getContext('2d');
+
+      ctx.fillStyle = '#991b1b';
+      ctx.fillRect(0, 0, 256, 256);
+      ctx.strokeStyle = '#fca5a5';
+      ctx.lineWidth = 10;
+      ctx.strokeRect(5, 5, 246, 246);
+
+      ctx.fillStyle = '#ef4444';
+      for (let i = 20; i < 236; i += 44) {
+        ctx.fillRect(i, 20, 22, 216);
+      }
+      const tex = new THREE.CanvasTexture(c);
+      tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+      return tex;
+    }
+
+    // Земля современного города/парка
+    const ground = new THREE.Mesh(
+      new THREE.PlaneGeometry(1000, 1000),
+      new THREE.MeshStandardMaterial({ map: createModernGroundTexture(), roughness: 0.85 })
+    );
+    ground.rotation.x = -Math.PI / 2;
+    ground.receiveShadow = true;
+    scene.add(ground);
+
+    // Центральная посадочная площадка
+    const helipad = new THREE.Mesh(
+      new THREE.CylinderGeometry(5.5, 5.9, 0.14, 48),
+      new THREE.MeshStandardMaterial({ map: createHelipadTexture(), roughness: 0.55 })
+    );
+    helipad.position.set(0, 0.07, 0);
+    helipad.receiveShadow = true;
+    scene.add(helipad);
+
+    // Материалы
+    const archMat = new THREE.MeshStandardMaterial({ map: createModernArchTexture(), roughness: 0.35, metalness: 0.4 });
+    const pineLeafMat = new THREE.MeshStandardMaterial({ map: createPineNeedleTexture(), roughness: 0.78 });
+    const barkMat = new THREE.MeshStandardMaterial({ map: createBarkTexture(), roughness: 0.9 });
+    const buildingMat = new THREE.MeshStandardMaterial({
+      map: createModernGlassBuildingTexture(),
+      roughness: 0.18,
+      metalness: 0.65
+    });
+    const roomWallMat = new THREE.MeshStandardMaterial({
+      map: createRoomWallTexture(),
+      roughness: 0.45,
+      metalness: 0.15
+    });
+    const hazardMat = new THREE.MeshStandardMaterial({
+      map: createHazardBlockTexture(),
+      emissive: 0xb91c1c,
+      emissiveIntensity: 0.4,
+      roughness: 0.35
+    });
+
+    // Фоновый горизонт современного мегаполиса (вне игровой зоны, для реализма)
+    const skylineGroup = new THREE.Group();
+    for (let i = 0; i < 36; i++) {
+      const ang = (i / 36) * Math.PI * 2;
+      const dist = 210 + (i % 4) * 28;
+      const bw = 18 + (i % 3) * 8;
+      const bh = 45 + (i % 6) * 22;
+      const bd = 18 + ((i + 1) % 3) * 8;
+      const tower = new THREE.Mesh(new THREE.BoxGeometry(bw, bh, bd), buildingMat);
+      tower.position.set(Math.cos(ang) * dist, bh / 2, Math.sin(ang) * dist);
+      skylineGroup.add(tower);
+    }
+    scene.add(skylineGroup);
+
+    // =========================================================================
+    // 3. ДЕТАЛИЗИРОВАННАЯ 3D МОДЕЛЬ КВАДРОКОПТЕРА И СИСТЕМА ОБЛОМКОВ
+    // =========================================================================
+    const droneRoot = new THREE.Group();
+    const droneBody = new THREE.Group();
+    droneRoot.add(droneBody);
+    scene.add(droneRoot);
+
+    const carbonMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.3, metalness: 0.7 });
+    const accentMat = new THREE.MeshStandardMaterial({ color: 0x0ea5e9, roughness: 0.2, metalness: 0.5 });
+    const motorMat = new THREE.MeshStandardMaterial({ color: 0xcbd5e1, roughness: 0.2, metalness: 0.85 });
+
+    const chassis = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.14, 0.68), carbonMat);
+    chassis.castShadow = true;
+    droneBody.add(chassis);
+
+    const topShell = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.08, 0.52), accentMat);
+    topShell.position.set(0, 0.09, -0.02);
+    topShell.castShadow = true;
+    droneBody.add(topShell);
+
+    const cameraHousing = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.14, 0.14), carbonMat);
+    cameraHousing.position.set(0, 0.02, -0.36);
+    droneBody.add(cameraHousing);
+
+    const lens = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.055, 0.055, 0.06, 16),
+      new THREE.MeshStandardMaterial({ color: 0x090d16, roughness: 0.05, metalness: 0.95 })
+    );
+    lens.rotation.x = Math.PI / 2;
+    lens.position.set(0, 0.02, -0.43);
+    droneBody.add(lens);
+
+    [-0.18, 0.18].forEach(x => {
+      const skid = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.03, 0.62), carbonMat);
+      skid.position.set(x, -0.18, 0);
+      skid.castShadow = true;
+      droneBody.add(skid);
+
+      [-0.18, 0.18].forEach(z => {
+        const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.14, 8), carbonMat);
+        leg.position.set(x, -0.11, z);
+        droneBody.add(leg);
+      });
+    });
+
+    const propellers = [];
+    const armConfigs = [
+      { x: -0.42, z: -0.42, front: true,  dir: 1 },
+      { x:  0.42, z: -0.42, front: true,  dir: -1 },
+      { x: -0.42, z:  0.42, front: false, dir: -1 },
+      { x:  0.42, z:  0.42, front: false, dir: 1 }
+    ];
+
+    const propBladeMat = new THREE.MeshStandardMaterial({
+      color: 0xf8fafc,
+      transparent: true,
+      opacity: 0.78,
+      roughness: 0.2
+    });
+    const blurDiscMat = new THREE.MeshBasicMaterial({
+      color: 0x38bdf8,
+      transparent: true,
+      opacity: 0.2,
+      side: THREE.DoubleSide
+    });
+
+    armConfigs.forEach(cfg => {
+      const arm = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.04, 0.62), carbonMat);
+      arm.position.set(cfg.x * 0.5, 0.01, cfg.z * 0.5);
+      arm.rotation.y = Math.atan2(cfg.x, cfg.z);
+      arm.castShadow = true;
+      droneBody.add(arm);
+
+      const motor = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.065, 0.08, 16), motorMat);
+      motor.position.set(cfg.x, 0.05, cfg.z);
+      motor.castShadow = true;
+      droneBody.add(motor);
+
+      const ledColor = cfg.front ? 0x10b981 : 0xef4444;
+      const led = new THREE.Mesh(
+        new THREE.SphereGeometry(0.032, 10, 10),
+        new THREE.MeshBasicMaterial({ color: ledColor })
+      );
+      led.position.set(cfg.x, -0.02, cfg.z);
+      droneBody.add(led);
+
+      const propGroup = new THREE.Group();
+      propGroup.position.set(cfg.x, 0.10, cfg.z);
+
+      const blade = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.008, 0.042), propBladeMat);
+      const disc = new THREE.Mesh(new THREE.RingGeometry(0.07, 0.23, 24), blurDiscMat);
+      disc.rotation.x = -Math.PI / 2;
+
+      propGroup.add(blade, disc);
+      droneBody.add(propGroup);
+      propellers.push({ mesh: propGroup, dir: cfg.dir });
+    });
+
+    const groundMarker = new THREE.Mesh(
+      new THREE.RingGeometry(0.32, 0.42, 32),
+      new THREE.MeshBasicMaterial({ color: 0x0ea5e9, transparent: true, opacity: 0.75, side: THREE.DoubleSide })
+    );
+    groundMarker.rotation.x = -Math.PI / 2;
+    groundMarker.position.y = 0.15;
+    scene.add(groundMarker);
+
+    const debrisGroup = new THREE.Group();
+    scene.add(debrisGroup);
+    let debrisPieces = [];
+    let isCrashed = false;
+    let crashTimer = null;
+
+    function spawnExplosion(pos) {
+      clearDebris();
+      const shardMats = [carbonMat, accentMat, motorMat, new THREE.MeshBasicMaterial({ color: 0xf59e0b })];
+
+      for (let i = 0; i < 24; i++) {
+        const geo = i % 3 === 0
+          ? new THREE.BoxGeometry(0.28, 0.04, 0.06)
+          : (i % 3 === 1 ? new THREE.BoxGeometry(0.16, 0.1, 0.16) : new THREE.SphereGeometry(0.06, 8, 8));
+        const mesh = new THREE.Mesh(geo, shardMats[i % shardMats.length]);
+        mesh.position.copy(pos);
+        mesh.castShadow = true;
+        debrisGroup.add(mesh);
+
+        debrisPieces.push({
+          mesh,
+          vel: new THREE.Vector3(
+            (Math.random() - 0.5) * 14,
+            3 + Math.random() * 9,
+            (Math.random() - 0.5) * 14
+          ),
+          rotVel: new THREE.Vector3(
+            (Math.random() - 0.5) * 18,
+            (Math.random() - 0.5) * 18,
+            (Math.random() - 0.5) * 18
+          )
+        });
+      }
+    }
+
+    function clearDebris() {
+      while (debrisGroup.children.length > 0) {
+        const obj = debrisGroup.children[0];
+        if (obj.geometry) obj.geometry.dispose();
+        debrisGroup.remove(obj);
+      }
+      debrisPieces = [];
+    }
+
+    function updateDebris(dt) {
+      for (const p of debrisPieces) {
+        p.vel.y -= 24 * dt;
+        p.mesh.position.addScaledVector(p.vel, dt);
+        p.mesh.rotation.x += p.rotVel.x * dt;
+        p.mesh.rotation.y += p.rotVel.y * dt;
+        p.mesh.rotation.z += p.rotVel.z * dt;
+        if (p.mesh.position.y < 0.08) {
+          p.mesh.position.y = 0.08;
+          p.vel.y *= -0.45;
+          p.vel.x *= 0.7;
+          p.vel.z *= 0.7;
+        }
+      }
+    }
+
+    // =========================================================================
+    // 4. ГЕНЕРАТОР 30 УРОВНЕЙ (ЗДАНИЯ, АРКИ, ЁЛКИ, КОМНАТЫ И ЛАЗЕРЫ)
+    // =========================================================================
+    const levelContainer = new THREE.Group();
+    scene.add(levelContainer);
+
+    let levelBoxes = [];   // Здания и стены комнат (AABB коллайдеры)
+    let levelArches = [];  // Поворотные арки
+    let levelTrees = [];   // Ёлки
+    let levelRings = [];   // Кольца
+    let levelHazards = []; // Подвижные барьеры и турбины
+    let levelLasers = [];  // Лазерные лучи (уровни 21-30)
+
+    let currentLevelIndex = 0;
+    let currentRingIdx = 0;
+    let raceStartTime = null;
+    let raceFinished = false;
+    let spawnGraceTimer = 0;
+    const completedLevels = new Set();
+
+    const activeRingMat = new THREE.MeshStandardMaterial({
+      color: 0xf59e0b,
+      emissive: 0xd97706,
+      emissiveIntensity: 0.75,
+      roughness: 0.2
+    });
+    const inactiveRingMat = new THREE.MeshStandardMaterial({
+      color: 0x475569,
+      transparent: true,
+      opacity: 0.5
+    });
+    const passedRingMat = new THREE.MeshStandardMaterial({
+      color: 0x10b981,
+      emissive: 0x059669,
+      emissiveIntensity: 0.55
+    });
+
+    const targetBeacon = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.14, 0.14, 70, 12),
+      new THREE.MeshBasicMaterial({ color: 0xf59e0b, transparent: true, opacity: 0.24 })
+    );
+    scene.add(targetBeacon);
+
+    function addBoxCollider(x, y, z, w, h, d, mat, reason = 'УДАР О СТЕНУ') {
+      const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+      mesh.position.set(x, y, z);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      levelContainer.add(mesh);
+      levelBoxes.push({
+        minX: x - w / 2,
+        maxX: x + w / 2,
+        minY: y - h / 2,
+        maxY: y + h / 2,
+        minZ: z - d / 2,
+        maxZ: z + d / 2,
+        reason
+      });
+    }
+
+    function addBuilding(x, z, w, h, d) {
+      addBoxCollider(x, h / 2, z, w, h, d, buildingMat, 'УДАР О НЕБОСКРЁБ');
+    }
+
+    // Построение закрытой комнаты / коридора с дверными проёмами спереди и сзади
+    function addRoom(cfg) {
+      const cx = cfg.x || 0;
+      const cz = cfg.z;
+      const w = cfg.w || 18;
+      const h = cfg.h || 11;
+      const d = cfg.d || 24;
+      const doorW = cfg.doorW || 8.5;
+      const doorH = cfg.doorH || 7.2;
+      const t = 0.8; // Толщина стен
+
+      // Левая и правая стены
+      addBoxCollider(cx - w / 2, h / 2, cz, t, h, d, roomWallMat, 'УДАР О СТЕНУ КОМНАТЫ');
+      addBoxCollider(cx + w / 2, h / 2, cz, t, h, d, roomWallMat, 'УДАР О СТЕНУ КОМНАТЫ');
+
+      // Потолок комнаты
+      addBoxCollider(cx, h + t / 2, cz, w + t, t, d, roomWallMat, 'УДАР О ПОТОЛОК КОМНАТЫ');
+
+      // Входная (передняя, z + d/2) и выходная (задняя, z - d/2) стены с проёмом
+      const sidePanelW = (w - doorW) / 2;
+      const lintelH = h - doorH;
+
+      [cz + d / 2, cz - d / 2].forEach(wallZ => {
+        if (sidePanelW > 0.2) {
+          addBoxCollider(cx - doorW / 2 - sidePanelW / 2, h / 2, wallZ, sidePanelW, h, t, roomWallMat, 'УДАР О ПРОЁМ КОМНАТЫ');
+          addBoxCollider(cx + doorW / 2 + sidePanelW / 2, h / 2, wallZ, sidePanelW, h, t, roomWallMat, 'УДАР О ПРОЁМ КОМНАТЫ');
+        }
+        if (lintelH > 0.2) {
+          addBoxCollider(cx, doorH + lintelH / 2, wallZ, doorW, lintelH, t, roomWallMat, 'УДАР О ВЕРХ ПРОЁМА');
+        }
+      });
+
+      // Яркие потолочные светильники внутри комнаты для отличной видимости
+      const lampMat = new THREE.MeshBasicMaterial({ color: 0xe0f2fe });
+      for (let lz = cz - d / 2 + 4; lz <= cz + d / 2 - 4; lz += 8) {
+        const lamp = new THREE.Mesh(new THREE.BoxGeometry(w * 0.45, 0.15, 0.8), lampMat);
+        lamp.position.set(cx, h - 0.1, lz);
+        levelContainer.add(lamp);
+      }
+    }
+
+    // Лазерные лучи для уровней 21–30
+    const laserCoreMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const laserGlowMat = new THREE.MeshBasicMaterial({ color: 0xff1744, transparent: true, opacity: 0.72 });
+    const emitterMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.8, roughness: 0.2 });
+
+    function addLaser(cfg) {
+      const p1 = new THREE.Vector3(cfg.x1, cfg.y1, cfg.z1);
+      const p2 = new THREE.Vector3(cfg.x2, cfg.y2, cfg.z2);
+
+      const group = new THREE.Group();
+      const coreMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 1, 8), laserCoreMat);
+      const glowMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 1, 12), laserGlowMat);
+      group.add(coreMesh, glowMesh);
+
+      const em1 = new THREE.Mesh(new THREE.SphereGeometry(0.22, 10, 10), emitterMat);
+      const em2 = new THREE.Mesh(new THREE.SphereGeometry(0.22, 10, 10), emitterMat);
+      group.add(em1, em2);
+
+      levelContainer.add(group);
+
+      const laserObj = {
+        group,
+        coreMesh,
+        glowMesh,
+        em1,
+        em2,
+        baseP1: p1.clone(),
+        baseP2: p2.clone(),
+        curP1: p1.clone(),
+        curP2: p2.clone(),
+        moveX: cfg.moveX || 0,
+        moveY: cfg.moveY || 0,
+        moveZ: cfg.moveZ || 0,
+        rotZ: cfg.rotZ || 0,
+        pivot: cfg.pivot ? new THREE.Vector3(cfg.pivot.x, cfg.pivot.y, cfg.pivot.z) : p1.clone().add(p2).multiplyScalar(0.5),
+        speed: cfg.speed || 2.0,
+        phase: cfg.phase || 0,
+        blinkPeriod: cfg.blinkPeriod || 0,
+        active: true
+      };
+
+      updateLaserTransform(laserObj, 0);
+      levelLasers.push(laserObj);
+    }
+
+    function updateLaserTransform(l, time) {
+      const t = time * l.speed + l.phase;
+      l.curP1.copy(l.baseP1);
+      l.curP2.copy(l.baseP2);
+
+      if (l.moveX) {
+        const dx = Math.sin(t) * l.moveX;
+        l.curP1.x += dx;
+        l.curP2.x += dx;
+      }
+      if (l.moveY) {
+        const dy = Math.sin(t) * l.moveY;
+        l.curP1.y += dy;
+        l.curP2.y += dy;
+      }
+      if (l.moveZ) {
+        const dz = Math.sin(t) * l.moveZ;
+        l.curP1.z += dz;
+        l.curP2.z += dz;
+      }
+      if (l.rotZ) {
+        const angle = time * l.rotZ + l.phase;
+        const cosA = Math.cos(angle);
+        const sinA = Math.sin(angle);
+        [l.curP1, l.curP2].forEach(pt => {
+          const rx = pt.x - l.pivot.x;
+          const ry = pt.y - l.pivot.y;
+          pt.x = l.pivot.x + rx * cosA - ry * sinA;
+          pt.y = l.pivot.y + rx * sinA + ry * cosA;
+        });
+      }
+
+      if (l.blinkPeriod > 0) {
+        const cycle = (time + l.phase) % l.blinkPeriod;
+        l.active = cycle < (l.blinkPeriod * 0.58);
+      } else {
+        l.active = true;
+      }
+
+      l.coreMesh.visible = l.active;
+      l.glowMesh.visible = l.active;
+
+      const mid = l.curP1.clone().add(l.curP2).multiplyScalar(0.5);
+      const dir = l.curP2.clone().sub(l.curP1);
+      const len = dir.length();
+
+      l.coreMesh.position.copy(mid);
+      l.glowMesh.position.copy(mid);
+      l.coreMesh.scale.set(1, len, 1);
+      l.glowMesh.scale.set(1, len, 1);
+
+      if (len > 0.001) {
+        const quat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize());
+        l.coreMesh.quaternion.copy(quat);
+        l.glowMesh.quaternion.copy(quat);
+      }
+
+      l.em1.position.copy(l.curP1);
+      l.em2.position.copy(l.curP2);
+    }
+
+    function addArch(x, z, rotY = 0, width = 10, height = 11) {
+      const group = new THREE.Group();
+      const thickness = 0.95;
+      const halfW = width / 2;
+
+      const left = new THREE.Mesh(new THREE.BoxGeometry(thickness, height, thickness), archMat);
+      left.position.set(-halfW, height / 2, 0);
+      left.castShadow = true;
+
+      const right = new THREE.Mesh(new THREE.BoxGeometry(thickness, height, thickness), archMat);
+      right.position.set(halfW, height / 2, 0);
+      right.castShadow = true;
+
+      const top = new THREE.Mesh(new THREE.BoxGeometry(width + thickness, thickness, thickness), archMat);
+      top.position.set(0, height, 0);
+      top.castShadow = true;
+
+      group.add(left, right, top);
+      group.position.set(x, 0, z);
+      group.rotation.y = rotY;
+      levelContainer.add(group);
+
+      levelArches.push({ x, z, rotY, halfW, height, halfThick: thickness / 2 });
+    }
+
+    function addPineTree(x, z, scale = 1.0) {
+      const tree = new THREE.Group();
+
+      const trunkH = 2.2 * scale;
+      const trunkR = 0.36 * scale;
+      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(trunkR * 0.8, trunkR, trunkH, 10), barkMat);
+      trunk.position.y = trunkH / 2;
+      trunk.castShadow = true;
+      tree.add(trunk);
+
+      const tiers = [
+        { y: 3.1 * scale, r: 2.3 * scale, h: 3.2 * scale },
+        { y: 5.0 * scale, r: 1.75 * scale, h: 2.8 * scale },
+        { y: 6.7 * scale, r: 1.15 * scale, h: 2.4 * scale }
+      ];
+
+      tiers.forEach(t => {
+        const cone = new THREE.Mesh(new THREE.ConeGeometry(t.r, t.h, 12), pineLeafMat);
+        cone.position.y = t.y;
+        cone.castShadow = true;
+        cone.receiveShadow = true;
+        tree.add(cone);
+      });
+
+      tree.position.set(x, 0, z);
+      levelContainer.add(tree);
+
+      levelTrees.push({
+        x,
+        z,
+        trunkR,
+        trunkH,
+        crownBottom: 1.5 * scale,
+        crownTop: 7.9 * scale,
+        maxCrownR: 2.3 * scale
+      });
+    }
+
+    function addRing(cfg, idx) {
+      const radius = cfg.r || 2.6;
+      const tube = 0.2;
+      const mesh = new THREE.Mesh(
+        new THREE.TorusGeometry(radius, tube, 16, 44),
+        idx === 0 ? activeRingMat : inactiveRingMat
+      );
+      mesh.position.set(cfg.x, cfg.y, cfg.z);
+      mesh.rotation.set(cfg.rx || 0, cfg.ry || 0, 0);
+      levelContainer.add(mesh);
+
+      levelRings.push({
+        mesh,
+        baseX: cfg.x,
+        baseY: cfg.y,
+        baseZ: cfg.z,
+        rx: cfg.rx || 0,
+        ry: cfg.ry || 0,
+        radius,
+        tube,
+        swayX: cfg.swayX || 0,
+        swayY: cfg.swayY || 0,
+        speed: cfg.speed || 1.5,
+        phase: cfg.phase || 0
+      });
+    }
+
+    function addHazard(cfg) {
+      const mesh = new THREE.Mesh(new THREE.BoxGeometry(cfg.w, cfg.h, cfg.d), hazardMat);
+      mesh.position.set(cfg.x, cfg.y, cfg.z);
+      mesh.castShadow = true;
+      levelContainer.add(mesh);
+
+      levelHazards.push({
+        mesh,
+        kind: cfg.kind,
+        baseX: cfg.x,
+        baseY: cfg.y,
+        baseZ: cfg.z,
+        hw: cfg.w / 2,
+        hh: cfg.h / 2,
+        hd: cfg.d / 2,
+        moveX: cfg.moveX || 0,
+        moveY: cfg.moveY || 0,
+        moveZ: cfg.moveZ || 0,
+        rotSpeedZ: cfg.rotSpeedZ || 0,
+        rotSpeedY: cfg.rotSpeedY || 0,
+        speed: cfg.speed || 2.0,
+        phase: cfg.phase || 0
+      });
+    }
+
+    // =========================================================================
+    // 5. КОНФИГУРАЦИЯ ВСЕХ 30 УРОВНЕЙ (С ИСПРАВЛЕННЫМ 7-М И 10 ЛАЗЕРНЫМИ)
+    // =========================================================================
+    const LEVELS = [
+      // --- УРОВНИ 1–10: СОВРЕМЕННЫЙ ГОРОД И ПАРК ---
+      {
+        name: 'Ур. 1 — Первый взлёт',
+        desc: 'Прямой коридор и широкие обручи над парком',
+        rings: [
+          { x: 0, y: 3.5, z: -18, r: 3.3 },
+          { x: 0, y: 4.5, z: -36, r: 3.3 },
+          { x: 0, y: 5.5, z: -54, r: 3.3 },
+          { x: 0, y: 4.0, z: -72, r: 3.3 }
+        ],
+        arches: [{ x: 0, z: -27, w: 13, h: 12 }],
+        trees: [{ x: -13, z: -22 }, { x: 13, z: -22 }, { x: -14, z: -48 }, { x: 14, z: -48 }],
+        buildings: [],
+        hazards: []
+      },
+      {
+        name: 'Ур. 2 — Плавная змейка',
+        desc: 'Повороты влево и вправо между арками',
+        rings: [
+          { x: 0, y: 4.0, z: -18, r: 3.1 },
+          { x: -9, y: 5.0, z: -38, r: 3.1, ry: 0.25 },
+          { x: 9, y: 6.0, z: -58, r: 3.1, ry: -0.25 },
+          { x: 0, y: 5.0, z: -78, r: 3.1 }
+        ],
+        arches: [{ x: -9, z: -38, rotY: 0.25, w: 12, h: 11 }, { x: 9, z: -58, rotY: -0.25, w: 12, h: 11 }],
+        trees: [{ x: 0, z: -48, s: 1.15 }, { x: -17, z: -60 }, { x: 17, z: -30 }],
+        buildings: [],
+        hazards: []
+      },
+      {
+        name: 'Ур. 3 — Перепады высот',
+        desc: 'Набор высоты и плавное снижение',
+        rings: [
+          { x: 0, y: 4.0, z: -18, r: 2.9 },
+          { x: 0, y: 11.0, z: -38, r: 2.9 },
+          { x: 0, y: 3.5, z: -58, r: 2.9 },
+          { x: 0, y: 12.5, z: -78, r: 2.9 },
+          { x: 0, y: 5.0, z: -98, r: 2.9 }
+        ],
+        arches: [{ x: 0, z: -58, w: 11, h: 10 }],
+        trees: [{ x: -11, z: -25 }, { x: 11, z: -25 }, { x: -11, z: -75 }, { x: 11, z: -75 }],
+        buildings: [{ x: -20, z: -58, w: 10, h: 30, d: 10 }, { x: 20, z: -58, w: 10, h: 30, d: 10 }],
+        hazards: []
+      },
+      {
+        name: 'Ур. 4 — Еловый слалом',
+        desc: 'Облетайте густые ёлки и проходите арки',
+        rings: [
+          { x: -6, y: 4.2, z: -20, r: 2.8 },
+          { x: 7, y: 4.8, z: -40, r: 2.8 },
+          { x: -8, y: 5.2, z: -60, r: 2.8 },
+          { x: 6, y: 4.5, z: -80, r: 2.8 },
+          { x: 0, y: 4.0, z: -100, r: 2.8 }
+        ],
+        arches: [{ x: -6, z: -20, w: 10, h: 10 }, { x: 6, z: -80, w: 10, h: 10 }],
+        trees: [
+          { x: 0, z: -30, s: 1.25 }, { x: 0, z: -50, s: 1.25 }, { x: 0, z: -70, s: 1.25 },
+          { x: -15, z: -40, s: 1.2 }, { x: 15, z: -60, s: 1.2 }
+        ],
+        buildings: [],
+        hazards: []
+      },
+      {
+        name: 'Ур. 5 — Стеклянный каньон',
+        desc: 'Полёт между современными небоскрёбами',
+        rings: [
+          { x: 0, y: 6.0, z: -20, r: 2.7 },
+          { x: 12, y: 10.0, z: -42, r: 2.7, ry: -0.35 },
+          { x: 12, y: 14.0, z: -68, r: 2.7 },
+          { x: -10, y: 9.0, z: -90, r: 2.7, ry: 0.45 },
+          { x: -10, y: 5.0, z: -114, r: 2.7 }
+        ],
+        arches: [{ x: 12, z: -55, w: 10, h: 18 }],
+        trees: [],
+        buildings: [
+          { x: -14, z: -42, w: 14, h: 46, d: 14 },
+          { x: 30, z: -54, w: 14, h: 52, d: 14 },
+          { x: 0, z: -68, w: 12, h: 42, d: 12 },
+          { x: -28, z: -98, w: 14, h: 48, d: 14 },
+          { x: 10, z: -108, w: 14, h: 44, d: 14 }
+        ],
+        hazards: []
+      },
+      {
+        name: 'Ур. 6 — Наклонные кольца',
+        desc: 'Пикирование и подъём под углом',
+        rings: [
+          { x: 0, y: 5.0, z: -20, r: 2.6, rx: 0.25 },
+          { x: 0, y: 11.5, z: -40, r: 2.6, rx: 0.35 },
+          { x: 0, y: 14.0, z: -60, r: 2.6, rx: -0.35 },
+          { x: 0, y: 6.0, z: -80, r: 2.6, rx: -0.25 },
+          { x: 0, y: 4.0, z: -100, r: 2.6 }
+        ],
+        arches: [{ x: 0, z: -90, w: 10, h: 10 }],
+        trees: [{ x: -10, z: -28, s: 1.2 }, { x: 10, z: -28, s: 1.2 }, { x: -10, z: -68, s: 1.2 }, { x: 10, z: -68, s: 1.2 }],
+        buildings: [],
+        hazards: []
+      },
+      {
+        name: 'Ур. 7 — Разворот вокруг башни',
+        desc: 'Свободный облёт центрального небоскрёба и возврат',
+        rings: [
+          { x: 12, y: 5.5, z: -22, r: 2.7 },
+          { x: 20, y: 8.5, z: -50, r: 2.7, ry: -0.35 },
+          { x: 0, y: 11.0, z: -78, r: 2.7, ry: -1.57 },
+          { x: -20, y: 8.5, z: -50, r: 2.7, ry: 2.8 },
+          { x: -12, y: 5.5, z: -22, r: 2.7, ry: 3.14 },
+          { x: 0, y: 4.0, z: -8, r: 2.8, ry: 3.14 }
+        ],
+        arches: [
+          { x: 20, z: -50, rotY: -0.35, w: 12, h: 13 },
+          { x: -20, z: -50, rotY: 2.8, w: 12, h: 13 }
+        ],
+        trees: [{ x: -28, z: -64, s: 1.2 }, { x: 28, z: -64, s: 1.2 }],
+        buildings: [{ x: 0, z: -50, w: 14, h: 48, d: 14 }],
+        hazards: []
+      },
+      {
+        name: 'Ур. 8 — Узкие арки в лесу',
+        desc: 'Точное прохождение ворот среди ёлок',
+        rings: [
+          { x: 0, y: 4.0, z: -20, r: 2.5 },
+          { x: -8, y: 4.5, z: -42, r: 2.5 },
+          { x: 8, y: 4.5, z: -64, r: 2.5 },
+          { x: -6, y: 4.5, z: -86, r: 2.5 },
+          { x: 0, y: 4.0, z: -108, r: 2.5 }
+        ],
+        arches: [
+          { x: -8, z: -42, w: 8.5, h: 9.0 },
+          { x: 8, z: -64, w: 8.5, h: 9.0 },
+          { x: -6, z: -86, w: 8.5, h: 9.0 }
+        ],
+        trees: [
+          { x: -2, z: -31, s: 1.2 }, { x: 2, z: -53, s: 1.2 }, { x: -1, z: -75, s: 1.2 },
+          { x: -16, z: -42, s: 1.2 }, { x: 16, z: -64, s: 1.2 }
+        ],
+        buildings: [],
+        hazards: []
+      },
+      {
+        name: 'Ур. 9 — Спиральная башня',
+        desc: 'Подъём по спирали вокруг высокой башни',
+        rings: [
+          { x: 13, y: 4.5, z: -30, r: 2.4, ry: -0.5 },
+          { x: 15, y: 9.5, z: -50, r: 2.4, ry: -1.57 },
+          { x: 0, y: 14.5, z: -65, r: 2.4, ry: 3.14 },
+          { x: -15, y: 19.5, z: -50, r: 2.4, ry: 1.57 },
+          { x: -13, y: 24.5, z: -30, r: 2.4, ry: 0.5 },
+          { x: 0, y: 28.0, z: -22, r: 2.4 }
+        ],
+        arches: [],
+        trees: [{ x: -24, z: -25, s: 1.2 }, { x: 24, z: -25, s: 1.2 }],
+        buildings: [{ x: 0, z: -45, w: 12, h: 58, d: 12 }],
+        hazards: []
+      },
+      {
+        name: 'Ур. 10 — Экзамен пилота',
+        desc: 'Большой круг через парк, арки и небоскрёбы',
+        rings: [
+          { x: 0, y: 4.0, z: -20, r: 2.3 },
+          { x: 13, y: 7.0, z: -42, r: 2.3, ry: -0.35 },
+          { x: 19, y: 12.0, z: -68, r: 2.3 },
+          { x: 0, y: 15.0, z: -92, r: 2.3, ry: 1.57 },
+          { x: -19, y: 10.0, z: -72, r: 2.3, ry: 2.8 },
+          { x: -13, y: 5.0, z: -42, r: 2.3, ry: 3.14 },
+          { x: 0, y: 3.5, z: -14, r: 2.3, ry: 3.14 }
+        ],
+        arches: [{ x: 13, z: -42, rotY: -0.35, w: 9.5, h: 11 }, { x: -13, z: -42, w: 9.5, h: 10 }],
+        trees: [{ x: 0, z: -30, s: 1.15 }, { x: -28, z: -56, s: 1.25 }, { x: 28, z: -56, s: 1.25 }],
+        buildings: [{ x: 0, z: -64, w: 15, h: 46, d: 15 }],
+        hazards: []
+      },
+
+      // --- УРОВНИ 11–20: ПОДВИЖНЫЕ ПРЕПЯТСТВИЯ ---
+      {
+        name: 'Ур. 11 — Скользящие барьеры',
+        desc: 'Уклоняйтесь от движущихся красных стен',
+        rings: [
+          { x: 0, y: 4.5, z: -20, r: 2.5 },
+          { x: 0, y: 4.5, z: -46, r: 2.5 },
+          { x: 0, y: 4.5, z: -72, r: 2.5 },
+          { x: 0, y: 4.5, z: -98, r: 2.5 }
+        ],
+        arches: [{ x: 0, z: -33, w: 12, h: 10 }, { x: 0, z: -59, w: 12, h: 10 }],
+        trees: [{ x: -14, z: -25 }, { x: 14, z: -25 }, { x: -14, z: -75 }, { x: 14, z: -75 }],
+        buildings: [],
+        hazards: [
+          { kind: 'slider', x: 0, y: 4.5, z: -33, w: 4.5, h: 8, d: 1.2, moveX: 4.2, speed: 2.0, phase: 0 },
+          { kind: 'slider', x: 0, y: 4.5, z: -59, w: 4.5, h: 8, d: 1.2, moveX: 4.2, speed: 2.3, phase: 3.14 },
+          { kind: 'slider', x: 0, y: 4.5, z: -85, w: 5.0, h: 8, d: 1.2, moveX: 4.5, speed: 2.5, phase: 1.5 }
+        ]
+      },
+      {
+        name: 'Ур. 12 — Маятники в арках',
+        desc: 'Пролетите мимо качающихся грузов',
+        rings: [
+          { x: 0, y: 4.2, z: -20, r: 2.4 },
+          { x: 0, y: 4.2, z: -48, r: 2.4 },
+          { x: 0, y: 4.2, z: -76, r: 2.4 },
+          { x: 0, y: 4.2, z: -104, r: 2.4 }
+        ],
+        arches: [
+          { x: 0, z: -34, w: 12, h: 13 },
+          { x: 0, z: -62, w: 12, h: 13 },
+          { x: 0, z: -90, w: 12, h: 13 }
+        ],
+        trees: [{ x: -13, z: -48, s: 1.2 }, { x: 13, z: -48, s: 1.2 }],
+        buildings: [],
+        hazards: [
+          { kind: 'slider', x: 0, y: 5.5, z: -34, w: 3.6, h: 6.5, d: 1.4, moveX: 4.4, moveY: 1.6, speed: 2.4, phase: 0 },
+          { kind: 'slider', x: 0, y: 5.5, z: -62, w: 3.6, h: 6.5, d: 1.4, moveX: 4.4, moveY: 1.6, speed: 2.7, phase: 2.1 },
+          { kind: 'slider', x: 0, y: 5.5, z: -90, w: 3.8, h: 6.5, d: 1.4, moveX: 4.6, moveY: 1.8, speed: 2.9, phase: 4.2 }
+        ]
+      },
+      {
+        name: 'Ур. 13 — Вертикальные прессы',
+        desc: 'Проскакивайте под поднимающимися блоками',
+        rings: [
+          { x: 0, y: 4.5, z: -20, r: 2.4 },
+          { x: 0, y: 4.5, z: -46, r: 2.4 },
+          { x: 0, y: 4.5, z: -72, r: 2.4 },
+          { x: 0, y: 4.5, z: -98, r: 2.4 }
+        ],
+        arches: [{ x: 0, z: -33, w: 11, h: 11 }, { x: 0, z: -59, w: 11, h: 11 }, { x: 0, z: -85, w: 11, h: 11 }],
+        trees: [],
+        buildings: [{ x: -15, z: -59, w: 10, h: 32, d: 65 }, { x: 15, z: -59, w: 10, h: 32, d: 65 }],
+        hazards: [
+          { kind: 'slider', x: 0, y: 5.5, z: -33, w: 9.5, h: 4.5, d: 1.5, moveY: 3.5, speed: 2.2, phase: 0 },
+          { kind: 'slider', x: 0, y: 5.5, z: -59, w: 9.5, h: 4.5, d: 1.5, moveY: 3.5, speed: 2.5, phase: 2.0 },
+          { kind: 'slider', x: 0, y: 5.5, z: -85, w: 9.5, h: 4.5, d: 1.5, moveY: 3.5, speed: 2.8, phase: 4.0 }
+        ]
+      },
+      {
+        name: 'Ур. 14 — Вращающиеся лопасти',
+        desc: 'Огромные турбины перекрывают путь',
+        rings: [
+          { x: 0, y: 6.0, z: -20, r: 2.4 },
+          { x: 0, y: 6.0, z: -50, r: 2.4 },
+          { x: 0, y: 6.0, z: -80, r: 2.4 },
+          { x: 0, y: 6.0, z: -110, r: 2.4 }
+        ],
+        arches: [],
+        trees: [{ x: -15, z: -35 }, { x: 15, z: -35 }, { x: -15, z: -95 }, { x: 15, z: -95 }],
+        buildings: [],
+        hazards: [
+          { kind: 'spinner', x: 0, y: 6.5, z: -35, w: 13.0, h: 1.1, d: 1.1, rotSpeedZ: 1.3 },
+          { kind: 'spinner', x: 0, y: 6.5, z: -65, w: 13.0, h: 1.1, d: 1.1, rotSpeedZ: -1.6 },
+          { kind: 'spinner', x: 0, y: 6.5, z: -95, w: 14.0, h: 1.2, d: 1.2, rotSpeedZ: 1.9 }
+        ]
+      },
+      {
+        name: 'Ур. 15 — Движущиеся обручи',
+        desc: 'Сами кольца смещаются в воздухе',
+        rings: [
+          { x: 0, y: 4.5, z: -20, r: 2.4 },
+          { x: 0, y: 5.0, z: -44, r: 2.3, swayX: 4.5, speed: 1.7, phase: 0 },
+          { x: 0, y: 6.0, z: -68, r: 2.3, swayX: 5.0, speed: 2.0, phase: 2.2 },
+          { x: 0, y: 5.5, z: -92, r: 2.2, swayY: 2.5, swayX: 3.5, speed: 2.1, phase: 4.0 }
+        ],
+        arches: [{ x: 0, z: -32, w: 13, h: 11 }],
+        trees: [{ x: -15, z: -56, s: 1.2 }, { x: 15, z: -56, s: 1.2 }],
+        buildings: [],
+        hazards: [
+          { kind: 'slider', x: 0, y: 5.0, z: -56, w: 3.2, h: 7.0, d: 1.2, moveX: 4.5, speed: 2.2, phase: 1.0 }
+        ]
+      },
+      {
+        name: 'Ур. 16 — Перекрёстный огонь',
+        desc: 'Встречные барьеры в узком коридоре',
+        rings: [
+          { x: 0, y: 4.5, z: -18, r: 2.3 },
+          { x: 0, y: 4.5, z: -48, r: 2.3 },
+          { x: 0, y: 4.5, z: -78, r: 2.3 },
+          { x: 0, y: 4.5, z: -108, r: 2.3 }
+        ],
+        arches: [{ x: 0, z: -33, w: 11, h: 10 }, { x: 0, z: -63, w: 11, h: 10 }, { x: 0, z: -93, w: 11, h: 10 }],
+        trees: [],
+        buildings: [{ x: -14, z: -63, w: 8, h: 28, d: 80 }, { x: 14, z: -63, w: 8, h: 28, d: 80 }],
+        hazards: [
+          { kind: 'slider', x: 0, y: 3.0, z: -33, w: 4.5, h: 4.0, d: 1.2, moveX: 4.0, speed: 2.6, phase: 0 },
+          { kind: 'slider', x: 0, y: 7.0, z: -33, w: 4.5, h: 4.0, d: 1.2, moveX: 4.0, speed: 2.6, phase: 3.14 },
+          { kind: 'slider', x: 0, y: 3.0, z: -63, w: 4.8, h: 4.0, d: 1.2, moveX: 4.2, speed: 2.9, phase: 1.5 },
+          { kind: 'slider', x: 0, y: 7.0, z: -63, w: 4.8, h: 4.0, d: 1.2, moveX: 4.2, speed: 2.9, phase: 4.64 },
+          { kind: 'spinner', x: 0, y: 5.2, z: -93, w: 9.5, h: 1.0, d: 1.0, rotSpeedZ: 2.0 }
+        ]
+      },
+      {
+        name: 'Ур. 17 — Лесной патруль',
+        desc: 'Ёлки и быстрые поперечные блоки',
+        rings: [
+          { x: -6, y: 4.2, z: -20, r: 2.2 },
+          { x: 7, y: 4.8, z: -44, r: 2.2 },
+          { x: -7, y: 5.2, z: -68, r: 2.2 },
+          { x: 6, y: 4.5, z: -92, r: 2.2 },
+          { x: 0, y: 4.0, z: -114, r: 2.2 }
+        ],
+        arches: [{ x: 0, z: -103, w: 10, h: 10 }],
+        trees: [
+          { x: 0, z: -32, s: 1.2 }, { x: 0, z: -56, s: 1.2 }, { x: 0, z: -80, s: 1.2 },
+          { x: -14, z: -44, s: 1.2 }, { x: 14, z: -68, s: 1.2 }
+        ],
+        buildings: [],
+        hazards: [
+          { kind: 'slider', x: 0, y: 4.5, z: -32, w: 3.5, h: 6.0, d: 1.2, moveX: 6.5, speed: 2.9, phase: 0 },
+          { kind: 'slider', x: 0, y: 4.5, z: -56, w: 3.5, h: 6.0, d: 1.2, moveX: 6.5, speed: 3.1, phase: 3.14 },
+          { kind: 'slider', x: 0, y: 4.5, z: -80, w: 3.5, h: 6.0, d: 1.2, moveX: 6.5, speed: 3.3, phase: 1.5 }
+        ]
+      },
+      {
+        name: 'Ур. 18 — Поле кубов',
+        desc: 'Лавируйте сквозь парящие подвижные блоки',
+        rings: [
+          { x: 0, y: 6.0, z: -20, r: 2.2 },
+          { x: 0, y: 7.5, z: -50, r: 2.2 },
+          { x: 0, y: 6.5, z: -80, r: 2.2 },
+          { x: 0, y: 5.5, z: -110, r: 2.2 }
+        ],
+        arches: [],
+        trees: [],
+        buildings: [{ x: -18, z: -62, w: 10, h: 36, d: 90 }, { x: 18, z: -62, w: 10, h: 36, d: 90 }],
+        hazards: [
+          { kind: 'slider', x: -3.5, y: 5.5, z: -34, w: 3.2, h: 3.2, d: 3.2, moveY: 2.8, moveX: 2.0, speed: 2.3, phase: 0 },
+          { kind: 'slider', x: 3.5, y: 7.5, z: -38, w: 3.2, h: 3.2, d: 3.2, moveY: 2.8, moveX: 2.0, speed: 2.5, phase: 3.14 },
+          { kind: 'slider', x: 0, y: 6.5, z: -64, w: 3.6, h: 3.6, d: 3.6, moveX: 5.0, speed: 2.8, phase: 1.2 },
+          { kind: 'slider', x: -4.0, y: 4.5, z: -92, w: 3.2, h: 3.2, d: 3.2, moveY: 3.0, speed: 3.0, phase: 2.0 },
+          { kind: 'slider', x: 4.0, y: 8.5, z: -96, w: 3.2, h: 3.2, d: 3.2, moveY: 3.0, speed: 3.0, phase: 5.14 }
+        ]
+      },
+      {
+        name: 'Ур. 19 — Двойные турбины',
+        desc: 'Синхронные лопасти и смещающиеся кольца',
+        rings: [
+          { x: 0, y: 6.5, z: -20, r: 2.1 },
+          { x: 0, y: 6.5, z: -50, r: 2.1, swayX: 3.0, speed: 1.9 },
+          { x: 0, y: 6.5, z: -80, r: 2.1, swayX: 3.5, speed: 2.2, phase: 3.14 },
+          { x: 0, y: 6.5, z: -110, r: 2.1 }
+        ],
+        arches: [{ x: 0, z: -20, w: 11, h: 12 }, { x: 0, z: -110, w: 11, h: 12 }],
+        trees: [],
+        buildings: [{ x: -16, z: -65, w: 10, h: 38, d: 90 }, { x: 16, z: -65, w: 10, h: 38, d: 90 }],
+        hazards: [
+          { kind: 'spinner', x: 0, y: 6.5, z: -35, w: 14.0, h: 1.1, d: 1.1, rotSpeedZ: 2.0 },
+          { kind: 'spinner', x: 0, y: 6.5, z: -65, w: 14.0, h: 1.1, d: 1.1, rotSpeedZ: -2.2 },
+          { kind: 'spinner', x: 0, y: 6.5, z: -95, w: 14.0, h: 1.1, d: 1.1, rotSpeedZ: 2.4 }
+        ]
+      },
+      {
+        name: 'Ур. 20 — Городской рубеж',
+        desc: 'Башни, ёлки, турбины и прессы перед комплексом комнат',
+        rings: [
+          { x: 0, y: 4.5, z: -20, r: 2.1 },
+          { x: 12, y: 7.5, z: -46, r: 2.1, swayX: 2.2, speed: 1.9 },
+          { x: 16, y: 11.0, z: -74, r: 2.1, ry: -0.4 },
+          { x: 0, y: 12.5, z: -98, r: 2.1, ry: 1.57, swayY: 1.8, speed: 2.1 },
+          { x: -16, y: 8.5, z: -74, r: 2.1, ry: 3.14 },
+          { x: -12, y: 5.0, z: -44, r: 2.1, ry: 3.14 },
+          { x: 0, y: 3.5, z: -14, r: 2.1, ry: 3.14 }
+        ],
+        arches: [{ x: 12, z: -46, w: 11, h: 13 }, { x: -12, z: -44, w: 11, h: 11 }],
+        trees: [{ x: 0, z: -30, s: 1.15 }, { x: -26, z: -58, s: 1.2 }, { x: 26, z: -58, s: 1.2 }],
+        buildings: [{ x: 0, z: -68, w: 14, h: 46, d: 14 }],
+        hazards: [
+          { kind: 'spinner', x: 16, y: 10.5, z: -60, w: 11.0, h: 1.0, d: 1.0, rotSpeedZ: 2.1 },
+          { kind: 'spinner', x: -14, y: 6.5, z: -60, w: 11.0, h: 1.0, d: 1.0, rotSpeedZ: -2.2 }
+        ]
+      },
+
+      // --- УРОВНИ 21–30: КОМНАТЫ И ЛАЗЕРЫ ---
+      {
+        name: 'Ур. 21 — Лазерный холл',
+        desc: 'Влетите в первую комнату и облетите горизонтальные лазеры',
+        rooms: [{ x: 0, z: -45, w: 18, h: 11, d: 44, doorW: 9.5, doorH: 7.5 }],
+        rings: [
+          { x: 0, y: 4.0, z: -18, r: 2.4 },
+          { x: 0, y: 5.5, z: -38, r: 2.3 },
+          { x: 0, y: 3.5, z: -56, r: 2.3 },
+          { x: 0, y: 4.5, z: -76, r: 2.4 }
+        ],
+        lasers: [
+          { x1: -9, y1: 2.8, z1: -32, x2: 9, y2: 2.8, z2: -32 },
+          { x1: -9, y1: 6.8, z1: -48, x2: 9, y2: 6.8, z2: -48 }
+        ]
+      },
+      {
+        name: 'Ур. 22 — Вертикальная решётка',
+        desc: 'Лавируйте между вертикальными лазерными лучами в зале',
+        rooms: [{ x: 0, z: -48, w: 20, h: 11, d: 48, doorW: 9.5, doorH: 7.5 }],
+        rings: [
+          { x: 0, y: 4.2, z: -18, r: 2.3 },
+          { x: 4.5, y: 4.5, z: -38, r: 2.2 },
+          { x: -4.5, y: 4.5, z: -58, r: 2.2 },
+          { x: 0, y: 4.2, z: -80, r: 2.3 }
+        ],
+        lasers: [
+          { x1: -3.5, y1: 0, z1: -38, x2: -3.5, y2: 11, z2: -38 },
+          { x1: 3.5, y1: 0, z1: -58, x2: 3.5, y2: 11, z2: -58 },
+          { x1: 0, y1: 0, z1: -48, x2: 0, y2: 11, z2: -48 }
+        ]
+      },
+      {
+        name: 'Ур. 23 — Сканирующий луч',
+        desc: 'Подвижные лазерные сканеры в коридоре безопасности',
+        rooms: [{ x: 0, z: -50, w: 18, h: 11, d: 52, doorW: 9.0, doorH: 7.5 }],
+        rings: [
+          { x: 0, y: 4.5, z: -18, r: 2.3 },
+          { x: 0, y: 4.5, z: -42, r: 2.2 },
+          { x: 0, y: 4.5, z: -64, r: 2.2 },
+          { x: 0, y: 4.5, z: -86, r: 2.3 }
+        ],
+        lasers: [
+          { x1: -9, y1: 4.8, z1: -34, x2: 9, y2: 4.8, z2: -34, moveY: 3.2, speed: 2.1, phase: 0 },
+          { x1: -9, y1: 4.8, z1: -54, x2: 9, y2: 4.8, z2: -54, moveY: 3.2, speed: 2.4, phase: 3.14 },
+          { x1: -9, y1: 4.8, z1: -70, x2: 9, y2: 4.8, z2: -70, moveY: 3.2, speed: 2.6, phase: 1.5 }
+        ]
+      },
+      {
+        name: 'Ур. 24 — Два отсека',
+        desc: 'Перелёт из первой лазерной комнаты во вторую',
+        rooms: [
+          { x: 0, z: -36, w: 18, h: 11, d: 28, doorW: 9.0, doorH: 7.2 },
+          { x: 0, z: -76, w: 18, h: 11, d: 28, doorW: 9.0, doorH: 7.2 }
+        ],
+        rings: [
+          { x: 0, y: 4.0, z: -16, r: 2.3 },
+          { x: 0, y: 4.5, z: -36, r: 2.2 },
+          { x: 0, y: 4.5, z: -56, r: 2.2 },
+          { x: 0, y: 4.5, z: -76, r: 2.2 },
+          { x: 0, y: 4.0, z: -98, r: 2.3 }
+        ],
+        lasers: [
+          { x1: -9, y1: 2.5, z1: -30, x2: 9, y2: 6.5, z2: -30 },
+          { x1: -9, y1: 6.5, z1: -42, x2: 9, y2: 2.5, z2: -42 },
+          { x1: 0, y1: 0, z1: -70, x2: 0, y2: 11, z2: -70, moveX: 5.5, speed: 2.3 },
+          { x1: 0, y1: 0, z1: -82, x2: 0, y2: 11, z2: -82, moveX: 5.5, speed: 2.3, phase: 3.14 }
+        ]
+      },
+      {
+        name: 'Ур. 25 — Импульсные лазеры',
+        desc: 'Пролетайте в момент отключения импульсных лучей',
+        rooms: [{ x: 0, z: -50, w: 18, h: 11, d: 52, doorW: 9.0, doorH: 7.2 }],
+        rings: [
+          { x: 0, y: 4.5, z: -18, r: 2.2 },
+          { x: 0, y: 4.5, z: -42, r: 2.2 },
+          { x: 0, y: 4.5, z: -64, r: 2.2 },
+          { x: 0, y: 4.5, z: -86, r: 2.2 }
+        ],
+        lasers: [
+          { x1: -9, y1: 3.5, z1: -34, x2: 9, y2: 3.5, z2: -34, blinkPeriod: 2.6, phase: 0 },
+          { x1: -9, y1: 5.5, z1: -34, x2: 9, y2: 5.5, z2: -34, blinkPeriod: 2.6, phase: 0 },
+          { x1: -9, y1: 3.5, z1: -54, x2: 9, y2: 3.5, z2: -54, blinkPeriod: 2.4, phase: 1.3 },
+          { x1: -9, y1: 5.5, z1: -54, x2: 9, y2: 5.5, z2: -54, blinkPeriod: 2.4, phase: 1.3 },
+          { x1: -9, y1: 4.5, z1: -70, x2: 9, y2: 4.5, z2: -70, blinkPeriod: 2.2, phase: 0.6 }
+        ]
+      },
+      {
+        name: 'Ур. 26 — Лазерная центрифуга',
+        desc: 'Вращающиеся лазерные лучи в центральном зале',
+        rooms: [{ x: 0, z: -54, w: 22, h: 13, d: 58, doorW: 9.5, doorH: 7.5 }],
+        rings: [
+          { x: 0, y: 5.5, z: -18, r: 2.2 },
+          { x: 0, y: 5.5, z: -44, r: 2.1 },
+          { x: 0, y: 5.5, z: -68, r: 2.1 },
+          { x: 0, y: 5.5, z: -92, r: 2.2 }
+        ],
+        lasers: [
+          { x1: -8.5, y1: 6.2, z1: -36, x2: 8.5, y2: 6.2, z2: -36, rotZ: 1.15, pivot: { x: 0, y: 6.2, z: -36 } },
+          { x1: -8.5, y1: 6.2, z1: -56, x2: 8.5, y2: 6.2, z2: -56, rotZ: -1.35, pivot: { x: 0, y: 6.2, z: -56 } },
+          { x1: -8.5, y1: 6.2, z1: -76, x2: 8.5, y2: 6.2, z2: -76, rotZ: 1.55, pivot: { x: 0, y: 6.2, z: -76 } }
+        ]
+      },
+      {
+        name: 'Ур. 27 — Смещённые комнаты',
+        desc: 'Переходы со сдвигом между соседними залами',
+        rooms: [
+          { x: -5, z: -38, w: 18, h: 11, d: 28, doorW: 9.0, doorH: 7.2 },
+          { x: 5, z: -78, w: 18, h: 11, d: 28, doorW: 9.0, doorH: 7.2 }
+        ],
+        rings: [
+          { x: -5, y: 4.2, z: -18, r: 2.2 },
+          { x: -5, y: 4.5, z: -38, r: 2.1 },
+          { x: 0, y: 4.8, z: -58, r: 2.1 },
+          { x: 5, y: 4.5, z: -78, r: 2.1 },
+          { x: 5, y: 4.2, z: -98, r: 2.2 }
+        ],
+        lasers: [
+          { x1: -14, y1: 3.5, z1: -34, x2: 4, y2: 3.5, z2: -34, moveY: 2.6, speed: 2.4 },
+          { x1: 5, y1: 0, z1: -74, x2: 5, y2: 11, z2: -74, moveX: 5.5, speed: 2.6 }
+        ]
+      },
+      {
+        name: 'Ур. 28 — Лазерный лабиринт',
+        desc: 'Чередование верхних, нижних и боковых лучей',
+        rooms: [{ x: 0, z: -56, w: 20, h: 11, d: 62, doorW: 9.0, doorH: 7.2 }],
+        rings: [
+          { x: 0, y: 4.2, z: -18, r: 2.1 },
+          { x: -4.5, y: 3.5, z: -38, r: 2.0 },
+          { x: 4.5, y: 6.2, z: -58, r: 2.0 },
+          { x: 0, y: 3.5, z: -76, r: 2.0 },
+          { x: 0, y: 4.5, z: -96, r: 2.1 }
+        ],
+        lasers: [
+          { x1: -10, y1: 5.8, z1: -34, x2: 10, y2: 5.8, z2: -34 },
+          { x1: 1.5, y1: 0, z1: -44, x2: 1.5, y2: 11, z2: -44 },
+          { x1: -10, y1: 3.6, z1: -56, x2: 10, y2: 3.6, z2: -56 },
+          { x1: -1.5, y1: 0, z1: -66, x2: -1.5, y2: 11, z2: -66 },
+          { x1: -10, y1: 6.0, z1: -76, x2: 10, y2: 6.0, z2: -76 }
+        ]
+      },
+      {
+        name: 'Ур. 29 — Реакторный тоннель',
+        desc: 'Двойные вращающиеся лазеры и сканеры',
+        rooms: [{ x: 0, z: -56, w: 22, h: 13, d: 64, doorW: 9.0, doorH: 7.4 }],
+        rings: [
+          { x: 0, y: 5.5, z: -18, r: 2.0 },
+          { x: 0, y: 5.5, z: -42, r: 2.0 },
+          { x: 0, y: 5.5, z: -66, r: 2.0 },
+          { x: 0, y: 5.5, z: -96, r: 2.1 }
+        ],
+        lasers: [
+          { x1: -8.5, y1: 6.0, z1: -34, x2: 8.5, y2: 6.0, z2: -34, rotZ: 1.5, pivot: { x: 0, y: 6.0, z: -34 } },
+          { x1: 0, y1: 0, z1: -52, x2: 0, y2: 13, z2: -52, moveX: 6.2, speed: 2.8 },
+          { x1: -11, y1: 5.5, z1: -58, x2: 11, y2: 5.5, z2: -58, moveY: 3.4, speed: 2.6 },
+          { x1: -8.5, y1: 6.0, z1: -78, x2: 8.5, y2: 6.0, z2: -78, rotZ: -1.75, pivot: { x: 0, y: 6.0, z: -78 } }
+        ]
+      },
+      {
+        name: 'Ур. 30 — Цитадель Лазеров (Финал)',
+        desc: 'Три зала с лазерами, сканерами и финальным выходом',
+        rooms: [
+          { x: 0, z: -34, w: 18, h: 11, d: 24, doorW: 8.8, doorH: 7.2 },
+          { x: 0, z: -68, w: 20, h: 12, d: 26, doorW: 8.8, doorH: 7.2 },
+          { x: 0, z: -104, w: 22, h: 13, d: 26, doorW: 8.8, doorH: 7.4 }
+        ],
+        rings: [
+          { x: 0, y: 4.5, z: -16, r: 2.1 },
+          { x: 0, y: 4.5, z: -34, r: 2.0 },
+          { x: 0, y: 4.8, z: -51, r: 2.0 },
+          { x: 0, y: 5.2, z: -68, r: 2.0 },
+          { x: 0, y: 5.5, z: -86, r: 2.0 },
+          { x: 0, y: 5.5, z: -104, r: 2.0 },
+          { x: 0, y: 4.5, z: -124, r: 2.2 }
+        ],
+        lasers: [
+          { x1: -9, y1: 4.5, z1: -34, x2: 9, y2: 4.5, z2: -34, moveY: 3.0, speed: 2.5 },
+          { x1: 0, y1: 0, z1: -62, x2: 0, y2: 12, z2: -62, moveX: 5.8, speed: 2.8 },
+          { x1: -10, y1: 3.5, z1: -74, x2: 10, y2: 3.5, z2: -74, blinkPeriod: 2.2, phase: 0 },
+          { x1: -8.5, y1: 6.2, z1: -104, x2: 8.5, y2: 6.2, z2: -104, rotZ: 1.85, pivot: { x: 0, y: 6.2, z: -104 } }
+        ]
+      }
+    ];
+
+    // =========================================================================
+    // 6. ЛОББИ И НАВИГАЦИЯ ПО УРОВНЯМ
+    // =========================================================================
+    const lobbyOverlay = document.getElementById('lobby-overlay');
+    const hudLayer = document.getElementById('hud-layer');
+    const levelSelect = document.getElementById('level-select');
+    const btnStartPlay = document.getElementById('btn-start-play');
+
+    let isInLobby = true;
+
+    function buildLobbyGrids() {
+      const g1 = document.getElementById('grid-stage-1');
+      const g2 = document.getElementById('grid-stage-2');
+      const g3 = document.getElementById('grid-stage-3');
+      g1.innerHTML = '';
+      g2.innerHTML = '';
+      g3.innerHTML = '';
+      levelSelect.innerHTML = '';
+
+      LEVELS.forEach((lvl, idx) => {
+        // Dropdown в HUD
+        const opt = document.createElement('option');
+        opt.value = idx;
+        opt.textContent = lvl.name;
+        levelSelect.appendChild(opt);
+
+        // Карточка в Лобби
+        const tile = document.createElement('button');
+        tile.className = 'lvl-tile' +
+          (idx >= 20 ? ' laser-tile' : '') +
+          (idx === currentLevelIndex ? ' selected' : '') +
+          (completedLevels.has(idx) ? ' completed' : '');
+
+        const statusIcon = completedLevels.has(idx) ? '✅' : (idx >= 20 ? '🚨' : '▶');
+        const shortName = lvl.name.replace(/^Ур\.\s*\d+\s*—\s*/, '');
+        tile.innerHTML = `
+          <div class="lvl-tile-top">
+            <span>УРОВЕНЬ ${idx + 1}</span>
+            <span>${statusIcon}</span>
+          </div>
+          <div class="lvl-tile-name">${shortName}</div>
+        `;
+        tile.onclick = () => {
+          loadLevel(idx, false);
+          closeLobby();
+        };
+
+        if (idx < 10) g1.appendChild(tile);
+        else if (idx < 20) g2.appendChild(tile);
+        else g3.appendChild(tile);
+      });
+
+      btnStartPlay.textContent = `▶ ИГРАТЬ (Уровень ${currentLevelIndex + 1})`;
+    }
+
+    function openLobby() {
+      isInLobby = true;
+      isMouseDragging = false;
+      container.classList.remove('dragging');
+      Object.keys(keys).forEach(k => { keys[k] = false; });
+      document.querySelectorAll('.key-cap').forEach(el => el.classList.remove('pressed'));
+
+      buildLobbyGrids();
+      lobbyOverlay.classList.remove('hidden');
+      hudLayer.classList.add('hidden');
+    }
+
+    function closeLobby() {
+      isInLobby = false;
+      lobbyOverlay.classList.add('hidden');
+      hudLayer.classList.remove('hidden');
+      loadLevel(currentLevelIndex, true);
+    }
+
+    btnStartPlay.onclick = () => closeLobby();
+    document.getElementById('btn-open-lobby').onclick = (e) => {
+      e.target.blur();
+      openLobby();
+    };
+
+    function clearLevelObjects() {
+      while (levelContainer.children.length > 0) {
+        levelContainer.remove(levelContainer.children[0]);
+      }
+      levelBoxes = [];
+      levelArches = [];
+      levelTrees = [];
+      levelRings = [];
+      levelHazards = [];
+      levelLasers = [];
+    }
+
+    function loadLevel(idx, showBanner = true) {
+      if (crashTimer) {
+        clearTimeout(crashTimer);
+        crashTimer = null;
+      }
+      clearDebris();
+      clearLevelObjects();
+
+      currentLevelIndex = (idx + LEVELS.length) % LEVELS.length;
+      const lvl = LEVELS[currentLevelIndex];
+
+      levelSelect.value = currentLevelIndex;
+      document.getElementById('hud-level-desc').textContent = lvl.desc;
+
+      (lvl.buildings || []).forEach(b => addBuilding(b.x, b.z, b.w, b.h, b.d));
+      (lvl.rooms || []).forEach(rm => addRoom(rm));
+      (lvl.arches || []).forEach(a => addArch(a.x, a.z, a.rotY || 0, a.w || 10, a.h || 11));
+      (lvl.trees || []).forEach(t => addPineTree(t.x, t.z, t.s || 1.0));
+      (lvl.rings || []).forEach((r, i) => addRing(r, i));
+      (lvl.hazards || []).forEach(h => addHazard(h));
+      (lvl.lasers || []).forEach(ls => addLaser(ls));
+
+      currentRingIdx = 0;
+      raceStartTime = null;
+      raceFinished = false;
+      isCrashed = false;
+      spawnGraceTimer = 0.45;
+
+      document.getElementById('hud-rings').textContent = `0 / ${levelRings.length} колец`;
+      document.getElementById('hud-timer').textContent = 'Время: 00:00.0';
+      document.getElementById('status-dot').style.background = 'var(--accent-green)';
+      document.getElementById('crash-flash').style.opacity = '0';
+
+      if (levelRings.length > 0) {
+        const r0 = levelRings[0];
+        targetBeacon.visible = true;
+        targetBeacon.position.set(r0.baseX, r0.baseY + 35, r0.baseZ);
+      }
+
+      resetDronePositionOnly();
+      if (showBanner && !isInLobby) {
+        showToast(`${lvl.name.toUpperCase()} — ВЗЛЁТ!`, 'rgba(14, 165, 233, 0.95)');
+      }
+    }
+
+    levelSelect.onchange = (e) => {
+      e.target.blur();
+      loadLevel(parseInt(e.target.value, 10));
+    };
+
+    document.getElementById('btn-prev-lvl').onclick = (e) => {
+      e.target.blur();
+      loadLevel(currentLevelIndex - 1);
+    };
+
+    document.getElementById('btn-next-lvl').onclick = (e) => {
+      e.target.blur();
+      loadLevel(currentLevelIndex + 1);
+    };
+
+    // =========================================================================
+    // 7. УВЕДОМЛЕНИЯ И ЗВУКОВОЙ ДВИЖОК
+    // =========================================================================
+    let toastTimeout = null;
+    function showToast(msg, color = 'rgba(16, 185, 129, 0.96)') {
+      const el = document.getElementById('toast-banner');
+      el.textContent = msg;
+      el.style.background = color;
+      el.style.color = (color.includes('239, 68, 68') || color.includes('14, 165, 233')) ? '#ffffff' : '#04130d';
+      el.style.opacity = '1';
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => { el.style.opacity = '0'; }, 1900);
+    }
+
+    let audioCtx = null;
+    let motorOsc1 = null;
+    let motorOsc2 = null;
+    let motorGain = null;
+    let soundEnabled = false;
+
+    function initAudioIfNeeded() {
+      if (audioCtx) return;
+      const AC = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AC();
+
+      motorOsc1 = audioCtx.createOscillator();
+      motorOsc2 = audioCtx.createOscillator();
+      const filter = audioCtx.createBiquadFilter();
+      motorGain = audioCtx.createGain();
+
+      motorOsc1.type = 'sawtooth';
+      motorOsc2.type = 'triangle';
+      motorOsc1.frequency.value = 95;
+      motorOsc2.frequency.value = 190;
+
+      filter.type = 'lowpass';
+      filter.frequency.value = 340;
+      motorGain.gain.value = 0;
+
+      motorOsc1.connect(filter);
+      motorOsc2.connect(filter);
+      filter.connect(motorGain);
+      motorGain.connect(audioCtx.destination);
+
+      motorOsc1.start();
+      motorOsc2.start();
+    }
+
+    function playCrashSound() {
+      if (!soundEnabled || !audioCtx) return;
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(145, now);
+      osc.frequency.exponentialRampToValueAtTime(28, now + 0.45);
+      g.gain.setValueAtTime(0.45, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.48);
+      osc.connect(g);
+      g.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.5);
+    }
+
+    function playRingSound() {
+      if (!soundEnabled || !audioCtx) return;
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, now);
+      osc.frequency.setValueAtTime(880, now + 0.08);
+      g.gain.setValueAtTime(0.22, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+      osc.connect(g);
+      g.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.36);
+    }
+
+    function toggleSoundState() {
+      initAudioIfNeeded();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      soundEnabled = !soundEnabled;
+      const label = soundEnabled ? '🔊 Звук: Вкл' : '🔇 Звук: Выкл';
+      const hudBtn = document.getElementById('btn-sound');
+      const lobbyBtn = document.getElementById('lobby-sound-btn');
+      hudBtn.textContent = label;
+      lobbyBtn.textContent = label;
+      hudBtn.classList.toggle('active', soundEnabled);
+    }
+
+    document.getElementById('btn-sound').onclick = (e) => { e.target.blur(); toggleSoundState(); };
+    document.getElementById('lobby-sound-btn').onclick = (e) => { e.target.blur(); toggleSoundState(); };
+
+    // =========================================================================
+    // 8. КЛАССИЧЕСКОЕ УПРАВЛЕНИЕ, МЫШЬ И ФИЗИКА СТОЛКНОВЕНИЙ
+    // =========================================================================
+    const droneState = {
+      pos: new THREE.Vector3(0, 0.35, 0),
+      vel: new THREE.Vector3(0, 0, 0),
+      yaw: 0,
+      yawVel: 0,
+      pitch: 0,
+      roll: 0
+    };
+
+    let cameraMode = 'chase';
+    const keys = {};
+
+    function setKeyCapState(code, pressed) {
+      const cap = document.getElementById(`key-${code}`);
+      if (cap) cap.classList.toggle('pressed', pressed);
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Escape') {
+        if (isInLobby) closeLobby();
+        else openLobby();
+        return;
+      }
+
+      if (isInLobby) return;
+
+      if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
+        e.preventDefault();
+      }
+      keys[e.code] = true;
+      setKeyCapState(e.code, true);
+
+      if (e.code === 'KeyR') loadLevel(currentLevelIndex);
+      if (e.code === 'KeyV') cycleCamera();
+    });
+
+    window.addEventListener('keyup', (e) => {
+      keys[e.code] = false;
+      setKeyCapState(e.code, false);
+    });
+
+    window.addEventListener('blur', () => {
+      Object.keys(keys).forEach(k => { keys[k] = false; });
+      document.querySelectorAll('.key-cap').forEach(el => el.classList.remove('pressed'));
+      isMouseDragging = false;
+      container.classList.remove('dragging');
+    });
+
+    let isMouseDragging = false;
+    let lastMouseX = 0;
+    let mouseYawDelta = 0;
+    const mouseIndicator = document.getElementById('mouse-indicator');
+
+    container.addEventListener('mousedown', (e) => {
+      if (isInLobby || e.button !== 0) return;
+      isMouseDragging = true;
+      lastMouseX = e.clientX;
+      container.classList.add('dragging');
+      mouseIndicator.classList.add('pressed');
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isMouseDragging || isInLobby) return;
+      const dx = (typeof e.movementX === 'number' && Math.abs(e.movementX) < 120)
+        ? e.movementX
+        : (e.clientX - lastMouseX);
+      lastMouseX = e.clientX;
+      mouseYawDelta -= dx * 0.0045;
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (!isMouseDragging) return;
+      isMouseDragging = false;
+      container.classList.remove('dragging');
+      mouseIndicator.classList.remove('pressed');
+    });
+
+    function resetDronePositionOnly() {
+      droneState.pos.set(0, 0.35, 0);
+      droneState.vel.set(0, 0, 0);
+      droneState.yaw = 0;
+      droneState.yawVel = 0;
+      droneState.pitch = 0;
+      droneState.roll = 0;
+      mouseYawDelta = 0;
+      droneRoot.visible = (cameraMode !== 'fpv' || isInLobby);
+      droneRoot.position.copy(droneState.pos);
+      droneRoot.rotation.y = 0;
+      droneBody.rotation.set(0, 0, 0);
+    }
+
+    function cycleCamera(e) {
+      if (e && e.target) e.target.blur();
+      const btn = document.getElementById('btn-cam');
+      const reticle = document.getElementById('reticle');
+      if (cameraMode === 'chase') {
+        cameraMode = 'fpv';
+        btn.textContent = '🎥 Камера: От 1-го лица (FPV)';
+        droneRoot.visible = false;
+        reticle.style.opacity = '0.9';
+      } else if (cameraMode === 'fpv') {
+        cameraMode = 'top';
+        btn.textContent = '🎥 Камера: Сверху (Посадка)';
+        droneRoot.visible = !isCrashed;
+        reticle.style.opacity = '0.2';
+      } else {
+        cameraMode = 'chase';
+        btn.textContent = '🎥 Камера: 3-е лицо';
+        droneRoot.visible = !isCrashed;
+        reticle.style.opacity = '0.6';
+      }
+    }
+
+    document.getElementById('btn-cam').onclick = cycleCamera;
+    document.getElementById('btn-reset').onclick = (e) => {
+      e.target.blur();
+      loadLevel(currentLevelIndex);
+    };
+
+    function triggerCrash(reason) {
+      if (isCrashed || spawnGraceTimer > 0) return;
+      isCrashed = true;
+      droneRoot.visible = false;
+      spawnExplosion(droneState.pos);
+      playCrashSound();
+
+      document.getElementById('status-dot').style.background = 'var(--accent-red)';
+      const flash = document.getElementById('crash-flash');
+      flash.style.opacity = '1';
+      setTimeout(() => { flash.style.opacity = '0'; }, 240);
+
+      showToast(`💥 ${reason} — ДРОН УНИЧТОЖЕН!`, 'rgba(239, 68, 68, 0.96)');
+
+      crashTimer = setTimeout(() => {
+        loadLevel(currentLevelIndex, false);
+      }, 1550);
+    }
+
+    // Расстояние от точки P до отрезка AB в 3D (для точных хитбоксов лазеров)
+    function distPointToSegment3D(p, a, b) {
+      const ab = b.clone().sub(a);
+      const ap = p.clone().sub(a);
+      const lenSq = ab.lengthSq();
+      if (lenSq < 1e-6) return ap.length();
+      const t = Math.max(0, Math.min(1, ap.dot(ab) / lenSq));
+      const closest = a.clone().addScaledVector(ab, t);
+      return p.distanceTo(closest);
+    }
+
+    function checkAllCollisions(pos) {
+      const dr = 0.34;
+
+      // 1. Здания и стены/потолки комнат
+      for (const b of levelBoxes) {
+        if (pos.x + dr > b.minX && pos.x - dr < b.maxX &&
+            pos.y + dr * 0.7 > b.minY && pos.y - dr * 0.7 < b.maxY &&
+            pos.z + dr > b.minZ && pos.z - dr < b.maxZ) {
+          triggerCrash(b.reason);
+          return true;
+        }
+      }
+
+      // 2. Лазерные лучи (уровни 21–30)
+      for (const l of levelLasers) {
+        if (!l.active) continue;
+        const d = distPointToSegment3D(pos, l.curP1, l.curP2);
+        if (d < (0.13 + dr * 0.8)) {
+          triggerCrash('ПЕРЕСЕЧЕНИЕ ЛАЗЕРНОГО ЛУЧА');
+          return true;
+        }
+      }
+
+      // 3. Текстурированные ёлки
+      for (const t of levelTrees) {
+        const distXZ = Math.hypot(pos.x - t.x, pos.z - t.z);
+        if (pos.y < t.trunkH && distXZ < (t.trunkR + dr)) {
+          triggerCrash('СТОЛКНОВЕНИЕ СО СТВОЛОМ ЁЛКИ');
+          return true;
+        }
+        if (pos.y >= t.crownBottom && pos.y <= t.crownTop) {
+          const ratio = 1 - (pos.y - t.crownBottom) / (t.crownTop - t.crownBottom);
+          const crownR = t.maxCrownR * Math.max(0.12, ratio);
+          if (distXZ < (crownR + dr * 0.7)) {
+            triggerCrash('УДАР О ВЕТКИ ЁЛКИ');
+            return true;
+          }
+        }
+      }
+
+      // 4. Арки
+      for (const a of levelArches) {
+        const dx = pos.x - a.x;
+        const dz = pos.z - a.z;
+        const cosA = Math.cos(-a.rotY);
+        const sinA = Math.sin(-a.rotY);
+        const lx = dx * cosA - dz * sinA;
+        const lz = dx * sinA + dz * cosA;
+
+        if (Math.abs(lz) < (a.halfThick + dr)) {
+          if (pos.y < a.height + a.halfThick) {
+            if (Math.abs(lx - (-a.halfW)) < (a.halfThick + dr) ||
+                Math.abs(lx - a.halfW) < (a.halfThick + dr)) {
+              triggerCrash('УДАР ОБ ОПОРУ АРКИ');
+              return true;
+            }
+          }
+          if (Math.abs(lx) <= (a.halfW + a.halfThick + dr) &&
+              Math.abs(pos.y - a.height) < (a.halfThick + dr * 0.7)) {
+            triggerCrash('УДАР О ПЕРЕКЛАДИНУ АРКИ');
+            return true;
+          }
+        }
+      }
+
+      // 5. Подвижные препятствия (уровни 11–20)
+      for (const h of levelHazards) {
+        const m = h.mesh;
+        const dx = pos.x - m.position.x;
+        const dy = pos.y - m.position.y;
+        const dz = pos.z - m.position.z;
+
+        const rotZ = -m.rotation.z;
+        const cosZ = Math.cos(rotZ);
+        const sinZ = Math.sin(rotZ);
+        const lx = dx * cosZ - dy * sinZ;
+        const ly = dx * sinZ + dy * cosZ;
+
+        if (Math.abs(lx) < (h.hw + dr * 0.8) &&
+            Math.abs(ly) < (h.hh + dr * 0.8) &&
+            Math.abs(dz) < (h.hd + dr * 0.8)) {
+          triggerCrash('СТОЛКНОВЕНИЕ С ПРЕПЯТСТВИЕМ');
+          return true;
+        }
+      }
+
+      // 6. Обручи (обод уничтожает дрон, центр засчитывает прохождение)
+      for (let i = 0; i < levelRings.length; i++) {
+        const ring = levelRings[i];
+        const m = ring.mesh;
+
+        const localPt = pos.clone().sub(m.position);
+        const invQuat = m.quaternion.clone().invert();
+        localPt.applyQuaternion(invQuat);
+
+        const radialDist = Math.hypot(localPt.x, localPt.y);
+        const planeDist = localPt.z;
+
+        const distToTubeCenter = Math.hypot(radialDist - ring.radius, planeDist);
+        if (distToTubeCenter < (ring.tube + dr * 0.82)) {
+          triggerCrash('УДАР О КРАЙ ОБРУЧА');
+          return true;
+        }
+
+        if (!raceFinished && i === currentRingIdx) {
+          if (Math.abs(planeDist) < 0.95 && radialDist < (ring.radius - ring.tube)) {
+            ring.mesh.material = passedRingMat;
+            currentRingIdx++;
+            playRingSound();
+            document.getElementById('hud-rings').textContent = `${currentRingIdx} / ${levelRings.length} колец`;
+
+            if (currentRingIdx < levelRings.length) {
+              const nextR = levelRings[currentRingIdx];
+              nextR.mesh.material = activeRingMat;
+              targetBeacon.position.set(nextR.mesh.position.x, nextR.mesh.position.y + 35, nextR.mesh.position.z);
+              showToast(`КОЛЬЦО ${currentRingIdx} / ${levelRings.length} ПРОЙДЕНО!`);
+            } else {
+              raceFinished = true;
+              completedLevels.add(currentLevelIndex);
+              targetBeacon.visible = false;
+              const isLast = currentLevelIndex === LEVELS.length - 1;
+              showToast(
+                isLast ? '🏆 ВСЕ 30 УРОВНЕЙ ПРОЙДЕНЫ!' : `УРОВЕНЬ ${currentLevelIndex + 1} ПРОЙДЕН! СЛЕДУЮЩИЙ...`,
+                'rgba(16, 185, 129, 0.96)'
+              );
+              if (!isLast) {
+                crashTimer = setTimeout(() => {
+                  loadLevel(currentLevelIndex + 1);
+                }, 1750);
+              }
+            }
+          }
+        }
+      }
+
+      return false;
+    }
+
+    // =========================================================================
+    // 9. ГЛАВНЫЙ ЦИКЛ ФИЗИКИ И РЕНДЕРА
+    // =========================================================================
+    const clock = new THREE.Clock();
+    let elapsedTotal = 0;
+
+    function updateDynamicObjects(dt) {
+      elapsedTotal += dt;
+      cloudsGroup.rotation.y += dt * 0.004;
+
+      for (const h of levelHazards) {
+        const t = elapsedTotal * h.speed + h.phase;
+        if (h.moveX) h.mesh.position.x = h.baseX + Math.sin(t) * h.moveX;
+        if (h.moveY) h.mesh.position.y = h.baseY + Math.sin(t) * h.moveY;
+        if (h.moveZ) h.mesh.position.z = h.baseZ + Math.sin(t) * h.moveZ;
+        if (h.rotSpeedZ) h.mesh.rotation.z += h.rotSpeedZ * dt;
+        if (h.rotSpeedY) h.mesh.rotation.y += h.rotSpeedY * dt;
+      }
+
+      for (const ls of levelLasers) {
+        updateLaserTransform(ls, elapsedTotal);
+      }
+
+      for (let i = 0; i < levelRings.length; i++) {
+        const r = levelRings[i];
+        const t = elapsedTotal * r.speed + r.phase;
+        if (r.swayX) r.mesh.position.x = r.baseX + Math.sin(t) * r.swayX;
+        if (r.swayY) r.mesh.position.y = r.baseY + Math.sin(t) * r.swayY;
+
+        if (!raceFinished && i === currentRingIdx) {
+          targetBeacon.position.set(r.mesh.position.x, r.mesh.position.y + 35, r.mesh.position.z);
+        }
+      }
+    }
+
+    function updatePhysics(dt) {
+      updateDynamicObjects(dt);
+
+      // В Лобби камера плавно облетает дрон на площадке
+      if (isInLobby) {
+        droneRoot.visible = true;
+        propellers.forEach(p => { p.mesh.rotation.y += 14 * p.dir * dt; });
+        const orbitAngle = elapsedTotal * 0.35;
+        camera.position.set(Math.sin(orbitAngle) * 7.5, 3.4, Math.cos(orbitAngle) * 7.5);
+        camera.lookAt(0, 1.2, -6);
+        if (audioCtx && motorGain) motorGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
+        return;
+      }
+
+      if (spawnGraceTimer > 0) spawnGraceTimer -= dt;
+
+      if (isCrashed) {
+        updateDebris(dt);
+        if (audioCtx && motorGain) motorGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.03);
+        return;
+      }
+
+      // Классическое управление
+      let forwardInput = 0;
+      let strafeInput = 0;
+      let yawInput = 0;
+      let throttleInput = 0;
+
+      if (keys['KeyW'] || keys['ArrowUp']) forwardInput += 1;
+      if (keys['KeyS'] || keys['ArrowDown']) forwardInput -= 1;
+      if (keys['KeyA']) strafeInput -= 1;
+      if (keys['KeyD']) strafeInput += 1;
+      if (keys['KeyQ'] || keys['ArrowLeft']) yawInput += 1;
+      if (keys['KeyE'] || keys['ArrowRight']) yawInput -= 1;
+      if (keys['Space']) throttleInput += 1;
+      if (keys['ShiftLeft'] || keys['ShiftRight']) throttleInput -= 1;
+
+      if (!raceStartTime && (throttleInput > 0 || forwardInput !== 0 || droneState.pos.y > 0.6)) {
+        raceStartTime = performance.now();
+      }
+
+      const targetYawVel = yawInput * 2.25;
+      droneState.yawVel += (targetYawVel - droneState.yawVel) * Math.min(1, dt * 8);
+      droneState.yaw += droneState.yawVel * dt + mouseYawDelta;
+      mouseYawDelta = 0;
+
+      const maxTilt = 0.44;
+      const targetPitch = -forwardInput * maxTilt;
+      const targetRoll = -strafeInput * maxTilt;
+      droneState.pitch += (targetPitch - droneState.pitch) * Math.min(1, dt * 8);
+      droneState.roll += (targetRoll - droneState.roll) * Math.min(1, dt * 8);
+
+      const forwardDir = new THREE.Vector3(-Math.sin(droneState.yaw), 0, -Math.cos(droneState.yaw));
+      const rightDir = new THREE.Vector3(Math.cos(droneState.yaw), 0, -Math.sin(droneState.yaw));
+
+      droneState.vel.addScaledVector(forwardDir, forwardInput * 28.0 * dt);
+      droneState.vel.addScaledVector(rightDir, strafeInput * 28.0 * dt);
+      droneState.vel.y += throttleInput * 23.0 * dt;
+
+      droneState.vel.x *= Math.pow(0.14, dt);
+      droneState.vel.z *= Math.pow(0.14, dt);
+      droneState.vel.y *= Math.pow(0.12, dt);
+
+      const nextPos = droneState.pos.clone().addScaledVector(droneState.vel, dt);
+
+      const floorY = (Math.hypot(nextPos.x, nextPos.z) < 5.6) ? 0.35 : 0.22;
+      if (nextPos.y <= floorY) {
+        nextPos.y = floorY;
+        if (droneState.vel.y < 0) droneState.vel.y = 0;
+      }
+      if (nextPos.y > 140) nextPos.y = 140;
+
+      droneState.pos.copy(nextPos);
+
+      if (checkAllCollisions(droneState.pos)) return;
+
+      droneRoot.position.copy(droneState.pos);
+      droneRoot.rotation.y = droneState.yaw;
+      droneBody.rotation.x = droneState.pitch;
+      droneBody.rotation.z = droneState.roll;
+
+      groundMarker.position.set(droneState.pos.x, 0.15, droneState.pos.z);
+      const markerScale = Math.max(0.4, 1 - (droneState.pos.y - 0.3) * 0.025);
+      groundMarker.scale.set(markerScale, markerScale, 1);
+
+      const totalEffort = Math.min(
+        1,
+        (Math.abs(throttleInput) + Math.abs(forwardInput) + Math.abs(strafeInput)) * 0.5 +
+        (droneState.pos.y > 0.4 ? 0.45 : 0.1)
+      );
+      propellers.forEach(p => {
+        p.mesh.rotation.y += (18 + totalEffort * 42) * p.dir * dt;
+      });
+
+      if (soundEnabled && audioCtx && motorGain) {
+        const targetFreq = 85 + totalEffort * 95 + droneState.vel.length() * 1.8;
+        motorOsc1.frequency.setTargetAtTime(targetFreq, audioCtx.currentTime, 0.05);
+        motorOsc2.frequency.setTargetAtTime(targetFreq * 2.02, audioCtx.currentTime, 0.05);
+        motorGain.gain.setTargetAtTime(0.06 + totalEffort * 0.08, audioCtx.currentTime, 0.05);
+      } else if (audioCtx && motorGain) {
+        motorGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
+      }
+
+      updateCamera(dt, forwardDir);
+
+      const altitude = Math.max(0, droneState.pos.y - 0.35);
+      const speedKmh = Math.round(droneState.vel.length() * 3.6);
+      const headingDeg = Math.round(((-droneState.yaw * 180 / Math.PI) % 360 + 360) % 360);
+
+      document.getElementById('hud-alt').textContent = `${altitude.toFixed(1)} м`;
+      document.getElementById('hud-spd').textContent = `${speedKmh} км/ч`;
+      document.getElementById('hud-hdg').textContent = `${headingDeg}°`;
+
+      document.getElementById('horizon-bar').style.transform =
+        `translateY(${-droneState.pitch * 90}px) rotate(${-droneState.roll * 45}deg)`;
+
+      if (raceStartTime && !raceFinished) {
+        const elapsedSec = (performance.now() - raceStartTime) / 1000;
+        const mins = Math.floor(elapsedSec / 60);
+        const secs = (elapsedSec % 60).toFixed(1).padStart(4, '0');
+        document.getElementById('hud-timer').textContent = `Время: 0${mins}:${secs}`;
+      }
+    }
+
+    function updateCamera(dt, forwardDir) {
+      if (cameraMode === 'chase') {
+        const idealOffset = forwardDir.clone().multiplyScalar(-4.2).add(new THREE.Vector3(0, 1.85, 0));
+        const targetCamPos = droneState.pos.clone().add(idealOffset);
+        if (targetCamPos.y < 0.6) targetCamPos.y = 0.6;
+
+        camera.position.lerp(targetCamPos, Math.min(1, dt * 10));
+        const lookAtTarget = droneState.pos.clone().addScaledVector(forwardDir, 4.0);
+        camera.lookAt(lookAtTarget);
+      } else if (cameraMode === 'fpv') {
+        const camPos = droneState.pos.clone().addScaledVector(forwardDir, 0.35);
+        camera.position.copy(camPos);
+
+        const euler = new THREE.Euler(droneState.pitch * 0.85, droneState.yaw, droneState.roll * 0.85, 'YXZ');
+        camera.quaternion.setFromEuler(euler);
+      } else if (cameraMode === 'top') {
+        camera.position.lerp(new THREE.Vector3(droneState.pos.x, droneState.pos.y + 14, droneState.pos.z + 6), Math.min(1, dt * 6));
+        camera.lookAt(droneState.pos);
+      }
+    }
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // Инициализация сцены и Лобби
+    loadLevel(0, false);
+    buildLobbyGrids();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const dt = Math.min(clock.getDelta(), 0.05);
+      updatePhysics(dt);
+      renderer.render(scene, camera);
+    }
+
+    animate();
+  </script>
+</body>
+</html>
