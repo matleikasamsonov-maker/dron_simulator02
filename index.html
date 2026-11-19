@@ -2,8 +2,8 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AERO DRONE SIM 3D — Realistic Flight Simulator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>AERO DRONE SIM 3D — Multi-Platform Flight Simulator</title>
   <style>
     :root {
       --panel: rgba(12, 19, 34, 0.84);
@@ -24,14 +24,17 @@
       padding: 0;
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
     }
 
-    body {
-      background: #0f172a;
+    html, body {
+      background: #070b14;
       color: var(--text);
       width: 100vw;
       height: 100vh;
       overflow: hidden;
+      touch-action: none;
     }
 
     #canvas-container {
@@ -39,10 +42,164 @@
       inset: 0;
       z-index: 1;
       cursor: grab;
+      touch-action: none;
     }
 
     #canvas-container.dragging {
       cursor: grabbing;
+    }
+
+    /* ================= ЭКРАН ВЫБОРА УСТРОЙСТВА ПРИ ВХОДЕ ================= */
+    #device-select-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 90;
+      background: radial-gradient(circle at 50% 40%, rgba(15, 23, 42, 0.88) 0%, rgba(6, 10, 19, 0.96) 100%);
+      backdrop-filter: blur(16px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      transition: opacity 0.35s ease;
+    }
+
+    #device-select-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .device-card {
+      width: 100%;
+      max-width: 680px;
+      background: rgba(15, 23, 42, 0.92);
+      border: 1px solid rgba(56, 189, 248, 0.32);
+      border-radius: 26px;
+      padding: 34px 32px;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.75);
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      text-align: center;
+    }
+
+    .device-badge {
+      display: inline-block;
+      margin: 0 auto;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.6px;
+      text-transform: uppercase;
+      color: var(--accent-bright);
+      background: rgba(14, 165, 233, 0.16);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      padding: 5px 14px;
+      border-radius: 999px;
+    }
+
+    .device-title {
+      font-size: 28px;
+      font-weight: 900;
+      color: #ffffff;
+      margin-top: 8px;
+    }
+
+    .device-subtitle {
+      font-size: 13.5px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .device-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 620px) {
+      .device-grid {
+        grid-template-columns: 1fr;
+      }
+      .device-card {
+        padding: 24px 20px;
+      }
+      .device-title {
+        font-size: 22px;
+      }
+    }
+
+    .device-option-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 18px;
+      padding: 24px 20px;
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+
+    .device-option-btn:hover {
+      background: rgba(14, 165, 233, 0.16);
+      border-color: var(--accent-bright);
+      transform: translateY(-3px);
+      box-shadow: 0 14px 30px rgba(14, 165, 233, 0.25);
+    }
+
+    .device-icon {
+      font-size: 40px;
+      line-height: 1;
+    }
+
+    .device-opt-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .device-opt-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .pc-substep {
+      display: none;
+      flex-direction: column;
+      gap: 18px;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .pc-substep.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .gamepad-status-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: #cbd5e1;
+    }
+
+    .gamepad-status-pill.connected {
+      background: rgba(16, 185, 129, 0.16);
+      border-color: rgba(16, 185, 129, 0.45);
+      color: #34d399;
     }
 
     /* ================= ЭКРАН ЗАГРУЗКИ (TRANSITION) ================= */
@@ -69,7 +226,7 @@
     .loader-box {
       width: 100%;
       max-width: 480px;
-      background: rgba(15, 23, 42, 0.85);
+      background: rgba(15, 23, 42, 0.88);
       border: 1px solid rgba(56, 189, 248, 0.28);
       border-radius: 20px;
       padding: 32px 30px;
@@ -145,12 +302,12 @@
       position: fixed;
       inset: 0;
       z-index: 40;
-      background: linear-gradient(90deg, rgba(8, 13, 24, 0.86) 0%, rgba(8, 13, 24, 0.42) 52%, rgba(8, 13, 24, 0.15) 100%);
+      background: linear-gradient(90deg, rgba(8, 13, 24, 0.84) 0%, rgba(8, 13, 24, 0.36) 50%, rgba(8, 13, 24, 0.1) 100%);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 42px 54px;
-      transition: opacity 0.3s ease;
+      padding: 36px 48px;
+      transition: opacity 0.32s ease;
     }
 
     #lobby-overlay.hidden {
@@ -161,15 +318,17 @@
     .lobby-main-panel {
       width: 100%;
       max-width: 440px;
+      max-height: 92vh;
+      overflow-y: auto;
       background: rgba(12, 19, 34, 0.82);
       backdrop-filter: blur(16px);
       border: 1px solid rgba(56, 189, 248, 0.25);
       border-radius: 24px;
-      padding: 32px;
+      padding: 28px 30px;
       box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
       display: flex;
       flex-direction: column;
-      gap: 22px;
+      gap: 18px;
     }
 
     .lobby-badge {
@@ -177,9 +336,9 @@
       align-items: center;
       gap: 6px;
       width: fit-content;
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 800;
-      letter-spacing: 1.5px;
+      letter-spacing: 1.4px;
       text-transform: uppercase;
       color: var(--accent-bright);
       background: rgba(14, 165, 233, 0.15);
@@ -189,7 +348,7 @@
     }
 
     .lobby-title {
-      font-size: 32px;
+      font-size: 30px;
       font-weight: 900;
       letter-spacing: 0.4px;
       line-height: 1.1;
@@ -198,7 +357,7 @@
     }
 
     .lobby-subtitle {
-      font-size: 13.5px;
+      font-size: 13px;
       color: var(--muted);
       line-height: 1.45;
       margin-top: 6px;
@@ -208,21 +367,22 @@
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--border);
       border-radius: 14px;
-      padding: 14px 16px;
+      padding: 13px 15px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 10px;
     }
 
     .lobby-stat-label {
-      font-size: 11px;
+      font-size: 10.5px;
       color: var(--muted);
       text-transform: uppercase;
       letter-spacing: 0.8px;
     }
 
     .lobby-stat-val {
-      font-size: 15px;
+      font-size: 14.5px;
       font-weight: 800;
       color: #ffffff;
       margin-top: 2px;
@@ -231,7 +391,7 @@
     .lobby-menu-buttons {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 11px;
     }
 
     .btn-play-main {
@@ -239,7 +399,7 @@
       background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
       color: #ffffff;
       border: none;
-      padding: 16px 24px;
+      padding: 15px 24px;
       border-radius: 14px;
       font-size: 16px;
       font-weight: 800;
@@ -268,16 +428,16 @@
       background: rgba(255, 255, 255, 0.07);
       border: 1px solid var(--border);
       color: #f8fafc;
-      padding: 13px 16px;
+      padding: 12px 14px;
       border-radius: 12px;
-      font-size: 13.5px;
+      font-size: 13px;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.15s;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 7px;
     }
 
     .btn-lobby-sec:hover {
@@ -288,24 +448,23 @@
 
     .lobby-controls-hint {
       border-top: 1px solid var(--border);
-      padding-top: 14px;
-      font-size: 12px;
+      padding-top: 12px;
+      font-size: 11.5px;
       color: #cbd5e1;
-      line-height: 1.6;
+      line-height: 1.55;
     }
 
     .lobby-controls-hint strong {
       color: var(--accent-bright);
     }
 
-    /* Индикатор замедления времени (Slow-Mo) в углу лобби */
     .lobby-cine-badge {
       align-self: flex-end;
       background: rgba(12, 19, 34, 0.72);
       backdrop-filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.14);
       border-radius: 14px;
-      padding: 12px 16px;
+      padding: 11px 15px;
       display: flex;
       align-items: center;
       gap: 12px;
@@ -316,12 +475,13 @@
     .cine-pill {
       padding: 4px 10px;
       border-radius: 999px;
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 800;
       letter-spacing: 0.8px;
       background: rgba(14, 165, 233, 0.2);
       color: var(--accent-bright);
       border: 1px solid rgba(56, 189, 248, 0.4);
+      transition: all 0.3s ease;
     }
 
     .cine-pill.slowmo {
@@ -335,12 +495,12 @@
       position: fixed;
       inset: 0;
       z-index: 60;
-      background: rgba(7, 11, 20, 0.78);
+      background: rgba(7, 11, 20, 0.8);
       backdrop-filter: blur(12px);
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 24px;
+      padding: 20px;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.22s ease;
@@ -358,16 +518,16 @@
       background: rgba(15, 23, 42, 0.96);
       border: 1px solid rgba(56, 189, 248, 0.32);
       border-radius: 22px;
-      padding: 26px 30px;
+      padding: 24px 28px;
       box-shadow: 0 25px 70px rgba(0, 0, 0, 0.7);
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 16px;
       overflow-y: auto;
     }
 
     .modal-card.settings-card {
-      max-width: 540px;
+      max-width: 640px;
     }
 
     .modal-header {
@@ -376,6 +536,7 @@
       align-items: center;
       border-bottom: 1px solid var(--border);
       padding-bottom: 14px;
+      gap: 12px;
     }
 
     .modal-title {
@@ -393,6 +554,7 @@
       font-size: 12.5px;
       font-weight: 700;
       cursor: pointer;
+      white-space: nowrap;
     }
 
     .btn-close-modal:hover {
@@ -426,7 +588,7 @@
 
     @media (max-width: 780px) {
       #lobby-overlay {
-        padding: 20px;
+        padding: 16px;
         flex-direction: column;
         justify-content: center;
       }
@@ -486,16 +648,26 @@
       text-overflow: ellipsis;
     }
 
-    /* Элементы настроек */
+    /* Элементы настроек и переназначения клавиш */
+    .settings-section-label {
+      font-size: 11.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-bright);
+      margin-top: 4px;
+    }
+
     .setting-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 16px;
-      padding: 12px 14px;
+      gap: 14px;
+      padding: 11px 14px;
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--border);
       border-radius: 12px;
+      flex-wrap: wrap;
     }
 
     .setting-info {
@@ -505,20 +677,109 @@
     }
 
     .setting-name {
-      font-size: 13.5px;
+      font-size: 13px;
       font-weight: 700;
       color: #ffffff;
     }
 
     .setting-hint {
-      font-size: 11.5px;
+      font-size: 11px;
       color: var(--muted);
     }
 
     .setting-control {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
+    }
+
+    .bind-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    @media (max-width: 560px) {
+      .bind-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .bind-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 12px;
+    }
+
+    .btn-bind {
+      background: rgba(14, 165, 233, 0.16);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: #ffffff;
+      padding: 5px 11px;
+      border-radius: 7px;
+      font-size: 11.5px;
+      font-weight: 800;
+      cursor: pointer;
+      min-width: 84px;
+      text-align: center;
+      transition: all 0.15s;
+    }
+
+    .btn-bind:hover {
+      background: rgba(14, 165, 233, 0.3);
+    }
+
+    .btn-bind.listening {
+      background: var(--accent-warn);
+      border-color: var(--accent-warn);
+      color: #090d16;
+      animation: pulseBind 0.8s infinite alternate;
+    }
+
+    @keyframes pulseBind {
+      from { opacity: 0.75; }
+      to { opacity: 1; }
+    }
+
+    .axis-monitor {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 11px;
+    }
+
+    .axis-bar-box {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .axis-track {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .axis-fill {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 0%;
+      background: var(--accent-bright);
     }
 
     input[type="range"] {
@@ -535,7 +796,7 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 18px 22px;
+      padding: 16px 20px;
       transition: opacity 0.25s;
     }
 
@@ -548,7 +809,7 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      gap: 12px;
+      gap: 10px;
       flex-wrap: wrap;
     }
 
@@ -557,7 +818,7 @@
       backdrop-filter: blur(12px);
       border: 1px solid var(--border);
       border-radius: 14px;
-      padding: 11px 15px;
+      padding: 10px 14px;
       pointer-events: auto;
       box-shadow: 0 10px 30px rgba(15, 23, 42, 0.35);
     }
@@ -565,8 +826,8 @@
     .brand-row {
       display: flex;
       align-items: center;
-      gap: 9px;
-      margin-bottom: 8px;
+      gap: 8px;
+      margin-bottom: 6px;
     }
 
     .status-dot {
@@ -578,16 +839,16 @@
     }
 
     .sim-title {
-      font-size: 12.5px;
+      font-size: 12px;
       font-weight: 800;
-      letter-spacing: 1.4px;
+      letter-spacing: 1.3px;
       color: var(--accent-bright);
     }
 
     .telemetry-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
+      gap: 12px;
     }
 
     .tel-item {
@@ -596,13 +857,13 @@
     }
 
     .tel-label {
-      font-size: 9.5px;
+      font-size: 9px;
       color: var(--muted);
       letter-spacing: 0.8px;
     }
 
     .tel-val {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 700;
       font-variant-numeric: tabular-nums;
       margin-top: 2px;
@@ -611,7 +872,7 @@
     .controls-bar {
       display: flex;
       flex-wrap: wrap;
-      gap: 7px;
+      gap: 6px;
       align-items: center;
     }
 
@@ -619,7 +880,7 @@
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid var(--border);
       color: var(--text);
-      padding: 7px 12px;
+      padding: 7px 11px;
       border-radius: 8px;
       font-size: 11.5px;
       font-weight: 600;
@@ -645,7 +906,7 @@
 
     .race-box {
       text-align: right;
-      min-width: 245px;
+      min-width: 235px;
     }
 
     .level-nav {
@@ -653,24 +914,24 @@
       align-items: center;
       justify-content: flex-end;
       gap: 6px;
-      margin-bottom: 5px;
-    }
-
-    .level-desc {
-      font-size: 11px;
-      color: var(--accent-bright);
-      font-weight: 600;
       margin-bottom: 4px;
     }
 
+    .level-desc {
+      font-size: 10.5px;
+      color: var(--accent-bright);
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
     .race-score {
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 800;
       color: var(--accent-warn);
     }
 
     .race-time {
-      font-size: 11.5px;
+      font-size: 11px;
       color: #cbd5e1;
       font-variant-numeric: tabular-nums;
     }
@@ -744,9 +1005,9 @@
     }
 
     .key-cap {
-      min-width: 32px;
+      min-width: 34px;
       height: 32px;
-      padding: 0 7px;
+      padding: 0 8px;
       border-radius: 7px;
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid rgba(255, 255, 255, 0.2);
@@ -784,6 +1045,92 @@
 
     .tips-box strong {
       color: #ffffff;
+    }
+
+    /* ================= МОБИЛЬНОЕ СЕНСОРНОЕ УПРАВЛЕНИЕ (DUAL STICKS) ================= */
+    #touch-controls-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 15;
+      pointer-events: none;
+      display: none;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: 22px 26px;
+    }
+
+    #touch-controls-layer.visible {
+      display: flex;
+    }
+
+    .touch-stick-zone {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      pointer-events: auto;
+      touch-action: none;
+    }
+
+    .joystick-base {
+      width: 136px;
+      height: 136px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(15, 23, 42, 0.45) 0%, rgba(14, 165, 233, 0.16) 100%);
+      border: 2px solid rgba(56, 189, 248, 0.42);
+      backdrop-filter: blur(8px);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      touch-action: none;
+    }
+
+    .joystick-cross {
+      position: absolute;
+      inset: 18px;
+      border: 1px dashed rgba(255, 255, 255, 0.18);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .joystick-thumb {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #38bdf8, #0284c7);
+      border: 2px solid #ffffff;
+      box-shadow: 0 6px 18px rgba(14, 165, 233, 0.65);
+      position: absolute;
+      transform: translate(0px, 0px);
+      pointer-events: none;
+    }
+
+    .joystick-label {
+      font-size: 10.5px;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      color: #e2e8f0;
+      background: rgba(12, 19, 34, 0.72);
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+    }
+
+    @media (max-width: 820px) {
+      .hud-layer {
+        padding: 10px 12px;
+      }
+      .race-box {
+        min-width: auto;
+      }
+      .level-desc {
+        display: none;
+      }
+      .bottom-bar {
+        display: none;
+      }
     }
 
     #toast-banner {
@@ -824,6 +1171,58 @@
   <div id="crash-flash"></div>
   <div id="toast-banner">КОЛЬЦО ПРОЙДЕНО!</div>
 
+  <!-- ВЫБОР УСТРОЙСТВА И СПОСОБА УПРАВЛЕНИЯ ПРИ ВХОДЕ -->
+  <div id="device-select-overlay">
+    <div class="device-card">
+      <div>
+        <span class="device-badge">AERO DRONE SIM 3D • КОНФИГУРАЦИЯ</span>
+        <h1 class="device-title" id="dev-step-title">Выберите ваше устройство</h1>
+        <p class="device-subtitle" id="dev-step-sub">Симулятор автоматически адаптирует интерфейс и физику управления</p>
+      </div>
+
+      <!-- Шаг 1: Телефон или ПК -->
+      <div class="device-grid" id="dev-step-1">
+        <button class="device-option-btn" id="choose-mobile">
+          <span class="device-icon">📱</span>
+          <span class="device-opt-title">Телефон / Планшет</span>
+          <span class="device-opt-desc">Сенсорное управление двумя виртуальными стиками (Mode 2) и адаптированный интерфейс</span>
+        </button>
+
+        <button class="device-option-btn" id="choose-pc">
+          <span class="device-icon">💻</span>
+          <span class="device-opt-title">ПК (Компьютер)</span>
+          <span class="device-opt-desc">Выбор между специальным пультом для дрона (RC/Gamepad) или клавиатурой и мышью</span>
+        </button>
+      </div>
+
+      <!-- Шаг 2 (для ПК): Пульт для дрона или Клавиатура + Мышь -->
+      <div class="pc-substep" id="dev-step-pc">
+        <div class="gamepad-status-pill" id="entry-gamepad-status">
+          <span>🎮</span>
+          <span id="entry-gamepad-text">Подключите пульт для дрона (USB / Bluetooth) или выберите клавиатуру</span>
+        </div>
+
+        <div class="device-grid">
+          <button class="device-option-btn" id="choose-pc-controller">
+            <span class="device-icon">🕹️</span>
+            <span class="device-opt-title">Пульт для дрона / Геймпад</span>
+            <span class="device-opt-desc">Плавное аналоговое управление стиками (RadioMaster, BetaFPV, DJI, Xbox/PS)</span>
+          </button>
+
+          <button class="device-option-btn" id="choose-pc-kbm">
+            <span class="device-icon">⌨️</span>
+            <span class="device-opt-title">Клавиатура и мышь</span>
+            <span class="device-opt-desc">Классическое управление клавишами с возможностью переназначения в настройках</span>
+          </button>
+        </div>
+
+        <div>
+          <button class="btn" id="btn-dev-back">← Назад к выбору устройства</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ЭКРАН ПЕРЕХОДА И ЗАГРУЗКИ -->
   <div id="loading-overlay">
     <div class="loader-box">
@@ -842,12 +1241,12 @@
   </div>
 
   <!-- ОБЩЕЕ ГЛАВНОЕ ЛОББИ -->
-  <div id="lobby-overlay">
+  <div id="lobby-overlay" class="hidden">
     <div class="lobby-main-panel">
       <div>
-        <span class="lobby-badge">● NEXT-GEN FLIGHT SIMULATOR</span>
+        <span class="lobby-badge" id="lobby-mode-badge">● ПК • КЛАВИАТУРА И МЫШЬ</span>
         <h1 class="lobby-title">AERO DRONE SIM 3D</h1>
-        <p class="lobby-subtitle">Реалистичный симулятор пилотирования квадрокоптера в современном городе, парке и закрытых лазерных комплексах.</p>
+        <p class="lobby-subtitle">Реалистичный симулятор пилотирования квадрокоптера в современном городе, парке и лазерных комплексах.</p>
       </div>
 
       <div class="lobby-stats-card">
@@ -869,7 +1268,7 @@
         </div>
       </div>
 
-      <div class="lobby-controls-hint">
+      <div class="lobby-controls-hint" id="lobby-controls-hint">
         <strong>W / S</strong> — Вперёд / Назад &nbsp;•&nbsp; <strong>A / D</strong> — Влево / Вправо<br/>
         <strong>Пробел / Shift</strong> — Высота &nbsp;•&nbsp; <strong>ЛКМ + Мышь</strong> (или <strong>Q / E</strong>) — Поворот
       </div>
@@ -877,7 +1276,7 @@
 
     <div class="lobby-cine-badge">
       <span class="cine-pill" id="cine-state-pill">ПОДЛЁТ ДРОНА</span>
-      <span id="cine-time-scale">Скорость времени: 1.0x</span>
+      <span id="cine-time-scale">Время: 1.00x</span>
       <button class="btn" id="btn-replay-arrival" title="Повторить анимацию прилёта">↺ Повтор</button>
     </div>
   </div>
@@ -910,13 +1309,57 @@
     </div>
   </div>
 
-  <!-- МОДАЛЬНОЕ ОКНО: НАСТРОЙКИ -->
+  <!-- МОДАЛЬНОЕ ОКНО: НАСТРОЙКИ И ПЕРЕНАЗНАЧЕНИЕ КЛАВИШ / ПУЛЬТА -->
   <div class="modal-backdrop" id="settings-modal">
     <div class="modal-card settings-card">
       <div class="modal-header">
         <h2 class="modal-title">⚙️ Настройки симулятора</h2>
         <button class="btn-close-modal" id="btn-close-settings">✕ Готово</button>
       </div>
+
+      <div class="settings-section-label">Устройство и режим управления</div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-name">Тип устройства / управления</div>
+          <div class="setting-hint">Переключение между телефоном, клавиатурой и пультом</div>
+        </div>
+        <div class="setting-control">
+          <select class="level-select" id="set-input-mode">
+            <option value="pc-kbm">💻 ПК: Клавиатура и мышь</option>
+            <option value="pc-controller">🕹️ ПК: Пульт для дрона / Геймпад</option>
+            <option value="mobile">📱 Телефон (Сенсорные стики)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Блок настройки клавиш для ПК (Клавиатура и мышь) -->
+      <div id="settings-kbm-block" style="display: flex; flex-direction: column; gap: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span class="settings-section-label">Назначение клавиш (ПК)</span>
+          <button class="btn" id="btn-reset-kbm-binds" style="font-size: 11px;">↺ Сбросить клавиши</button>
+        </div>
+        <div class="bind-grid" id="kbm-bind-list"></div>
+      </div>
+
+      <!-- Блок настройки осей и кнопок для Пульта дрона / Геймпада -->
+      <div id="settings-controller-block" style="display: none; flex-direction: column; gap: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+          <span class="settings-section-label">Настройка пульта для дрона (Оси и кнопки)</span>
+          <button class="btn" id="btn-reset-pad-binds" style="font-size: 11px;">↺ Сбросить пульт</button>
+        </div>
+
+        <div class="gamepad-status-pill" id="settings-pad-status">
+          <span>🎮</span>
+          <span id="settings-pad-name">Пульт не обнаружен — пошевелите стиками или нажмите кнопку</span>
+        </div>
+
+        <div class="axis-monitor" id="pad-axis-monitor"></div>
+        <div class="bind-grid" id="pad-axis-list"></div>
+        <div class="bind-grid" id="pad-button-list"></div>
+      </div>
+
+      <div class="settings-section-label">Звук, камера и графика</div>
 
       <div class="setting-row">
         <div class="setting-info">
@@ -941,8 +1384,8 @@
 
       <div class="setting-row">
         <div class="setting-info">
-          <div class="setting-name">Чувствительность поворота (Мышь)</div>
-          <div class="setting-hint">Скорость разворота дрона при движении мыши</div>
+          <div class="setting-name">Чувствительность поворота</div>
+          <div class="setting-hint">Скорость разворота по курсу (Yaw)</div>
         </div>
         <div class="setting-control">
           <input type="range" id="set-sens" min="40" max="200" value="100" />
@@ -964,7 +1407,7 @@
       <div class="setting-row">
         <div class="setting-info">
           <div class="setting-name">Качество графики и теней</div>
-          <div class="setting-hint">Детализация теней и отражений на объектах</div>
+          <div class="setting-hint">Детализация теней и отражений</div>
         </div>
         <div class="setting-control">
           <select class="level-select" id="set-quality">
@@ -997,6 +1440,25 @@
     <div class="crosshair-dot"></div>
   </div>
 
+  <!-- СЕНСОРНОЕ УПРАВЛЕНИЕ ДЛЯ ТЕЛЕФОНА -->
+  <div id="touch-controls-layer">
+    <div class="touch-stick-zone">
+      <div class="joystick-base" id="stick-left-base">
+        <div class="joystick-cross"></div>
+        <div class="joystick-thumb" id="stick-left-thumb"></div>
+      </div>
+      <span class="joystick-label">ГАЗ / ПОВОРОТ</span>
+    </div>
+
+    <div class="touch-stick-zone">
+      <div class="joystick-base" id="stick-right-base">
+        <div class="joystick-cross"></div>
+        <div class="joystick-thumb" id="stick-right-thumb"></div>
+      </div>
+      <span class="joystick-label">ВПЕРЁД / КРЕН</span>
+    </div>
+  </div>
+
   <!-- HUD -->
   <div class="hud-layer hidden" id="hud-layer">
     <div class="top-bar">
@@ -1023,9 +1485,9 @@
 
       <div class="hud-card controls-bar">
         <button class="btn" id="btn-open-lobby" title="Клавиша Esc">🏠 Лобби</button>
-        <button class="btn active" id="btn-cam" title="Клавиша V">🎥 Камера: 3-е лицо</button>
+        <button class="btn active" id="btn-cam" title="Смена камеры">🎥 Камера: 3-е лицо</button>
         <button class="btn" id="btn-sound">🔇 Звук: Выкл</button>
-        <button class="btn" id="btn-reset" title="Клавиша R">↺ Рестарт (R)</button>
+        <button class="btn" id="btn-reset" title="Рестарт">↺ Рестарт</button>
       </div>
 
       <div class="hud-card race-box">
@@ -1040,58 +1502,128 @@
       </div>
     </div>
 
-    <div class="bottom-bar">
+    <div class="bottom-bar" id="desktop-bottom-bar">
       <div class="hud-card key-cluster">
         <div class="key-group">
           <div class="key-row">
-            <div class="key-cap" id="key-KeyQ">Q</div>
-            <div class="key-cap" id="key-KeyW">W</div>
-            <div class="key-cap" id="key-KeyE">E</div>
+            <div class="key-cap" id="hud-cap-yawLeft">Q</div>
+            <div class="key-cap" id="hud-cap-forward">W</div>
+            <div class="key-cap" id="hud-cap-yawRight">E</div>
           </div>
           <div class="key-row">
-            <div class="key-cap" id="key-KeyA">A</div>
-            <div class="key-cap" id="key-KeyS">S</div>
-            <div class="key-cap" id="key-KeyD">D</div>
+            <div class="key-cap" id="hud-cap-left">A</div>
+            <div class="key-cap" id="hud-cap-backward">S</div>
+            <div class="key-cap" id="hud-cap-right">D</div>
           </div>
-          <span class="key-caption">W/S: Вперёд-Назад • A/D: Крен • Q/E: Поворот</span>
+          <span class="key-caption" id="hud-caption-move">Вперёд/Назад • Крен • Поворот</span>
         </div>
 
         <div class="key-group">
-          <div class="key-cap" id="key-Space" style="width: 116px;">ПРОБЕЛ (Вверх)</div>
-          <div class="key-cap" id="key-ShiftLeft" style="width: 116px;">SHIFT (Вниз)</div>
+          <div class="key-cap" id="hud-cap-up" style="width: 120px;">ПРОБЕЛ (Вверх)</div>
+          <div class="key-cap" id="hud-cap-down" style="width: 120px;">SHIFT (Вниз)</div>
           <span class="key-caption">Высота / Тяга</span>
         </div>
 
         <div class="key-group">
-          <div class="key-cap" id="mouse-indicator" style="width: 108px; height: 68px; flex-direction: column; gap: 2px;">
-            <span style="font-size: 15px;">🖱️</span>
-            <span>ЛКМ + Сдвиг</span>
+          <div class="key-cap" id="mouse-indicator" style="width: 112px; height: 68px; flex-direction: column; gap: 2px;">
+            <span style="font-size: 15px;" id="hud-aux-icon">🖱️</span>
+            <span id="hud-aux-text">ЛКМ + Сдвиг</span>
           </div>
-          <span class="key-caption">Поворот дрона</span>
+          <span class="key-caption" id="hud-aux-sub">Поворот дрона</span>
         </div>
       </div>
 
       <div class="hud-card tips-box">
         <strong>Классический режим:</strong><br/>
         • Пролетайте строго <strong>внутрь</strong> колец. Касание стен комнат, лазеров, арок, ёлок и ободов колец уничтожает дрон.<br/>
-        • Уровни <strong>21–30</strong> — закрытые комнаты и лазерные системы!
+        • Настроить клавиши и пульт можно в <strong>Лобби → Настройки</strong>.
       </div>
     </div>
   </div>
 
   <script>
     // =========================================================================
-    // 1. НАСТРОЙКИ СИМУЛЯТОРА И ЭКРАН ЗАГРУЗКИ
+    // 1. КОНФИГУРАЦИЯ УСТРОЙСТВ, ПРИВЯЗОК КЛАВИШ И ПУЛЬТА ДЛЯ ДРОНА
     // =========================================================================
+    const DEFAULT_KBM_BINDS = {
+      forward: 'KeyW',
+      backward: 'KeyS',
+      left: 'KeyA',
+      right: 'KeyD',
+      up: 'Space',
+      down: 'ShiftLeft',
+      yawLeft: 'KeyQ',
+      yawRight: 'KeyE',
+      camera: 'KeyV',
+      reset: 'KeyR'
+    };
+
+    const KBM_ACTION_LABELS = {
+      forward: 'Вперёд (Тангаж +)',
+      backward: 'Назад (Тангаж -)',
+      left: 'Крен влево',
+      right: 'Крен вправо',
+      up: 'Вверх (Газ +)',
+      down: 'Вниз (Снижение)',
+      yawLeft: 'Поворот влево',
+      yawRight: 'Поворот вправо',
+      camera: 'Смена камеры',
+      reset: 'Рестарт уровня'
+    };
+
+    // Стандартная раскладка Mode 2 для RC пультов (BetaFPV, RadioMaster, Xbox/PS)
+    const DEFAULT_PAD_AXES = {
+      throttle: { axis: 1, invert: true, label: 'Газ / Высота (Левый стик Y)' },
+      yaw:      { axis: 0, invert: false, label: 'Поворот / Рыскание (Левый стик X)' },
+      pitch:    { axis: 3, invert: true, label: 'Вперёд / Назад (Правый стик Y)' },
+      roll:     { axis: 2, invert: false, label: 'Крен влево / вправо (Правый стик X)' }
+    };
+
+    const DEFAULT_PAD_BUTTONS = {
+      camera: { button: 0, label: 'Кнопка: Смена камеры' },
+      reset:  { button: 1, label: 'Кнопка: Рестарт уровня' },
+      lobby:  { button: 9, label: 'Кнопка: В главное лобби' }
+    };
+
     const simSettings = {
+      inputMode: 'pc-kbm', // 'mobile' | 'pc-kbm' | 'pc-controller'
       soundEnabled: false,
       volume: 0.75,
       mouseSensitivity: 1.0,
       fov: 62,
       quality: 'high',
-      defaultCamera: 'chase'
+      defaultCamera: 'chase',
+      kbmBinds: { ...DEFAULT_KBM_BINDS },
+      padAxes: JSON.parse(JSON.stringify(DEFAULT_PAD_AXES)),
+      padButtons: JSON.parse(JSON.stringify(DEFAULT_PAD_BUTTONS))
     };
 
+    function formatKeyCode(code) {
+      if (!code) return '—';
+      const map = {
+        Space: 'Пробел',
+        ShiftLeft: 'L-Shift',
+        ShiftRight: 'R-Shift',
+        ControlLeft: 'L-Ctrl',
+        ControlRight: 'R-Ctrl',
+        AltLeft: 'L-Alt',
+        AltRight: 'R-Alt',
+        ArrowUp: '↑',
+        ArrowDown: '↓',
+        ArrowLeft: '←',
+        ArrowRight: '→',
+        Enter: 'Enter',
+        Tab: 'Tab'
+      };
+      if (map[code]) return map[code];
+      if (code.startsWith('Key')) return code.slice(3);
+      if (code.startsWith('Digit')) return code.slice(5);
+      return code;
+    }
+
+    // =========================================================================
+    // 2. ЭКРАН ЗАГРУЗКИ (TRANSITION)
+    // =========================================================================
     const loadingOverlay = document.getElementById('loading-overlay');
     const loaderTag = document.getElementById('loader-tag');
     const loaderTitle = document.getElementById('loader-title');
@@ -1118,17 +1650,16 @@
       const steps = [
         { pct: 28, text: 'Калибровка гироскопов и барометра...' },
         { pct: 62, text: 'Построение маршрута и препятствий...' },
-        { pct: 88, text: 'Раскрутка бесколлекторных моторов...' },
+        { pct: 88, text: 'Настройка канала управления...' },
         { pct: 100, text: 'Готово к взлёту!' }
       ];
 
-      let progress = 0;
-      const duration = options.duration || 850;
+      const duration = options.duration || 820;
       const start = performance.now();
 
       function tick(now) {
         const elapsed = now - start;
-        progress = Math.min(100, Math.round((elapsed / duration) * 100));
+        const progress = Math.min(100, Math.round((elapsed / duration) * 100));
         loaderBar.style.width = progress + '%';
         loaderPct.textContent = progress + '%';
 
@@ -1151,7 +1682,7 @@
     }
 
     // =========================================================================
-    // 2. ИНИЦИАЛИЗАЦИЯ 3D СЦЕНЫ, РЕАЛИСТИЧНОГО НЕБА И ОСВЕЩЕНИЯ
+    // 3. ИНИЦИАЛИЗАЦИЯ 3D СЦЕНЫ, НЕБА И ОСВЕЩЕНИЯ
     // =========================================================================
     const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
@@ -1182,7 +1713,6 @@
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, 2048, 1024);
 
-      // Многослойные реалистичные перистые и кучевые облака
       for (let i = 0; i < 120; i++) {
         const cx = (i * 211) % 2048;
         const cy = 110 + ((i * 79) % 340);
@@ -1199,8 +1729,7 @@
         ctx.fill();
       }
 
-      const tex = new THREE.CanvasTexture(c);
-      return tex;
+      return new THREE.CanvasTexture(c);
     }
 
     const skyDome = new THREE.Mesh(
@@ -1253,7 +1782,7 @@
     scene.add(sunDisc);
 
     // =========================================================================
-    // 3. ФОТОРЕАЛИСТИЧНЫЕ ТЕКСТУРЫ МИРА (ГАЗОН, ПЛИТКА, СТЕКЛО, БЕТОН, ХВОЯ)
+    // 4. РЕАЛИСТИЧНЫЕ ТЕКСТУРЫ МИРА
     // =========================================================================
     function createRealisticGroundTextures() {
       const c = document.createElement('canvas');
@@ -1266,13 +1795,11 @@
       bump.height = 1024;
       const bctx = bump.getContext('2d');
 
-      // Базовый живой газон
       ctx.fillStyle = '#325a28';
       ctx.fillRect(0, 0, 1024, 1024);
       bctx.fillStyle = '#808080';
       bctx.fillRect(0, 0, 1024, 1024);
 
-      // Реалистичные пучки травы и микрорельеф почвы
       const grassShades = ['#3c6b30', '#294b20', '#4a7c3b', '#36602b', '#568844'];
       for (let i = 0; i < 38000; i++) {
         const x = (i * 73 + ((i * 19) % 31)) % 1024;
@@ -1283,7 +1810,6 @@
         bctx.fillRect(x, y, 2, 4);
       }
 
-      // Мощёные пешеходные дорожки с реалистичной тротуарной плиткой
       ctx.fillStyle = '#94a3b8';
       ctx.fillRect(470, 0, 84, 1024);
       ctx.fillRect(0, 470, 1024, 84);
@@ -1291,7 +1817,6 @@
       bctx.fillRect(470, 0, 84, 1024);
       bctx.fillRect(0, 470, 1024, 84);
 
-      // Швы плитки и бордюры
       ctx.strokeStyle = '#64748b';
       ctx.lineWidth = 1.5;
       bctx.strokeStyle = '#404040';
@@ -1309,7 +1834,6 @@
         }
       }
 
-      // Зернистый асфальт по периметру
       ctx.fillStyle = '#2b3544';
       ctx.fillRect(0, 0, 1024, 68);
       ctx.fillRect(0, 956, 1024, 68);
@@ -1326,7 +1850,6 @@
         ctx.fillRect(956 + ay, ax, 2, 2);
       }
 
-      // Дорожная разметка
       ctx.fillStyle = '#f1f5f9';
       for (let i = 16; i < 1008; i += 48) {
         ctx.fillRect(i, 32, 24, 4);
@@ -1353,7 +1876,6 @@
       c.height = 1024;
       const ctx = c.getContext('2d');
 
-      // Бетонная плита с реальной фактурой
       ctx.fillStyle = '#334155';
       ctx.fillRect(0, 0, 1024, 1024);
 
@@ -1362,7 +1884,6 @@
         ctx.fillRect((i * 41) % 1024, (i * 89) % 1024, 3, 3);
       }
 
-      // Температурные швы бетонных плит
       ctx.strokeStyle = 'rgba(15, 23, 42, 0.55)';
       ctx.lineWidth = 4;
       for (let i = 128; i < 1024; i += 128) {
@@ -1370,14 +1891,12 @@
         ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(1024, i); ctx.stroke();
       }
 
-      // Внешнее жёлтое кольцо
       ctx.strokeStyle = '#f59e0b';
       ctx.lineWidth = 36;
       ctx.beginPath();
       ctx.arc(512, 512, 424, 0, Math.PI * 2);
       ctx.stroke();
 
-      // Пунктирный внутренний круг
       ctx.strokeStyle = '#f8fafc';
       ctx.lineWidth = 10;
       ctx.setLineDash([42, 28]);
@@ -1386,7 +1905,6 @@
       ctx.stroke();
       ctx.setLineDash([]);
 
-      // Буква H
       ctx.fillStyle = '#f8fafc';
       ctx.fillRect(330, 270, 72, 484);
       ctx.fillRect(622, 270, 72, 484);
@@ -1408,7 +1926,6 @@
       rough.height = 512;
       const rctx = rough.getContext('2d');
 
-      // Алюминиевый каркас фасада (матовый)
       ctx.fillStyle = '#1e293b';
       ctx.fillRect(0, 0, 512, 512);
       rctx.fillStyle = '#d0d0d0';
@@ -1424,13 +1941,11 @@
           ctx.fillStyle = grad;
           ctx.fillRect(x, y, 26, 25);
 
-          // Внутренние перекрытия и жалюзи за стеклом
           if (reflection > 0.35 && reflection < 0.75) {
             ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
             ctx.fillRect(x, y, 26, 9);
           }
 
-          // Естественный блик неба на стекле
           ctx.fillStyle = 'rgba(255, 255, 255, 0.28)';
           ctx.beginPath();
           ctx.moveTo(x + 2, y + 2);
@@ -1439,7 +1954,6 @@
           ctx.closePath();
           ctx.fill();
 
-          // Стекло глянцевое (низкая шероховатость)
           rctx.fillStyle = '#181818';
           rctx.fillRect(x, y, 26, 25);
         }
@@ -1464,7 +1978,6 @@
       ctx.fillStyle = '#1e293b';
       ctx.fillRect(0, 0, 512, 512);
 
-      // Металлическая текстура и сигнальные шевроны
       ctx.fillStyle = '#0ea5e9';
       for (let i = -512; i < 1024; i += 128) {
         ctx.beginPath();
@@ -1480,7 +1993,6 @@
       ctx.lineWidth = 12;
       ctx.strokeRect(6, 6, 500, 500);
 
-      // Заклёпки по краям
       ctx.fillStyle = '#94a3b8';
       for (let p = 24; p < 490; p += 46) {
         ctx.beginPath(); ctx.arc(20, p, 4, 0, Math.PI * 2); ctx.fill();
@@ -1511,7 +2023,6 @@
           ctx.fillRect(x + 3, y + 3, 122, 122);
           ctx.strokeRect(x + 2, y + 2, 124, 124);
 
-          // Технологические болты в углах панелей
           ctx.fillStyle = '#475569';
           ctx.fillRect(x + 10, y + 10, 5, 5);
           ctx.fillRect(x + 113, y + 10, 5, 5);
@@ -1613,7 +2124,6 @@
     ground.receiveShadow = true;
     scene.add(ground);
 
-    // Детализированная посадочная площадка с металлическим кантом и огнями
     const helipadGroup = new THREE.Group();
     const helipad = new THREE.Mesh(
       new THREE.CylinderGeometry(5.5, 5.9, 0.14, 64),
@@ -1662,7 +2172,6 @@
       roughness: 0.35
     });
 
-    // Фоновый мегаполис
     const skylineGroup = new THREE.Group();
     for (let i = 0; i < 36; i++) {
       const ang = (i / 36) * Math.PI * 2;
@@ -1677,7 +2186,7 @@
     scene.add(skylineGroup);
 
     // =========================================================================
-    // 4. ФОТОРЕАЛИСТИЧНАЯ 3D-МОДЕЛЬ КВАДРОКОПТЕРА (DJI / CINE-DRONE STYLE)
+    // 5. РЕАЛИСТИЧНАЯ 3D-МОДЕЛЬ КВАДРОКОПТЕРА
     // =========================================================================
     const droneRoot = new THREE.Group();
     const droneBody = new THREE.Group();
@@ -1690,7 +2199,6 @@
     const copperCoilMat = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.25, metalness: 0.9 });
     const orangeTipMat = new THREE.MeshStandardMaterial({ color: 0xf97316, roughness: 0.3 });
 
-    // 1. Обтекаемый аэродинамический фюзеляж
     const lowerCore = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.10, 0.56), carbonFrameMat);
     lowerCore.castShadow = true;
     droneBody.add(lowerCore);
@@ -1700,7 +2208,6 @@
     upperAeroShell.castShadow = true;
     droneBody.add(upperAeroShell);
 
-    // Носовой обтекатель и передние сенсоры препятствий ("глаза" дрона)
     const noseCone = new THREE.Mesh(new THREE.SphereGeometry(0.155, 20, 16), bodyShellMat);
     noseCone.scale.set(1.0, 0.58, 1.15);
     noseCone.position.set(0, 0.04, -0.24);
@@ -1720,7 +2227,6 @@
       droneBody.add(sensorEye);
     });
 
-    // Аккумуляторный блок сверху с 4 светодиодами заряда и вентиляционными ребрами
     const batteryPack = new THREE.Mesh(new THREE.BoxGeometry(0.21, 0.055, 0.32), titaniumAccentMat);
     batteryPack.position.set(0, 0.125, 0.05);
     batteryPack.castShadow = true;
@@ -1733,7 +2239,6 @@
       droneBody.add(ledDot);
     }
 
-    // 2. Трёхосевой подвес камеры (3-Axis Gimbal) и объектив Hasselblad-типа
     const gimbalGroup = new THREE.Group();
     gimbalGroup.position.set(0, -0.04, -0.32);
     droneBody.add(gimbalGroup);
@@ -1765,7 +2270,6 @@
     coatedGlass.position.set(0, -0.01, -0.136);
     gimbalGroup.add(coatedGlass);
 
-    // 3. Посадочные опоры с демпферами
     [-0.14, 0.14].forEach(x => {
       const skid = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.48, 10), carbonFrameMat);
       skid.rotation.x = Math.PI / 2;
@@ -1781,7 +2285,6 @@
       });
     });
 
-    // 4. Аэродинамические лучи, бесколлекторные моторы с медной обмоткой и складные лопасти
     const propellers = [];
     const armConfigs = [
       { x: -0.44, z: -0.38, front: true,  dir: 1 },
@@ -1813,12 +2316,10 @@
       arm.castShadow = true;
       droneBody.add(arm);
 
-      // Металлический шарнир луча у корпуса
       const hinge = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 0.052, 12), titaniumAccentMat);
       hinge.position.set(cfg.x * 0.28, 0.02, cfg.z * 0.26);
       droneBody.add(hinge);
 
-      // Стакан мотора (статор + медные обмотки + вращающийся колокол)
       const motorBase = new THREE.Mesh(new THREE.CylinderGeometry(0.052, 0.046, 0.035, 18), carbonFrameMat);
       motorBase.position.set(cfg.x, 0.035, cfg.z);
       droneBody.add(motorBase);
@@ -1832,7 +2333,6 @@
       motorBell.castShadow = true;
       droneBody.add(motorBell);
 
-      // Навигационный LED-индикатор на конце луча
       const ledColor = cfg.front ? 0x10b981 : 0xef4444;
       const led = new THREE.Mesh(
         new THREE.SphereGeometry(0.024, 10, 10),
@@ -1841,7 +2341,6 @@
       led.position.set(cfg.x, 0.005, cfg.z);
       droneBody.add(led);
 
-      // Двухлопастной пропеллер с оранжевыми законцовками и ступицей
       const propGroup = new THREE.Group();
       propGroup.position.set(cfg.x, 0.095, cfg.z);
 
@@ -1938,7 +2437,7 @@
     }
 
     // =========================================================================
-    // 5. ГЕНЕРАТОР 30 УРОВНЕЙ (ГЕОМЕТРИЯ И МАРШРУТЫ СОХРАНЕНЫ БЕЗ ИЗМЕНЕНИЙ)
+    // 6. ГЕНЕРАТОР 30 УРОВНЕЙ (ОРИГИНАЛЬНЫЕ УРОВНИ)
     // =========================================================================
     const levelContainer = new THREE.Group();
     scene.add(levelContainer);
@@ -2256,9 +2755,6 @@
       });
     }
 
-    // =========================================================================
-    // 6. ВСЕ 30 УРОВНЕЙ (ОРИГИНАЛЬНЫЕ МАРШРУТЫ)
-    // =========================================================================
     const LEVELS = [
       {
         name: 'Ур. 1 — Первый взлёт',
@@ -2582,7 +3078,7 @@
           { kind: 'slider', x: 3.5, y: 7.5, z: -38, w: 3.2, h: 3.2, d: 3.2, moveY: 2.8, moveX: 2.0, speed: 2.5, phase: 3.14 },
           { kind: 'slider', x: 0, y: 6.5, z: -64, w: 3.6, h: 3.6, d: 3.6, moveX: 5.0, speed: 2.8, phase: 1.2 },
           { kind: 'slider', x: -4.0, y: 4.5, z: -92, w: 3.2, h: 3.2, d: 3.2, moveY: 3.0, speed: 3.0, phase: 2.0 },
-          { kind: 4.0, y: 8.5, z: -96, w: 3.2, h: 3.2, d: 3.2, moveY: 3.0, speed: 3.0, phase: 5.14 }
+          { kind: 'slider', x: 4.0, y: 8.5, z: -96, w: 3.2, h: 3.2, d: 3.2, moveY: 3.0, speed: 3.0, phase: 5.14 }
         ]
       },
       {
@@ -2807,15 +3303,383 @@
     ];
 
     // =========================================================================
-    // 7. УПРАВЛЕНИЕ ЛОББИ, МОДАЛЬНЫМИ ОКНАМИ И АНИМАЦИЕЙ ПРИЛЁТА В SLOW-MO
+    // 7. ЛОГИКА ВЫБОРА УСТРОЙСТВА, НАСТРОЙКИ КЛАВИШ / ПУЛЬТА И СЕНСОРНЫХ СТИКОВ
     // =========================================================================
+    const deviceSelectOverlay = document.getElementById('device-select-overlay');
+    const devStep1 = document.getElementById('dev-step-1');
+    const devStepPc = document.getElementById('dev-step-pc');
     const lobbyOverlay = document.getElementById('lobby-overlay');
     const levelsModal = document.getElementById('levels-modal');
     const settingsModal = document.getElementById('settings-modal');
     const hudLayer = document.getElementById('hud-layer');
+    const touchLayer = document.getElementById('touch-controls-layer');
     const levelSelect = document.getElementById('level-select');
 
     let isInLobby = true;
+
+    // Виртуальные сенсорные стики для телефона
+    const touchInput = {
+      leftX: 0,  // Yaw
+      leftY: 0,  // Throttle
+      rightX: 0, // Roll
+      rightY: 0  // Pitch
+    };
+
+    function setupVirtualJoystick(baseId, thumbId, onMove) {
+      const base = document.getElementById(baseId);
+      const thumb = document.getElementById(thumbId);
+      let activeTouchId = null;
+      const maxRadius = 44;
+
+      function updateFromClient(clientX, clientY) {
+        const rect = base.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        let dx = clientX - cx;
+        let dy = clientY - cy;
+        const dist = Math.hypot(dx, dy);
+        if (dist > maxRadius) {
+          dx = (dx / dist) * maxRadius;
+          dy = (dy / dist) * maxRadius;
+        }
+        thumb.style.transform = `translate(${dx}px, ${dy}px)`;
+        onMove(dx / maxRadius, -dy / maxRadius);
+      }
+
+      function resetStick() {
+        activeTouchId = null;
+        thumb.style.transform = 'translate(0px, 0px)';
+        onMove(0, 0);
+      }
+
+      base.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        if (activeTouchId !== null) return;
+        const t = e.changedTouches[0];
+        activeTouchId = t.identifier;
+        updateFromClient(t.clientX, t.clientY);
+      }, { passive: false });
+
+      window.addEventListener('touchmove', (e) => {
+        if (activeTouchId === null) return;
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          const t = e.changedTouches[i];
+          if (t.identifier === activeTouchId) {
+            updateFromClient(t.clientX, t.clientY);
+            break;
+          }
+        }
+      }, { passive: false });
+
+      window.addEventListener('touchend', (e) => {
+        if (activeTouchId === null) return;
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          if (e.changedTouches[i].identifier === activeTouchId) {
+            resetStick();
+            break;
+          }
+        }
+      });
+
+      window.addEventListener('touchcancel', resetStick);
+    }
+
+    setupVirtualJoystick('stick-left-base', 'stick-left-thumb', (nx, ny) => {
+      touchInput.leftX = nx;
+      touchInput.leftY = ny;
+    });
+
+    setupVirtualJoystick('stick-right-base', 'stick-right-thumb', (nx, ny) => {
+      touchInput.rightX = nx;
+      touchInput.rightY = ny;
+    });
+
+    // Поддержка Gamepad API (Пульт для дрона)
+    let connectedGamepadIndex = null;
+    let prevPadButtons = [];
+    let activeBindListener = null; // { type: 'kbm' | 'pad-axis' | 'pad-btn', key: string, baseline?: number[] }
+
+    function getActiveGamepad() {
+      if (!navigator.getGamepads) return null;
+      const pads = navigator.getGamepads();
+      if (connectedGamepadIndex !== null && pads[connectedGamepadIndex]) {
+        return pads[connectedGamepadIndex];
+      }
+      for (let i = 0; i < pads.length; i++) {
+        if (pads[i]) {
+          connectedGamepadIndex = i;
+          return pads[i];
+        }
+      }
+      return null;
+    }
+
+    window.addEventListener('gamepadconnected', (e) => {
+      connectedGamepadIndex = e.gamepad.index;
+      updateGamepadUIStatus();
+    });
+
+    window.addEventListener('gamepaddisconnected', (e) => {
+      if (connectedGamepadIndex === e.gamepad.index) {
+        connectedGamepadIndex = null;
+      }
+      updateGamepadUIStatus();
+    });
+
+    function updateGamepadUIStatus() {
+      const pad = getActiveGamepad();
+      const entryPill = document.getElementById('entry-gamepad-status');
+      const entryText = document.getElementById('entry-gamepad-text');
+      const setPill = document.getElementById('settings-pad-status');
+      const setName = document.getElementById('settings-pad-name');
+
+      if (pad) {
+        entryPill.classList.add('connected');
+        entryText.textContent = `Пульт подключен: ${pad.id.slice(0, 42)}`;
+        setPill.classList.add('connected');
+        setName.textContent = `Подключен: ${pad.id.slice(0, 48)}`;
+      } else {
+        entryPill.classList.remove('connected');
+        entryText.textContent = 'Подключите пульт для дрона (USB / Bluetooth) или выберите клавиатуру';
+        setPill.classList.remove('connected');
+        setName.textContent = 'Пульт не обнаружен — пошевелите стиками или нажмите кнопку';
+      }
+    }
+
+    function applyInputModeUI(mode) {
+      simSettings.inputMode = mode;
+      document.getElementById('set-input-mode').value = mode;
+
+      const lobbyBadge = document.getElementById('lobby-mode-badge');
+      const lobbyHint = document.getElementById('lobby-controls-hint');
+      const kbmBlock = document.getElementById('settings-kbm-block');
+      const padBlock = document.getElementById('settings-controller-block');
+      const desktopBottomBar = document.getElementById('desktop-bottom-bar');
+
+      kbmBlock.style.display = mode === 'pc-kbm' ? 'flex' : 'none';
+      padBlock.style.display = mode === 'pc-controller' ? 'flex' : 'none';
+
+      if (mode === 'mobile') {
+        lobbyBadge.textContent = '● ТЕЛЕФОН • СЕНСОРНОЕ УПРАВЛЕНИЕ';
+        lobbyHint.innerHTML = '<strong>Левый стик</strong> — Газ / Высота и Поворот<br/><strong>Правый стик</strong> — Полёт вперёд / назад и Крен';
+        desktopBottomBar.style.display = 'none';
+        touchLayer.classList.toggle('visible', !isInLobby);
+      } else if (mode === 'pc-controller') {
+        lobbyBadge.textContent = '● ПК • ПУЛЬТ ДЛЯ ДРОНА (RC)';
+        lobbyHint.innerHTML = '<strong>Левый стик</strong> — Газ и Поворот (Yaw)<br/><strong>Правый стик</strong> — Вперёд/Назад и Крен (Настройка осей в Настройках)';
+        desktopBottomBar.style.display = 'flex';
+        touchLayer.classList.remove('visible');
+        updateHUDKeyCaps();
+      } else {
+        lobbyBadge.textContent = '● ПК • КЛАВИАТУРА И МЫШЬ';
+        const b = simSettings.kbmBinds;
+        lobbyHint.innerHTML = `<strong>${formatKeyCode(b.forward)} / ${formatKeyCode(b.backward)}</strong> — Вперёд / Назад • <strong>${formatKeyCode(b.left)} / ${formatKeyCode(b.right)}</strong> — Крен<br/><strong>${formatKeyCode(b.up)} / ${formatKeyCode(b.down)}</strong> — Высота • <strong>ЛКМ + Мышь</strong> (${formatKeyCode(b.yawLeft)}/${formatKeyCode(b.yawRight)}) — Поворот`;
+        desktopBottomBar.style.display = 'flex';
+        touchLayer.classList.remove('visible');
+        updateHUDKeyCaps();
+      }
+    }
+
+    function updateHUDKeyCaps() {
+      const isPad = simSettings.inputMode === 'pc-controller';
+      const b = simSettings.kbmBinds;
+
+      document.getElementById('hud-cap-yawLeft').textContent = isPad ? 'L-X-' : formatKeyCode(b.yawLeft);
+      document.getElementById('hud-cap-forward').textContent = isPad ? 'R-Y+' : formatKeyCode(b.forward);
+      document.getElementById('hud-cap-yawRight').textContent = isPad ? 'L-X+' : formatKeyCode(b.yawRight);
+      document.getElementById('hud-cap-left').textContent = isPad ? 'R-X-' : formatKeyCode(b.left);
+      document.getElementById('hud-cap-backward').textContent = isPad ? 'R-Y-' : formatKeyCode(b.backward);
+      document.getElementById('hud-cap-right').textContent = isPad ? 'R-X+' : formatKeyCode(b.right);
+
+      document.getElementById('hud-cap-up').textContent = isPad ? 'ГАЗ + (L-Y)' : `${formatKeyCode(b.up)} (Вверх)`;
+      document.getElementById('hud-cap-down').textContent = isPad ? 'ГАЗ - (L-Y)' : `${formatKeyCode(b.down)} (Вниз)`;
+
+      document.getElementById('hud-aux-icon').textContent = isPad ? '🕹️' : '🖱️';
+      document.getElementById('hud-aux-text').textContent = isPad ? 'RC Пульт' : 'ЛКМ + Сдвиг';
+      document.getElementById('hud-aux-sub').textContent = isPad ? 'Аналоговые стики' : 'Поворот дрона';
+    }
+
+    function renderBindingLists() {
+      // 1. Клавиатура (ПК)
+      const kbmList = document.getElementById('kbm-bind-list');
+      kbmList.innerHTML = '';
+      Object.keys(KBM_ACTION_LABELS).forEach(action => {
+        const item = document.createElement('div');
+        item.className = 'bind-item';
+
+        const label = document.createElement('span');
+        label.textContent = KBM_ACTION_LABELS[action];
+
+        const btn = document.createElement('button');
+        btn.className = 'btn-bind';
+        const isListening = activeBindListener && activeBindListener.type === 'kbm' && activeBindListener.key === action;
+        btn.textContent = isListening ? 'Нажмите...' : formatKeyCode(simSettings.kbmBinds[action]);
+        if (isListening) btn.classList.add('listening');
+
+        btn.onclick = () => {
+          activeBindListener = { type: 'kbm', key: action };
+          renderBindingLists();
+        };
+
+        item.append(label, btn);
+        kbmList.appendChild(item);
+      });
+
+      // 2. Оси пульта (ПК)
+      const padAxisList = document.getElementById('pad-axis-list');
+      padAxisList.innerHTML = '';
+      Object.keys(simSettings.padAxes).forEach(ch => {
+        const cfg = simSettings.padAxes[ch];
+        const item = document.createElement('div');
+        item.className = 'bind-item';
+        item.style.flexDirection = 'column';
+        item.style.alignItems = 'stretch';
+
+        const topRow = document.createElement('div');
+        topRow.style.display = 'flex';
+        topRow.style.justifyContent = 'space-between';
+        topRow.style.alignItems = 'center';
+
+        const lbl = document.createElement('span');
+        lbl.textContent = cfg.label;
+        lbl.style.fontSize = '11.5px';
+
+        const btn = document.createElement('button');
+        btn.className = 'btn-bind';
+        const isListening = activeBindListener && activeBindListener.type === 'pad-axis' && activeBindListener.key === ch;
+        btn.textContent = isListening ? 'Двиньте стик...' : `Ось ${cfg.axis}`;
+        if (isListening) btn.classList.add('listening');
+
+        btn.onclick = () => {
+          const pad = getActiveGamepad();
+          const baseline = pad ? Array.from(pad.axes) : [0, 0, 0, 0];
+          activeBindListener = { type: 'pad-axis', key: ch, baseline };
+          renderBindingLists();
+        };
+
+        topRow.append(lbl, btn);
+
+        const invRow = document.createElement('label');
+        invRow.style.display = 'flex';
+        invRow.style.alignItems = 'center';
+        invRow.style.gap = '6px';
+        invRow.style.fontSize = '11px';
+        invRow.style.color = 'var(--muted)';
+        invRow.style.cursor = 'pointer';
+
+        const chk = document.createElement('input');
+        chk.type = 'checkbox';
+        chk.checked = cfg.invert;
+        chk.onchange = () => { cfg.invert = chk.checked; };
+
+        invRow.append(chk, document.createTextNode('Инвертировать ось'));
+        item.append(topRow, invRow);
+        padAxisList.appendChild(item);
+      });
+
+      // 3. Кнопки пульта
+      const padBtnList = document.getElementById('pad-button-list');
+      padBtnList.innerHTML = '';
+      Object.keys(simSettings.padButtons).forEach(act => {
+        const cfg = simSettings.padButtons[act];
+        const item = document.createElement('div');
+        item.className = 'bind-item';
+
+        const lbl = document.createElement('span');
+        lbl.textContent = cfg.label;
+
+        const btn = document.createElement('button');
+        btn.className = 'btn-bind';
+        const isListening = activeBindListener && activeBindListener.type === 'pad-btn' && activeBindListener.key === act;
+        btn.textContent = isListening ? 'Нажмите...' : `Кнопка ${cfg.button}`;
+        if (isListening) btn.classList.add('listening');
+
+        btn.onclick = () => {
+          activeBindListener = { type: 'pad-btn', key: act };
+          renderBindingLists();
+        };
+
+        item.append(lbl, btn);
+        padBtnList.appendChild(item);
+      });
+
+      // Монитор 4 осей
+      const monitor = document.getElementById('pad-axis-monitor');
+      monitor.innerHTML = '';
+      for (let i = 0; i < 4; i++) {
+        const box = document.createElement('div');
+        box.className = 'axis-bar-box';
+        box.innerHTML = `
+          <div style="display:flex; justify-content:space-between; color:var(--muted);">
+            <span>Ось ${i}</span>
+            <span id="axis-val-${i}">0.00</span>
+          </div>
+          <div class="axis-track"><div class="axis-fill" id="axis-fill-${i}"></div></div>
+        `;
+        monitor.appendChild(box);
+      }
+    }
+
+    document.getElementById('btn-reset-kbm-binds').onclick = () => {
+      simSettings.kbmBinds = { ...DEFAULT_KBM_BINDS };
+      activeBindListener = null;
+      renderBindingLists();
+      applyInputModeUI(simSettings.inputMode);
+    };
+
+    document.getElementById('btn-reset-pad-binds').onclick = () => {
+      simSettings.padAxes = JSON.parse(JSON.stringify(DEFAULT_PAD_AXES));
+      simSettings.padButtons = JSON.parse(JSON.stringify(DEFAULT_PAD_BUTTONS));
+      activeBindListener = null;
+      renderBindingLists();
+    };
+
+    document.getElementById('set-input-mode').onchange = (e) => {
+      activeBindListener = null;
+      applyInputModeUI(e.target.value);
+      renderBindingLists();
+    };
+
+    // Навигация экрана выбора устройства при входе
+    document.getElementById('choose-mobile').onclick = () => {
+      applyInputModeUI('mobile');
+      completeDeviceSetup();
+    };
+
+    document.getElementById('choose-pc').onclick = () => {
+      devStep1.style.display = 'none';
+      devStepPc.classList.add('active');
+      document.getElementById('dev-step-title').textContent = 'Способ управления на ПК';
+      document.getElementById('dev-step-sub').textContent = 'Выберите пульт для дрона (RC/Gamepad) или клавиатуру с мышью';
+      updateGamepadUIStatus();
+    };
+
+    document.getElementById('btn-dev-back').onclick = () => {
+      devStepPc.classList.remove('active');
+      devStep1.style.display = 'grid';
+      document.getElementById('dev-step-title').textContent = 'Выберите ваше устройство';
+      document.getElementById('dev-step-sub').textContent = 'Симулятор автоматически адаптирует интерфейс и физику управления';
+    };
+
+    document.getElementById('choose-pc-controller').onclick = () => {
+      applyInputModeUI('pc-controller');
+      completeDeviceSetup();
+    };
+
+    document.getElementById('choose-pc-kbm').onclick = () => {
+      applyInputModeUI('pc-kbm');
+      completeDeviceSetup();
+    };
+
+    function completeDeviceSetup() {
+      deviceSelectOverlay.classList.add('hidden');
+      renderBindingLists();
+      openLobby(true);
+    }
+
+    // =========================================================================
+    // 8. УПРАВЛЕНИЕ ЛОББИ И МОДАЛЬНЫМИ ОКНАМИ
+    // =========================================================================
     let lobbyCineTime = 0;
 
     function resetLobbyArrivalAnimation() {
@@ -2881,21 +3745,21 @@
         isMouseDragging = false;
         container.classList.remove('dragging');
         Object.keys(keys).forEach(k => { keys[k] = false; });
-        document.querySelectorAll('.key-cap').forEach(el => el.classList.remove('pressed'));
 
         buildLevelGrids();
         resetLobbyArrivalAnimation();
         lobbyOverlay.classList.remove('hidden');
         hudLayer.classList.add('hidden');
+        touchLayer.classList.remove('visible');
         document.getElementById('reticle').style.opacity = '0';
       };
 
       if (withTransition) {
         runLoadingTransition({
-          tag: 'ВОЗВРАТ НА БАЗУ',
-          title: 'Главное лобби',
-          desc: 'Перевод дрона в режим демонстрации...',
-          duration: 650
+          tag: 'ВОЗВРАТ В ЛОББИ',
+          title: 'Главное меню',
+          desc: 'Перевод дрона в режим кинематографичного облёта...',
+          duration: 620
         }, enterLobby);
       } else {
         enterLobby();
@@ -2910,13 +3774,14 @@
         tag: `ЭТАП ${Math.floor(targetIdx / 10) + 1} • МАРШРУТ ${targetIdx + 1} / 30`,
         title: lvl.name,
         desc: lvl.desc,
-        duration: 850
+        duration: 820
       }, () => {
         isInLobby = false;
         lobbyOverlay.classList.add('hidden');
         levelsModal.classList.remove('open');
         settingsModal.classList.remove('open');
         hudLayer.classList.remove('hidden');
+        touchLayer.classList.toggle('visible', simSettings.inputMode === 'mobile');
         applyCameraMode(simSettings.defaultCamera);
         loadLevel(targetIdx, true);
       });
@@ -2936,11 +3801,16 @@
     };
 
     document.getElementById('btn-open-settings').onclick = () => {
+      activeBindListener = null;
+      updateGamepadUIStatus();
+      renderBindingLists();
       settingsModal.classList.add('open');
     };
 
     document.getElementById('btn-close-settings').onclick = () => {
+      activeBindListener = null;
       settingsModal.classList.remove('open');
+      applyInputModeUI(simSettings.inputMode);
     };
 
     document.getElementById('btn-open-lobby').onclick = (e) => {
@@ -2948,7 +3818,6 @@
       openLobby(true);
     };
 
-    // Обработчики настроек
     const setVolume = document.getElementById('set-volume');
     const setVolumeVal = document.getElementById('set-volume-val');
     setVolume.oninput = () => {
@@ -2995,7 +3864,7 @@
     };
 
     // =========================================================================
-    // 8. ЗАГРУЗКА УРОВНЯ И ЗВУКОВОЙ СИНТЕЗАТОР
+    // 9. ЗАГРУЗКА УРОВНЯ И ЗВУКОВОЙ СИНТЕЗАТОР
     // =========================================================================
     function clearLevelObjects() {
       while (levelContainer.children.length > 0) {
@@ -3163,7 +4032,7 @@
     document.getElementById('set-sound-btn').onclick = () => toggleSoundState();
 
     // =========================================================================
-    // 9. ФИЗИКА ПОЛЁТА, УПРАВЛЕНИЕ И СТОЛКНОВЕНИЯ
+    // 10. ФИЗИКА ПОЛЁТА, СТОЛКНОВЕНИЯ И ОБРАБОТКА ВВОДА (ПК / ПУЛЬТ / ТЕЛЕФОН)
     // =========================================================================
     const droneState = {
       pos: new THREE.Vector3(0, 0.35, 0),
@@ -3177,12 +4046,19 @@
     let cameraMode = 'chase';
     const keys = {};
 
-    function setKeyCapState(code, pressed) {
-      const cap = document.getElementById(`key-${code}`);
-      if (cap) cap.classList.toggle('pressed', pressed);
-    }
-
     window.addEventListener('keydown', (e) => {
+      // Переназначение клавиш в настройках
+      if (activeBindListener && activeBindListener.type === 'kbm') {
+        e.preventDefault();
+        if (e.code !== 'Escape') {
+          simSettings.kbmBinds[activeBindListener.key] = e.code;
+        }
+        activeBindListener = null;
+        renderBindingLists();
+        applyInputModeUI(simSettings.inputMode);
+        return;
+      }
+
       if (isTransitioning) return;
 
       if (e.code === 'Escape') {
@@ -3194,31 +4070,34 @@
           settingsModal.classList.remove('open');
           return;
         }
+        if (!deviceSelectOverlay.classList.contains('hidden')) return;
+
         if (isInLobby) startGameWithLoading(currentLevelIndex);
         else openLobby(true);
         return;
       }
 
-      if (isInLobby) return;
+      if (isInLobby || !deviceSelectOverlay.classList.contains('hidden')) return;
 
-      if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
+      const b = simSettings.kbmBinds;
+      if (Object.values(b).includes(e.code) || ['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
         e.preventDefault();
       }
-      keys[e.code] = true;
-      setKeyCapState(e.code, true);
 
-      if (e.code === 'KeyR') loadLevel(currentLevelIndex);
-      if (e.code === 'KeyV') cycleCamera();
+      keys[e.code] = true;
+
+      if (simSettings.inputMode === 'pc-kbm') {
+        if (e.code === b.reset) loadLevel(currentLevelIndex);
+        if (e.code === b.camera) cycleCamera();
+      }
     });
 
     window.addEventListener('keyup', (e) => {
       keys[e.code] = false;
-      setKeyCapState(e.code, false);
     });
 
     window.addEventListener('blur', () => {
       Object.keys(keys).forEach(k => { keys[k] = false; });
-      document.querySelectorAll('.key-cap').forEach(el => el.classList.remove('pressed'));
       isMouseDragging = false;
       container.classList.remove('dragging');
     });
@@ -3229,7 +4108,7 @@
     const mouseIndicator = document.getElementById('mouse-indicator');
 
     container.addEventListener('mousedown', (e) => {
-      if (isInLobby || isTransitioning || e.button !== 0) return;
+      if (isInLobby || isTransitioning || simSettings.inputMode !== 'pc-kbm' || e.button !== 0) return;
       isMouseDragging = true;
       lastMouseX = e.clientX;
       container.classList.add('dragging');
@@ -3237,7 +4116,7 @@
     });
 
     window.addEventListener('mousemove', (e) => {
-      if (!isMouseDragging || isInLobby) return;
+      if (!isMouseDragging || isInLobby || simSettings.inputMode !== 'pc-kbm') return;
       const dx = (typeof e.movementX === 'number' && Math.abs(e.movementX) < 120)
         ? e.movementX
         : (e.clientX - lastMouseX);
@@ -3463,85 +4342,198 @@
     }
 
     // =========================================================================
-    // 10. ГЛАВНЫЙ ЦИКЛ ФИЗИКИ, SLOW-MO АНИМАЦИИ ЛОББИ И РЕНДЕРА
+    // 11. ОПРОС ПУЛЬТА ДЛЯ ДРОНА (GAMEPAD API) И ПЛАВНАЯ АНИМАЦИЯ ЛОББИ
     // =========================================================================
-    const clock = new THREE.Clock();
-    let elapsedTotal = 0;
+    function applyDeadzone(val, dz = 0.06) {
+      if (Math.abs(val) < dz) return 0;
+      const sign = Math.sign(val);
+      return sign * ((Math.abs(val) - dz) / (1 - dz));
+    }
+
+    function pollControllerAndMonitor() {
+      const pad = getActiveGamepad();
+
+      // Обновление монитора осей в настройках
+      if (settingsModal.classList.contains('open') && simSettings.inputMode === 'pc-controller') {
+        for (let i = 0; i < 4; i++) {
+          const val = (pad && pad.axes[i] !== undefined) ? pad.axes[i] : 0;
+          const valEl = document.getElementById(`axis-val-${i}`);
+          const fillEl = document.getElementById(`axis-fill-${i}`);
+          if (valEl) valEl.textContent = val.toFixed(2);
+          if (fillEl) {
+            if (val >= 0) {
+              fillEl.style.left = '50%';
+              fillEl.style.width = `${Math.min(50, val * 50)}%`;
+            } else {
+              const w = Math.min(50, Math.abs(val) * 50);
+              fillEl.style.left = `${50 - w}%`;
+              fillEl.style.width = `${w}%`;
+            }
+          }
+        }
+      }
+
+      if (!pad) return null;
+
+      // Обработка авто-привязки оси или кнопки в настройках
+      if (activeBindListener) {
+        if (activeBindListener.type === 'pad-axis') {
+          for (let i = 0; i < pad.axes.length; i++) {
+            const base = activeBindListener.baseline[i] || 0;
+            if (Math.abs(pad.axes[i] - base) > 0.38) {
+              simSettings.padAxes[activeBindListener.key].axis = i;
+              activeBindListener = null;
+              renderBindingLists();
+              break;
+            }
+          }
+        } else if (activeBindListener.type === 'pad-btn') {
+          for (let b = 0; b < pad.buttons.length; b++) {
+            if (pad.buttons[b] && pad.buttons[b].pressed) {
+              simSettings.padButtons[activeBindListener.key].button = b;
+              activeBindListener = null;
+              renderBindingLists();
+              break;
+            }
+          }
+        }
+      }
+
+      // Чтение осей для полёта
+      const readAxis = (chName) => {
+        const cfg = simSettings.padAxes[chName];
+        const raw = pad.axes[cfg.axis] || 0;
+        const clean = applyDeadzone(raw, 0.06);
+        return cfg.invert ? -clean : clean;
+      };
+
+      // Чтение кнопок пульта (по фронту нажатия)
+      const btnStates = pad.buttons.map(b => Boolean(b && b.pressed));
+      const justPressed = (btnIdx) => btnStates[btnIdx] && !prevPadButtons[btnIdx];
+
+      if (!isInLobby && !isTransitioning && simSettings.inputMode === 'pc-controller' && !activeBindListener) {
+        if (justPressed(simSettings.padButtons.camera.button)) cycleCamera();
+        if (justPressed(simSettings.padButtons.reset.button)) loadLevel(currentLevelIndex);
+        if (justPressed(simSettings.padButtons.lobby.button)) openLobby(true);
+      }
+
+      prevPadButtons = btnStates;
+
+      return {
+        throttle: readAxis('throttle'),
+        yaw: -readAxis('yaw'),
+        pitch: readAxis('pitch'),
+        roll: readAxis('roll')
+      };
+    }
 
     const cinePill = document.getElementById('cine-state-pill');
     const cineTimeScaleLabel = document.getElementById('cine-time-scale');
 
+    // Плавная многофазная анимация прилёта дрона и замедления времени (Smooth Hermite / Bullet-Time)
+    const cineSmoothPos = new THREE.Vector3(-22, 15, -56);
+    const cineSmoothLook = new THREE.Vector3(0, 2, 0);
+    const cineSmoothCam = new THREE.Vector3(4, 3.5, 6);
+
+    function smoothstep(edge0, edge1, x) {
+      const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
+      return t * t * (3 - 2 * t);
+    }
+
     function updateLobbyCinematic(rawDt) {
+      if (lobbyCineTime === 0) {
+        cineSmoothPos.set(-22, 15.5, -56);
+        cineSmoothCam.set(5.2, 3.6, 6.4);
+      }
       lobbyCineTime += rawDt;
 
-      // Фаза 0..2.2с: быстрый подлёт дрона из глубины города с виражом
-      // Фаза >2.2с: резкое, плавное замедление времени (Bullet-Time 0.14x) при зависании над площадкой
-      const arrivalDuration = 2.25;
-      let timeScale = 1.0;
+      // Фаза подлёта 0..2.8с с плавным переходом в Bullet-Time (0.14x)
+      const arrivalDuration = 2.8;
+      const blendSlow = smoothstep(1.5, arrivalDuration, lobbyCineTime);
+      const timeScale = 1.0 * (1 - blendSlow) + 0.14 * blendSlow;
 
-      if (lobbyCineTime < arrivalDuration) {
-        const p = lobbyCineTime / arrivalDuration;
-        // Ease-out cubic для эффектного торможения в воздухе
-        const ease = 1 - Math.pow(1 - p, 3);
-        timeScale = 1.0 - Math.pow(p, 2.5) * 0.86;
+      // Кривая подлёта (квадратичная кривая Безье от неба к посадочной зоне)
+      const u = Math.min(1, lobbyCineTime / arrivalDuration);
+      const easeU = 1 - Math.pow(1 - u, 3.2);
 
-        const startPos = new THREE.Vector3(-18, 12.5, -52);
-        const hoverPos = new THREE.Vector3(1.1, 2.15, 0.4);
-        droneRoot.position.lerpVectors(startPos, hoverPos, ease);
+      const p0 = new THREE.Vector3(-22, 15.5, -56);
+      const p1 = new THREE.Vector3(6.5, 4.2, -16);
+      const p2 = new THREE.Vector3(1.15, 2.15, 0.35);
 
-        // Наклон при разгоне и резкое выравнивание ("клевок" вверх при торможении)
-        const pitchAngle = p < 0.65 ? -0.38 * (1 - p) : 0.24 * Math.sin(((p - 0.65) / 0.35) * Math.PI);
-        const rollAngle = Math.sin(p * Math.PI) * -0.32;
-        const yawAngle = (1 - ease) * -0.55 - 0.32;
+      const invU = 1 - easeU;
+      const bezierPos = new THREE.Vector3()
+        .addScaledVector(p0, invU * invU)
+        .addScaledVector(p1, 2 * invU * easeU)
+        .addScaledVector(p2, easeU * easeU);
 
-        droneRoot.rotation.y = yawAngle;
-        droneBody.rotation.x = pitchAngle;
-        droneBody.rotation.z = rollAngle;
+      // Замедленное кинематографическое парение после подлёта
+      const slowPhase = Math.max(0, lobbyCineTime - arrivalDuration) * 0.14;
+      const hoverOffset = new THREE.Vector3(
+        Math.sin(slowPhase * 2.1) * 0.24 * blendSlow,
+        Math.cos(slowPhase * 2.8) * 0.13 * blendSlow,
+        Math.sin(slowPhase * 1.7) * 0.18 * blendSlow
+      );
 
+      const desiredPos = bezierPos.add(hoverOffset);
+      const posLerp = 1 - Math.exp(-12 * rawDt);
+      cineSmoothPos.lerp(desiredPos, posLerp);
+      droneRoot.position.copy(cineSmoothPos);
+
+      // Плавные углы крена, тангажа и рыскания при вираже и торможении ("flare")
+      const flareWave = Math.sin(smoothstep(0.45, 0.98, u) * Math.PI);
+      const divePitch = -0.34 * (1 - smoothstep(0.0, 0.65, u));
+      const desiredPitch = divePitch + flareWave * 0.26 + Math.sin(slowPhase * 2.3) * 0.035 * blendSlow;
+      const desiredRoll = -Math.sin(u * Math.PI) * 0.36 + Math.cos(slowPhase * 1.9) * 0.045 * blendSlow;
+      const desiredYaw = -0.75 * (1 - easeU) - 0.34 + Math.sin(slowPhase * 1.3) * 0.14 * blendSlow;
+
+      const rotLerp = 1 - Math.exp(-10 * rawDt);
+      droneRoot.rotation.y += (desiredYaw - droneRoot.rotation.y) * rotLerp;
+      droneBody.rotation.x += (desiredPitch - droneBody.rotation.x) * rotLerp;
+      droneBody.rotation.z += (desiredRoll - droneBody.rotation.z) * rotLerp;
+
+      // Стабилизация подвеса камеры в лобби
+      gimbalGroup.rotation.z = -droneBody.rotation.z * 0.8;
+      gimbalGroup.rotation.x = -droneBody.rotation.x * 0.65;
+
+      if (blendSlow < 0.65) {
         cinePill.textContent = 'ПОДЛЁТ ДРОНА';
         cinePill.classList.remove('slowmo');
       } else {
-        timeScale = 0.14;
-        const slowT = (lobbyCineTime - arrivalDuration) * timeScale;
-
-        // Замедленное кинематографическое парение в Bullet-Time
-        droneRoot.position.set(
-          1.1 + Math.sin(slowT * 2.2) * 0.22,
-          2.15 + Math.cos(slowT * 3.0) * 0.12,
-          0.4 + Math.sin(slowT * 1.8) * 0.18
-        );
-        droneRoot.rotation.y = -0.32 + Math.sin(slowT * 1.4) * 0.15;
-        droneBody.rotation.x = Math.sin(slowT * 2.4) * 0.04;
-        droneBody.rotation.z = Math.cos(slowT * 2.1) * 0.05;
-
         cinePill.textContent = 'BULLET-TIME • SLOW-MO';
         cinePill.classList.add('slowmo');
       }
+      cineTimeScaleLabel.textContent = `Время: ${timeScale.toFixed(2)}x`;
 
-      cineTimeScaleLabel.textContent = `Скорость времени: ${timeScale.toFixed(2)}x`;
-
-      // Вращение лопастей строго зависит от текущего замедления времени (timeScale)!
+      // Лопасти замедляются синхронно со скоростью времени
       droneRoot.visible = true;
       propellers.forEach(p => {
-        p.mesh.rotation.y += (58 * timeScale) * p.dir * rawDt;
+        p.mesh.rotation.y += (64 * timeScale) * p.dir * rawDt;
       });
+      blurDiscMat.opacity = 0.06 + 0.16 * timeScale;
 
       groundMarker.position.set(droneRoot.position.x, 0.15, droneRoot.position.z);
       const markerScale = Math.max(0.45, 1 - (droneRoot.position.y - 0.3) * 0.03);
       groundMarker.scale.set(markerScale, markerScale, 1);
 
-      // Кинематографичный облет камеры справа, чтобы левая панель лобби не перекрывала дрон
-      const camOrbit = (lobbyCineTime < arrivalDuration)
-        ? (lobbyCineTime / arrivalDuration) * 0.45
-        : 0.45 + (lobbyCineTime - arrivalDuration) * 0.06;
-
-      const camTargetPos = new THREE.Vector3(
-        droneRoot.position.x + Math.sin(camOrbit) * 3.2 + 0.9,
-        droneRoot.position.y + 0.65,
-        droneRoot.position.z + Math.cos(camOrbit) * 3.4
+      // Плавная кинематографичная камера, удерживающая дрон в правой части экрана
+      const orbitAngle = u * 0.42 + Math.max(0, lobbyCineTime - arrivalDuration) * 0.055;
+      const camRadius = 3.6 - 0.4 * blendSlow;
+      const desiredCamPos = new THREE.Vector3(
+        droneRoot.position.x + Math.sin(orbitAngle) * camRadius + 0.85,
+        droneRoot.position.y + 0.58,
+        droneRoot.position.z + Math.cos(orbitAngle) * camRadius
       );
-      camera.position.lerp(camTargetPos, Math.min(1, rawDt * 5));
-      camera.lookAt(droneRoot.position.x - 0.65, droneRoot.position.y - 0.05, droneRoot.position.z);
+      const camLerp = 1 - Math.exp(-5.5 * rawDt);
+      cineSmoothCam.lerp(desiredCamPos, camLerp);
+      camera.position.copy(cineSmoothCam);
+
+      const desiredLook = new THREE.Vector3(
+        droneRoot.position.x - 0.68,
+        droneRoot.position.y - 0.04,
+        droneRoot.position.z
+      );
+      cineSmoothLook.lerp(desiredLook, 1 - Math.exp(-9 * rawDt));
+      camera.lookAt(cineSmoothLook);
 
       if (audioCtx && motorGain) {
         motorGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
@@ -3549,6 +4541,9 @@
 
       return timeScale;
     }
+
+    const clock = new THREE.Clock();
+    let elapsedTotal = 0;
 
     function updateDynamicObjects(dt) {
       elapsedTotal += dt;
@@ -3580,12 +4575,15 @@
     }
 
     function updatePhysics(rawDt) {
+      const padInputs = pollControllerAndMonitor();
+
       if (isInLobby) {
         const timeScale = updateLobbyCinematic(rawDt);
         updateDynamicObjects(rawDt * timeScale);
         return;
       }
 
+      blurDiscMat.opacity = 0.16;
       updateDynamicObjects(rawDt);
 
       if (spawnGraceTimer > 0) spawnGraceTimer -= rawDt;
@@ -3601,16 +4599,47 @@
       let yawInput = 0;
       let throttleInput = 0;
 
-      if (keys['KeyW'] || keys['ArrowUp']) forwardInput += 1;
-      if (keys['KeyS'] || keys['ArrowDown']) forwardInput -= 1;
-      if (keys['KeyA']) strafeInput -= 1;
-      if (keys['KeyD']) strafeInput += 1;
-      if (keys['KeyQ'] || keys['ArrowLeft']) yawInput += 1;
-      if (keys['KeyE'] || keys['ArrowRight']) yawInput -= 1;
-      if (keys['Space']) throttleInput += 1;
-      if (keys['ShiftLeft'] || keys['ShiftRight']) throttleInput -= 1;
+      if (simSettings.inputMode === 'mobile') {
+        throttleInput = touchInput.leftY;
+        yawInput = -touchInput.leftX * simSettings.mouseSensitivity;
+        forwardInput = touchInput.rightY;
+        strafeInput = touchInput.rightX;
+      } else if (simSettings.inputMode === 'pc-controller' && padInputs) {
+        throttleInput = padInputs.throttle;
+        yawInput = padInputs.yaw * simSettings.mouseSensitivity;
+        forwardInput = padInputs.pitch;
+        strafeInput = padInputs.roll;
+      } else {
+        const b = simSettings.kbmBinds;
+        const pFwd = Boolean(keys[b.forward]);
+        const pBwd = Boolean(keys[b.backward]);
+        const pLft = Boolean(keys[b.left]);
+        const pRgt = Boolean(keys[b.right]);
+        const pUp  = Boolean(keys[b.up]);
+        const pDwn = Boolean(keys[b.down]);
+        const pYL  = Boolean(keys[b.yawLeft]);
+        const pYR  = Boolean(keys[b.yawRight]);
 
-      if (!raceStartTime && (throttleInput > 0 || forwardInput !== 0 || droneState.pos.y > 0.6)) {
+        if (pFwd) forwardInput += 1;
+        if (pBwd) forwardInput -= 1;
+        if (pLft) strafeInput -= 1;
+        if (pRgt) strafeInput += 1;
+        if (pYL) yawInput += 1;
+        if (pYR) yawInput -= 1;
+        if (pUp) throttleInput += 1;
+        if (pDwn) throttleInput -= 1;
+
+        document.getElementById('hud-cap-forward').classList.toggle('pressed', pFwd);
+        document.getElementById('hud-cap-backward').classList.toggle('pressed', pBwd);
+        document.getElementById('hud-cap-left').classList.toggle('pressed', pLft);
+        document.getElementById('hud-cap-right').classList.toggle('pressed', pRgt);
+        document.getElementById('hud-cap-up').classList.toggle('pressed', pUp);
+        document.getElementById('hud-cap-down').classList.toggle('pressed', pDwn);
+        document.getElementById('hud-cap-yawLeft').classList.toggle('pressed', pYL);
+        document.getElementById('hud-cap-yawRight').classList.toggle('pressed', pYR);
+      }
+
+      if (!raceStartTime && (Math.abs(throttleInput) > 0.08 || Math.abs(forwardInput) > 0.08 || droneState.pos.y > 0.6)) {
         raceStartTime = performance.now();
       }
 
@@ -3654,7 +4683,6 @@
       droneBody.rotation.x = droneState.pitch;
       droneBody.rotation.z = droneState.roll;
 
-      // Стабилизация 3-осевого подвеса камеры (компенсирует крен дрона)
       gimbalGroup.rotation.z = -droneState.roll * 0.75;
       gimbalGroup.rotation.x = -droneState.pitch * 0.55;
 
@@ -3728,9 +4756,10 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    // Первичный запуск в общем лобби
+    // Инициализация сцены (фон работает за экраном выбора устройства)
     loadLevel(0, false);
-    openLobby(false);
+    buildLevelGrids();
+    renderBindingLists();
 
     function animate() {
       requestAnimationFrame(animate);
