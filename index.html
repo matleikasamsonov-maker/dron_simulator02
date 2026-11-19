@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AERO DRONE SIM 3D — Modern World (30 Уровней)</title>
+  <title>AERO DRONE SIM 3D — Realistic Flight Simulator</title>
   <style>
     :root {
-      --panel: rgba(15, 23, 42, 0.82);
-      --panel-solid: #0f172a;
-      --border: rgba(255, 255, 255, 0.16);
+      --panel: rgba(12, 19, 34, 0.84);
+      --panel-solid: #0c1322;
+      --border: rgba(255, 255, 255, 0.14);
       --accent: #0ea5e9;
       --accent-bright: #38bdf8;
       --accent-green: #10b981;
@@ -27,7 +27,7 @@
     }
 
     body {
-      background: #7dd3fc;
+      background: #0f172a;
       color: var(--text);
       width: 100vw;
       height: 100vh;
@@ -45,18 +45,112 @@
       cursor: grabbing;
     }
 
-    /* ================= ЛОББИ (ГЛАВНОЕ МЕНЮ) ================= */
+    /* ================= ЭКРАН ЗАГРУЗКИ (TRANSITION) ================= */
+    #loading-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: radial-gradient(circle at 50% 45%, #162238 0%, #070b14 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.28s ease;
+    }
+
+    #loading-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .loader-box {
+      width: 100%;
+      max-width: 480px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.28);
+      border-radius: 20px;
+      padding: 32px 30px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .loader-spinner {
+      width: 52px;
+      height: 52px;
+      margin: 0 auto;
+      border-radius: 50%;
+      border: 3px solid rgba(56, 189, 248, 0.15);
+      border-top-color: var(--accent-bright);
+      border-right-color: var(--accent);
+      animation: spin 0.85s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loader-tag {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent-bright);
+    }
+
+    .loader-title {
+      font-size: 22px;
+      font-weight: 900;
+      color: #ffffff;
+    }
+
+    .loader-desc {
+      font-size: 13px;
+      color: var(--muted);
+      min-height: 18px;
+    }
+
+    .loader-bar-wrap {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .loader-bar-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #0ea5e9, #38bdf8, #10b981);
+      border-radius: 999px;
+      transition: width 0.08s linear;
+    }
+
+    .loader-status-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11.5px;
+      color: #cbd5e1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ================= ОБЩЕЕ ГЛАВНОЕ ЛОББИ ================= */
     #lobby-overlay {
       position: fixed;
       inset: 0;
       z-index: 40;
-      background: linear-gradient(135deg, rgba(15, 23, 42, 0.78) 0%, rgba(15, 23, 42, 0.52) 100%);
-      backdrop-filter: blur(8px);
+      background: linear-gradient(90deg, rgba(8, 13, 24, 0.86) 0%, rgba(8, 13, 24, 0.42) 52%, rgba(8, 13, 24, 0.15) 100%);
       display: flex;
       align-items: center;
-      justify-content: center;
-      padding: 24px;
-      transition: opacity 0.25s ease;
+      justify-content: space-between;
+      padding: 42px 54px;
+      transition: opacity 0.3s ease;
     }
 
     #lobby-overlay.hidden {
@@ -64,98 +158,246 @@
       pointer-events: none;
     }
 
-    .lobby-card {
+    .lobby-main-panel {
       width: 100%;
-      max-width: 960px;
-      max-height: 92vh;
-      background: rgba(15, 23, 42, 0.92);
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      border-radius: 22px;
-      padding: 28px 32px;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55);
+      max-width: 440px;
+      background: rgba(12, 19, 34, 0.82);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
       display: flex;
       flex-direction: column;
-      gap: 20px;
-      overflow-y: auto;
-    }
-
-    .lobby-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 16px;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 18px;
+      gap: 22px;
     }
 
     .lobby-badge {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      width: fit-content;
       font-size: 11px;
       font-weight: 800;
       letter-spacing: 1.5px;
       text-transform: uppercase;
       color: var(--accent-bright);
-      background: rgba(14, 165, 233, 0.16);
+      background: rgba(14, 165, 233, 0.15);
       border: 1px solid rgba(56, 189, 248, 0.35);
-      padding: 4px 10px;
+      padding: 5px 12px;
       border-radius: 999px;
-      margin-bottom: 6px;
     }
 
     .lobby-title {
-      font-size: 28px;
+      font-size: 32px;
       font-weight: 900;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.4px;
+      line-height: 1.1;
       color: #ffffff;
+      margin-top: 8px;
     }
 
     .lobby-subtitle {
-      font-size: 13px;
+      font-size: 13.5px;
       color: var(--muted);
-      margin-top: 4px;
+      line-height: 1.45;
+      margin-top: 6px;
     }
 
-    .lobby-actions {
+    .lobby-stats-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
       display: flex;
+      justify-content: space-between;
       align-items: center;
+    }
+
+    .lobby-stat-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .lobby-stat-val {
+      font-size: 15px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-top: 2px;
+    }
+
+    .lobby-menu-buttons {
+      display: flex;
+      flex-direction: column;
       gap: 12px;
     }
 
     .btn-play-main {
+      width: 100%;
       background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
       color: #ffffff;
       border: none;
-      padding: 14px 32px;
-      border-radius: 12px;
-      font-size: 15px;
+      padding: 16px 24px;
+      border-radius: 14px;
+      font-size: 16px;
       font-weight: 800;
       letter-spacing: 0.6px;
       cursor: pointer;
-      box-shadow: 0 10px 25px rgba(14, 165, 233, 0.45);
+      box-shadow: 0 12px 28px rgba(14, 165, 233, 0.45);
       transition: transform 0.15s, box-shadow 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
     }
 
     .btn-play-main:hover {
       transform: translateY(-2px);
-      box-shadow: 0 14px 30px rgba(14, 165, 233, 0.65);
+      box-shadow: 0 16px 34px rgba(14, 165, 233, 0.65);
     }
 
-    .lobby-controls-strip {
-      display: flex;
-      flex-wrap: wrap;
+    .lobby-secondary-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 10px;
-      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .btn-lobby-sec {
+      background: rgba(255, 255, 255, 0.07);
       border: 1px solid var(--border);
+      color: #f8fafc;
+      padding: 13px 16px;
       border-radius: 12px;
-      padding: 10px 14px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-lobby-sec:hover {
+      background: rgba(56, 189, 248, 0.16);
+      border-color: var(--accent-bright);
+      transform: translateY(-1px);
+    }
+
+    .lobby-controls-hint {
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
       font-size: 12px;
       color: #cbd5e1;
-      justify-content: space-between;
+      line-height: 1.6;
     }
 
-    .lobby-controls-strip span strong {
+    .lobby-controls-hint strong {
       color: var(--accent-bright);
+    }
+
+    /* Индикатор замедления времени (Slow-Mo) в углу лобби */
+    .lobby-cine-badge {
+      align-self: flex-end;
+      background: rgba(12, 19, 34, 0.72);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 14px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 12px;
+      color: #e2e8f0;
+    }
+
+    .cine-pill {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      background: rgba(14, 165, 233, 0.2);
+      color: var(--accent-bright);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+    }
+
+    .cine-pill.slowmo {
+      background: rgba(245, 158, 11, 0.22);
+      color: #fbbf24;
+      border-color: rgba(245, 158, 11, 0.5);
+    }
+
+    /* ================= МОДАЛЬНЫЕ ОКНА (УРОВНИ И НАСТРОЙКИ) ================= */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      background: rgba(7, 11, 20, 0.78);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s ease;
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 960px;
+      max-height: 90vh;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(56, 189, 248, 0.32);
+      border-radius: 22px;
+      padding: 26px 30px;
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      overflow-y: auto;
+    }
+
+    .modal-card.settings-card {
+      max-width: 540px;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 900;
+      color: #ffffff;
+    }
+
+    .btn-close-modal {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+      color: #f8fafc;
+      padding: 7px 14px;
+      border-radius: 10px;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-close-modal:hover {
+      background: rgba(239, 68, 68, 0.22);
+      border-color: rgba(239, 68, 68, 0.5);
     }
 
     .stage-section {
@@ -170,9 +412,6 @@
       text-transform: uppercase;
       letter-spacing: 1px;
       color: var(--muted);
-      display: flex;
-      align-items: center;
-      gap: 8px;
     }
 
     .stage-title.laser {
@@ -185,10 +424,14 @@
       gap: 8px;
     }
 
-    @media (max-width: 760px) {
-      .levels-grid {
-        grid-template-columns: repeat(2, 1fr);
+    @media (max-width: 780px) {
+      #lobby-overlay {
+        padding: 20px;
+        flex-direction: column;
+        justify-content: center;
       }
+      .lobby-cine-badge { display: none; }
+      .levels-grid { grid-template-columns: repeat(2, 1fr); }
     }
 
     .lvl-tile {
@@ -243,6 +486,46 @@
       text-overflow: ellipsis;
     }
 
+    /* Элементы настроек */
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .setting-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .setting-name {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .setting-hint {
+      font-size: 11.5px;
+      color: var(--muted);
+    }
+
+    .setting-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    input[type="range"] {
+      accent-color: var(--accent-bright);
+      cursor: pointer;
+    }
+
     /* ================= HUD ИНТЕРФЕЙС ================= */
     .hud-layer {
       position: fixed;
@@ -253,11 +536,12 @@
       flex-direction: column;
       justify-content: space-between;
       padding: 18px 22px;
-      transition: opacity 0.2s;
+      transition: opacity 0.25s;
     }
 
     .hud-layer.hidden {
       opacity: 0;
+      pointer-events: none;
     }
 
     .top-bar {
@@ -402,7 +686,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      opacity: 0.6;
+      opacity: 0;
       transition: opacity 0.2s;
     }
 
@@ -540,27 +824,73 @@
   <div id="crash-flash"></div>
   <div id="toast-banner">КОЛЬЦО ПРОЙДЕНО!</div>
 
-  <!-- ЛОББИ -->
+  <!-- ЭКРАН ПЕРЕХОДА И ЗАГРУЗКИ -->
+  <div id="loading-overlay">
+    <div class="loader-box">
+      <div class="loader-spinner"></div>
+      <div class="loader-tag" id="loader-tag">ИНИЦИАЛИЗАЦИЯ ПОЛЁТА</div>
+      <div class="loader-title" id="loader-title">Ур. 1 — Первый взлёт</div>
+      <div class="loader-desc" id="loader-desc">Калибровка гироскопов и проверка телеметрии...</div>
+      <div class="loader-bar-wrap">
+        <div class="loader-bar-fill" id="loader-bar"></div>
+      </div>
+      <div class="loader-status-row">
+        <span id="loader-step">Загрузка геометрии сектора...</span>
+        <span id="loader-pct">0%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ОБЩЕЕ ГЛАВНОЕ ЛОББИ -->
   <div id="lobby-overlay">
-    <div class="lobby-card">
-      <div class="lobby-header">
+    <div class="lobby-main-panel">
+      <div>
+        <span class="lobby-badge">● NEXT-GEN FLIGHT SIMULATOR</span>
+        <h1 class="lobby-title">AERO DRONE SIM 3D</h1>
+        <p class="lobby-subtitle">Реалистичный симулятор пилотирования квадрокоптера в современном городе, парке и закрытых лазерных комплексах.</p>
+      </div>
+
+      <div class="lobby-stats-card">
         <div>
-          <span class="lobby-badge">Modern City & Indoor Laser Courses</span>
-          <h1 class="lobby-title">AERO DRONE SIM 3D</h1>
-          <p class="lobby-subtitle">30 уровней: городской парк, подвижные препятствия, закрытые комнаты и лазерные ловушки</p>
+          <div class="lobby-stat-label">Текущий маршрут</div>
+          <div class="lobby-stat-val" id="lobby-current-lvl">Ур. 1 — Первый взлёт</div>
         </div>
-        <div class="lobby-actions">
-          <button class="btn" id="lobby-sound-btn">🔇 Звук: Выкл</button>
-          <button class="btn-play-main" id="btn-start-play">▶ ИГРАТЬ (Ур. 1)</button>
+        <div style="text-align: right;">
+          <div class="lobby-stat-label">Пройдено</div>
+          <div class="lobby-stat-val" style="color: var(--accent-green);" id="lobby-progress">0 / 30</div>
         </div>
       </div>
 
-      <div class="lobby-controls-strip">
-        <span><strong>W / S</strong> — Вперёд / Назад</span>
-        <span><strong>A / D</strong> — Влево / Вправо</span>
-        <span><strong>Пробел / Shift</strong> — Вверх / Вниз</span>
-        <span><strong>Зажать ЛКМ + Мышь</strong> (или <strong>Q / E</strong>) — Поворот</span>
-        <span><strong>V</strong> — Камера • <strong>Esc</strong> — Лобби</span>
+      <div class="lobby-menu-buttons">
+        <button class="btn-play-main" id="btn-start-play">▶ ИГРАТЬ</button>
+        <div class="lobby-secondary-row">
+          <button class="btn-lobby-sec" id="btn-open-levels">🗺️ Уровни (30)</button>
+          <button class="btn-lobby-sec" id="btn-open-settings">⚙️ Настройки</button>
+        </div>
+      </div>
+
+      <div class="lobby-controls-hint">
+        <strong>W / S</strong> — Вперёд / Назад &nbsp;•&nbsp; <strong>A / D</strong> — Влево / Вправо<br/>
+        <strong>Пробел / Shift</strong> — Высота &nbsp;•&nbsp; <strong>ЛКМ + Мышь</strong> (или <strong>Q / E</strong>) — Поворот
+      </div>
+    </div>
+
+    <div class="lobby-cine-badge">
+      <span class="cine-pill" id="cine-state-pill">ПОДЛЁТ ДРОНА</span>
+      <span id="cine-time-scale">Скорость времени: 1.0x</span>
+      <button class="btn" id="btn-replay-arrival" title="Повторить анимацию прилёта">↺ Повтор</button>
+    </div>
+  </div>
+
+  <!-- МОДАЛЬНОЕ ОКНО: ВЫБОР УРОВНЕЙ -->
+  <div class="modal-backdrop" id="levels-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title">Выбор маршрута (30 уровней)</h2>
+          <p style="font-size: 12px; color: var(--muted); margin-top: 2px;">Нажмите на любой уровень для запуска полёта</p>
+        </div>
+        <button class="btn-close-modal" id="btn-close-levels">✕ Закрыть</button>
       </div>
 
       <div class="stage-section">
@@ -576,6 +906,87 @@
       <div class="stage-section">
         <div class="stage-title laser">🚨 Этап 3 (Уровни 21–30) — Комнаты, коридоры и лазерные системы</div>
         <div class="levels-grid" id="grid-stage-3"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛЬНОЕ ОКНО: НАСТРОЙКИ -->
+  <div class="modal-backdrop" id="settings-modal">
+    <div class="modal-card settings-card">
+      <div class="modal-header">
+        <h2 class="modal-title">⚙️ Настройки симулятора</h2>
+        <button class="btn-close-modal" id="btn-close-settings">✕ Готово</button>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-name">Звук двигателей и эффектов</div>
+          <div class="setting-hint">Синтезатор оборотов моторов и сигналов</div>
+        </div>
+        <div class="setting-control">
+          <button class="btn" id="set-sound-btn">🔇 Выкл</button>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-name">Громкость звука</div>
+          <div class="setting-hint">Уровень громкости симулятора</div>
+        </div>
+        <div class="setting-control">
+          <input type="range" id="set-volume" min="0" max="100" value="75" />
+          <span id="set-volume-val" style="font-size: 12px; width: 34px; text-align: right;">75%</span>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-name">Чувствительность поворота (Мышь)</div>
+          <div class="setting-hint">Скорость разворота дрона при движении мыши</div>
+        </div>
+        <div class="setting-control">
+          <input type="range" id="set-sens" min="40" max="200" value="100" />
+          <span id="set-sens-val" style="font-size: 12px; width: 34px; text-align: right;">1.0x</span>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-name">Угол обзора камеры (FOV)</div>
+          <div class="setting-hint">Ширина объектива камеры дрона</div>
+        </div>
+        <div class="setting-control">
+          <input type="range" id="set-fov" min="55" max="95" value="62" />
+          <span id="set-fov-val" style="font-size: 12px; width: 34px; text-align: right;">62°</span>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-name">Качество графики и теней</div>
+          <div class="setting-hint">Детализация теней и отражений на объектах</div>
+        </div>
+        <div class="setting-control">
+          <select class="level-select" id="set-quality">
+            <option value="high">Высокое (Ультра)</option>
+            <option value="medium">Среднее</option>
+            <option value="low">Производительное</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-name">Режим камеры</div>
+          <div class="setting-hint">Вид при запуске уровня</div>
+        </div>
+        <div class="setting-control">
+          <select class="level-select" id="set-cam">
+            <option value="chase">От 3-го лица</option>
+            <option value="fpv">От 1-го лица (FPV)</option>
+            <option value="top">Сверху (Посадка)</option>
+          </select>
+        </div>
       </div>
     </div>
   </div>
@@ -670,47 +1081,117 @@
 
   <script>
     // =========================================================================
-    // 1. ИНИЦИАЛИЗАЦИЯ 3D СЦЕНЫ, РЕАЛИСТИЧНОГО ДНЕВНОГО НЕБА И ОСВЕЩЕНИЯ
+    // 1. НАСТРОЙКИ СИМУЛЯТОРА И ЭКРАН ЗАГРУЗКИ
+    // =========================================================================
+    const simSettings = {
+      soundEnabled: false,
+      volume: 0.75,
+      mouseSensitivity: 1.0,
+      fov: 62,
+      quality: 'high',
+      defaultCamera: 'chase'
+    };
+
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const loaderTag = document.getElementById('loader-tag');
+    const loaderTitle = document.getElementById('loader-title');
+    const loaderDesc = document.getElementById('loader-desc');
+    const loaderBar = document.getElementById('loader-bar');
+    const loaderStep = document.getElementById('loader-step');
+    const loaderPct = document.getElementById('loader-pct');
+
+    let isTransitioning = false;
+
+    function runLoadingTransition(options, onComplete) {
+      if (isTransitioning) return;
+      isTransitioning = true;
+
+      loaderTag.textContent = options.tag || 'ЗАГРУЗКА СЕКТОРА';
+      loaderTitle.textContent = options.title || 'Подготовка к полёту';
+      loaderDesc.textContent = options.desc || 'Синхронизация телеметрии и систем навигации...';
+      loaderBar.style.width = '0%';
+      loaderPct.textContent = '0%';
+      loaderStep.textContent = 'Инициализация 3D-окружения...';
+
+      loadingOverlay.classList.add('active');
+
+      const steps = [
+        { pct: 28, text: 'Калибровка гироскопов и барометра...' },
+        { pct: 62, text: 'Построение маршрута и препятствий...' },
+        { pct: 88, text: 'Раскрутка бесколлекторных моторов...' },
+        { pct: 100, text: 'Готово к взлёту!' }
+      ];
+
+      let progress = 0;
+      const duration = options.duration || 850;
+      const start = performance.now();
+
+      function tick(now) {
+        const elapsed = now - start;
+        progress = Math.min(100, Math.round((elapsed / duration) * 100));
+        loaderBar.style.width = progress + '%';
+        loaderPct.textContent = progress + '%';
+
+        for (const s of steps) {
+          if (progress >= s.pct - 20) loaderStep.textContent = s.text;
+        }
+
+        if (progress < 100) {
+          requestAnimationFrame(tick);
+        } else {
+          if (onComplete) onComplete();
+          setTimeout(() => {
+            loadingOverlay.classList.remove('active');
+            isTransitioning = false;
+          }, 180);
+        }
+      }
+
+      requestAnimationFrame(tick);
+    }
+
+    // =========================================================================
+    // 2. ИНИЦИАЛИЗАЦИЯ 3D СЦЕНЫ, РЕАЛИСТИЧНОГО НЕБА И ОСВЕЩЕНИЯ
     // =========================================================================
     const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x9fd3f5, 0.0021);
+    scene.fog = new THREE.FogExp2(0x9fd3f5, 0.0020);
 
-    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 900);
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const camera = new THREE.PerspectiveCamera(simSettings.fov, window.innerWidth / window.innerHeight, 0.1, 900);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.08;
+    renderer.toneMappingExposure = 1.06;
     container.appendChild(renderer.domElement);
 
-    // Процедурный купол дневного неба с облаками и солнцем
     function createModernSkyTexture() {
       const c = document.createElement('canvas');
-      c.width = 1024;
-      c.height = 512;
+      c.width = 2048;
+      c.height = 1024;
       const ctx = c.getContext('2d');
 
-      const grad = ctx.createLinearGradient(0, 0, 0, 512);
-      grad.addColorStop(0.0, '#1d5fa7');
-      grad.addColorStop(0.32, '#4ba3e3');
-      grad.addColorStop(0.48, '#a6dcf8');
-      grad.addColorStop(0.54, '#e0f2fe');
+      const grad = ctx.createLinearGradient(0, 0, 0, 1024);
+      grad.addColorStop(0.0, '#164e8c');
+      grad.addColorStop(0.28, '#3b8fd1');
+      grad.addColorStop(0.46, '#93d1f7');
+      grad.addColorStop(0.53, '#e0f2fe');
       grad.addColorStop(1.0, '#64748b');
       ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, 1024, 512);
+      ctx.fillRect(0, 0, 2048, 1024);
 
-      // Мягкие перистые и кучевые облака на небесной полусфере
-      for (let i = 0; i < 65; i++) {
-        const cx = (i * 173) % 1024;
-        const cy = 65 + ((i * 61) % 165);
-        const rx = 45 + (i % 5) * 24;
-        const ry = 10 + (i % 3) * 6;
-        const cloudGrad = ctx.createRadialGradient(cx, cy, 4, cx, cy, rx);
-        cloudGrad.addColorStop(0, 'rgba(255, 255, 255, 0.65)');
-        cloudGrad.addColorStop(0.55, 'rgba(255, 255, 255, 0.25)');
+      // Многослойные реалистичные перистые и кучевые облака
+      for (let i = 0; i < 120; i++) {
+        const cx = (i * 211) % 2048;
+        const cy = 110 + ((i * 79) % 340);
+        const rx = 75 + (i % 6) * 38;
+        const ry = 16 + (i % 4) * 9;
+        const cloudGrad = ctx.createRadialGradient(cx, cy - ry * 0.2, 6, cx, cy, rx);
+        cloudGrad.addColorStop(0, 'rgba(255, 255, 255, 0.72)');
+        cloudGrad.addColorStop(0.45, 'rgba(241, 245, 249, 0.35)');
+        cloudGrad.addColorStop(0.8, 'rgba(203, 213, 225, 0.12)');
         cloudGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
         ctx.fillStyle = cloudGrad;
         ctx.beginPath();
@@ -723,35 +1204,33 @@
     }
 
     const skyDome = new THREE.Mesh(
-      new THREE.SphereGeometry(480, 32, 24),
+      new THREE.SphereGeometry(480, 40, 28),
       new THREE.MeshBasicMaterial({ map: createModernSkyTexture(), side: THREE.BackSide, fog: false })
     );
     scene.add(skyDome);
 
-    // Объёмные 3D-облака в небе
     const cloudsGroup = new THREE.Group();
-    const cloudMat = new THREE.MeshLambertMaterial({ color: 0xffffff, transparent: true, opacity: 0.82 });
-    for (let i = 0; i < 24; i++) {
+    const cloudMat = new THREE.MeshLambertMaterial({ color: 0xffffff, transparent: true, opacity: 0.85 });
+    for (let i = 0; i < 28; i++) {
       const cloud = new THREE.Group();
-      const puffs = 3 + (i % 3);
+      const puffs = 4 + (i % 3);
       for (let p = 0; p < puffs; p++) {
-        const puff = new THREE.Mesh(new THREE.SphereGeometry(5 + (p % 2) * 3, 12, 10), cloudMat);
-        puff.scale.set(1.8, 0.55, 1.2);
-        puff.position.set((p - 1) * 6.5, (p % 2) * 1.2, ((p * 3) % 3) - 1.5);
+        const puff = new THREE.Mesh(new THREE.SphereGeometry(5.5 + (p % 2) * 3.2, 14, 12), cloudMat);
+        puff.scale.set(1.9, 0.52, 1.25);
+        puff.position.set((p - 1.5) * 6.2, (p % 2) * 1.1, ((p * 3) % 3) - 1.5);
         cloud.add(puff);
       }
-      const angle = (i / 24) * Math.PI * 2;
-      const dist = 60 + (i % 4) * 55;
-      cloud.position.set(Math.cos(angle) * dist, 75 + (i % 4) * 14, Math.sin(angle) * dist);
+      const angle = (i / 28) * Math.PI * 2;
+      const dist = 65 + (i % 4) * 58;
+      cloud.position.set(Math.cos(angle) * dist, 78 + (i % 4) * 15, Math.sin(angle) * dist);
       cloudsGroup.add(cloud);
     }
     scene.add(cloudsGroup);
 
-    // Реалистичное дневное освещение
-    const hemiLight = new THREE.HemisphereLight(0xdbeafe, 0x3f6212, 0.92);
+    const hemiLight = new THREE.HemisphereLight(0xe0f2fe, 0x365314, 0.95);
     scene.add(hemiLight);
 
-    const sunLight = new THREE.DirectionalLight(0xfffbeb, 1.65);
+    const sunLight = new THREE.DirectionalLight(0xfffbeb, 1.75);
     sunLight.position.set(110, 165, 95);
     sunLight.castShadow = true;
     sunLight.shadow.mapSize.width = 2048;
@@ -763,7 +1242,7 @@
     sunLight.shadow.camera.right = d;
     sunLight.shadow.camera.top = d;
     sunLight.shadow.camera.bottom = -d;
-    sunLight.shadow.bias = -0.0005;
+    sunLight.shadow.bias = -0.0004;
     scene.add(sunLight);
 
     const sunDisc = new THREE.Mesh(
@@ -774,41 +1253,81 @@
     scene.add(sunDisc);
 
     // =========================================================================
-    // 2. ПРОРАБОТАННЫЕ ТЕКСТУРЫ СОВРЕМЕННОГО МИРА (ЗЕМЛЯ, СТЕКЛО, БЕТОН, ХВОЯ)
+    // 3. ФОТОРЕАЛИСТИЧНЫЕ ТЕКСТУРЫ МИРА (ГАЗОН, ПЛИТКА, СТЕКЛО, БЕТОН, ХВОЯ)
     // =========================================================================
-    function createModernGroundTexture() {
+    function createRealisticGroundTextures() {
       const c = document.createElement('canvas');
       c.width = 1024;
       c.height = 1024;
       const ctx = c.getContext('2d');
 
-      // Сочный парковый газон
-      ctx.fillStyle = '#365e2c';
-      ctx.fillRect(0, 0, 1024, 1024);
+      const bump = document.createElement('canvas');
+      bump.width = 1024;
+      bump.height = 1024;
+      const bctx = bump.getContext('2d');
 
-      // Естественная фактура травы
-      const grassShades = ['#3f6d34', '#2d5124', '#4d7c3f', '#355c2b'];
-      for (let i = 0; i < 16000; i++) {
+      // Базовый живой газон
+      ctx.fillStyle = '#325a28';
+      ctx.fillRect(0, 0, 1024, 1024);
+      bctx.fillStyle = '#808080';
+      bctx.fillRect(0, 0, 1024, 1024);
+
+      // Реалистичные пучки травы и микрорельеф почвы
+      const grassShades = ['#3c6b30', '#294b20', '#4a7c3b', '#36602b', '#568844'];
+      for (let i = 0; i < 38000; i++) {
+        const x = (i * 73 + ((i * 19) % 31)) % 1024;
+        const y = (i * 137 + ((i * 23) % 37)) % 1024;
         ctx.fillStyle = grassShades[i % grassShades.length];
-        const x = (i * 73) % 1024;
-        const y = (i * 137) % 1024;
-        ctx.fillRect(x, y, 4, 4);
+        ctx.fillRect(x, y, 2, 5);
+        bctx.fillStyle = i % 2 === 0 ? '#9c9c9c' : '#666666';
+        bctx.fillRect(x, y, 2, 4);
       }
 
-      // Современные бетонные пешеходные дорожки
+      // Мощёные пешеходные дорожки с реалистичной тротуарной плиткой
       ctx.fillStyle = '#94a3b8';
-      ctx.fillRect(0, 470, 1024, 84);
       ctx.fillRect(470, 0, 84, 1024);
+      ctx.fillRect(0, 470, 1024, 84);
+      bctx.fillStyle = '#b0b0b0';
+      bctx.fillRect(470, 0, 84, 1024);
+      bctx.fillRect(0, 470, 1024, 84);
 
-      // Асфальтовые проспекты по краям квартала
-      ctx.fillStyle = '#334155';
+      // Швы плитки и бордюры
+      ctx.strokeStyle = '#64748b';
+      ctx.lineWidth = 1.5;
+      bctx.strokeStyle = '#404040';
+      bctx.lineWidth = 2;
+      for (let y = 0; y < 1024; y += 28) {
+        for (let x = 472; x < 552; x += 28) {
+          ctx.strokeRect(x, y, 28, 28);
+          bctx.strokeRect(x, y, 28, 28);
+        }
+      }
+      for (let x = 0; x < 1024; x += 28) {
+        for (let y = 472; y < 552; y += 28) {
+          ctx.strokeRect(x, y, 28, 28);
+          bctx.strokeRect(x, y, 28, 28);
+        }
+      }
+
+      // Зернистый асфальт по периметру
+      ctx.fillStyle = '#2b3544';
       ctx.fillRect(0, 0, 1024, 68);
       ctx.fillRect(0, 956, 1024, 68);
       ctx.fillRect(0, 0, 68, 1024);
       ctx.fillRect(956, 0, 68, 1024);
 
-      // Белая дорожная разметка
-      ctx.fillStyle = '#f8fafc';
+      for (let i = 0; i < 9000; i++) {
+        const ax = (i * 97) % 1024;
+        const ay = (i * 53) % 68;
+        ctx.fillStyle = i % 2 === 0 ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.12)';
+        ctx.fillRect(ax, ay, 2, 2);
+        ctx.fillRect(ax, 956 + ay, 2, 2);
+        ctx.fillRect(ay, ax, 2, 2);
+        ctx.fillRect(956 + ay, ax, 2, 2);
+      }
+
+      // Дорожная разметка
+      ctx.fillStyle = '#f1f5f9';
       for (let i = 16; i < 1008; i += 48) {
         ctx.fillRect(i, 32, 24, 4);
         ctx.fillRect(i, 988, 24, 4);
@@ -816,115 +1335,165 @@
         ctx.fillRect(988, i, 4, 24);
       }
 
-      const tex = new THREE.CanvasTexture(c);
-      tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-      tex.repeat.set(18, 18);
-      tex.anisotropy = 8;
-      return tex;
+      const map = new THREE.CanvasTexture(c);
+      map.wrapS = map.wrapT = THREE.RepeatWrapping;
+      map.repeat.set(18, 18);
+      map.anisotropy = 8;
+
+      const bumpMap = new THREE.CanvasTexture(bump);
+      bumpMap.wrapS = bumpMap.wrapT = THREE.RepeatWrapping;
+      bumpMap.repeat.set(18, 18);
+
+      return { map, bumpMap };
     }
 
     function createHelipadTexture() {
       const c = document.createElement('canvas');
-      c.width = 512;
-      c.height = 512;
+      c.width = 1024;
+      c.height = 1024;
       const ctx = c.getContext('2d');
 
+      // Бетонная плита с реальной фактурой
       ctx.fillStyle = '#334155';
-      ctx.fillRect(0, 0, 512, 512);
+      ctx.fillRect(0, 0, 1024, 1024);
 
-      // Зернистость бетона
-      for (let i = 0; i < 4000; i++) {
-        ctx.fillStyle = i % 2 === 0 ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.06)';
-        ctx.fillRect((i * 41) % 512, (i * 89) % 512, 3, 3);
+      for (let i = 0; i < 18000; i++) {
+        ctx.fillStyle = i % 2 === 0 ? 'rgba(255,255,255,0.045)' : 'rgba(0,0,0,0.08)';
+        ctx.fillRect((i * 41) % 1024, (i * 89) % 1024, 3, 3);
       }
 
+      // Температурные швы бетонных плит
+      ctx.strokeStyle = 'rgba(15, 23, 42, 0.55)';
+      ctx.lineWidth = 4;
+      for (let i = 128; i < 1024; i += 128) {
+        ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 1024); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(1024, i); ctx.stroke();
+      }
+
+      // Внешнее жёлтое кольцо
       ctx.strokeStyle = '#f59e0b';
-      ctx.lineWidth = 20;
+      ctx.lineWidth = 36;
       ctx.beginPath();
-      ctx.arc(256, 256, 212, 0, Math.PI * 2);
+      ctx.arc(512, 512, 424, 0, Math.PI * 2);
       ctx.stroke();
 
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 6;
-      ctx.setLineDash([22, 16]);
+      // Пунктирный внутренний круг
+      ctx.strokeStyle = '#f8fafc';
+      ctx.lineWidth = 10;
+      ctx.setLineDash([42, 28]);
       ctx.beginPath();
-      ctx.arc(256, 256, 178, 0, Math.PI * 2);
+      ctx.arc(512, 512, 356, 0, Math.PI * 2);
       ctx.stroke();
       ctx.setLineDash([]);
 
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(165, 135, 36, 242);
-      ctx.fillRect(311, 135, 36, 242);
-      ctx.fillRect(165, 238, 182, 36);
-      return new THREE.CanvasTexture(c);
-    }
-
-    // Современный стеклянный фасад небоскрёбов
-    function createModernGlassBuildingTexture() {
-      const c = document.createElement('canvas');
-      c.width = 512;
-      c.height = 512;
-      const ctx = c.getContext('2d');
-
-      // Несущие стальные колонны
-      ctx.fillStyle = '#1e293b';
-      ctx.fillRect(0, 0, 512, 512);
-
-      for (let y = 8; y < 504; y += 32) {
-        for (let x = 8; x < 504; x += 32) {
-          const reflection = ((x + y * 2) % 96) / 96;
-          const grad = ctx.createLinearGradient(x, y, x + 26, y + 26);
-          grad.addColorStop(0, reflection > 0.5 ? '#38bdf8' : '#0284c7');
-          grad.addColorStop(0.5, '#0369a1');
-          grad.addColorStop(1, '#1e3a8a');
-          ctx.fillStyle = grad;
-          ctx.fillRect(x, y, 26, 24);
-
-          // Блик на стекле
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.22)';
-          ctx.fillRect(x + 2, y + 2, 10, 4);
-        }
-      }
+      // Буква H
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillRect(330, 270, 72, 484);
+      ctx.fillRect(622, 270, 72, 484);
+      ctx.fillRect(330, 476, 364, 72);
 
       const tex = new THREE.CanvasTexture(c);
-      tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
       tex.anisotropy = 8;
       return tex;
     }
 
-    // Современные арки (карбон, сталь и неоновые шевроны)
+    function createModernGlassBuildingTextures() {
+      const c = document.createElement('canvas');
+      c.width = 512;
+      c.height = 512;
+      const ctx = c.getContext('2d');
+
+      const rough = document.createElement('canvas');
+      rough.width = 512;
+      rough.height = 512;
+      const rctx = rough.getContext('2d');
+
+      // Алюминиевый каркас фасада (матовый)
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(0, 0, 512, 512);
+      rctx.fillStyle = '#d0d0d0';
+      rctx.fillRect(0, 0, 512, 512);
+
+      for (let y = 6; y < 506; y += 32) {
+        for (let x = 6; x < 506; x += 32) {
+          const reflection = ((x * 3 + y * 5) % 100) / 100;
+          const grad = ctx.createLinearGradient(x, y, x + 26, y + 26);
+          grad.addColorStop(0, reflection > 0.55 ? '#7dd3fc' : '#38bdf8');
+          grad.addColorStop(0.45, '#0284c7');
+          grad.addColorStop(1, '#0f294a');
+          ctx.fillStyle = grad;
+          ctx.fillRect(x, y, 26, 25);
+
+          // Внутренние перекрытия и жалюзи за стеклом
+          if (reflection > 0.35 && reflection < 0.75) {
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
+            ctx.fillRect(x, y, 26, 9);
+          }
+
+          // Естественный блик неба на стекле
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.28)';
+          ctx.beginPath();
+          ctx.moveTo(x + 2, y + 2);
+          ctx.lineTo(x + 14, y + 2);
+          ctx.lineTo(x + 4, y + 14);
+          ctx.closePath();
+          ctx.fill();
+
+          // Стекло глянцевое (низкая шероховатость)
+          rctx.fillStyle = '#181818';
+          rctx.fillRect(x, y, 26, 25);
+        }
+      }
+
+      const map = new THREE.CanvasTexture(c);
+      map.wrapS = map.wrapT = THREE.RepeatWrapping;
+      map.anisotropy = 8;
+
+      const roughnessMap = new THREE.CanvasTexture(rough);
+      roughnessMap.wrapS = roughnessMap.wrapT = THREE.RepeatWrapping;
+
+      return { map, roughnessMap };
+    }
+
     function createModernArchTexture() {
       const c = document.createElement('canvas');
-      c.width = 256;
-      c.height = 256;
+      c.width = 512;
+      c.height = 512;
       const ctx = c.getContext('2d');
 
       ctx.fillStyle = '#1e293b';
-      ctx.fillRect(0, 0, 256, 256);
+      ctx.fillRect(0, 0, 512, 512);
 
-      // Яркие сигнальные шевроны
+      // Металлическая текстура и сигнальные шевроны
       ctx.fillStyle = '#0ea5e9';
-      for (let i = -256; i < 512; i += 64) {
+      for (let i = -512; i < 1024; i += 128) {
         ctx.beginPath();
         ctx.moveTo(i, 0);
-        ctx.lineTo(i + 28, 0);
-        ctx.lineTo(i - 96, 256);
-        ctx.lineTo(i - 124, 256);
+        ctx.lineTo(i + 54, 0);
+        ctx.lineTo(i - 190, 512);
+        ctx.lineTo(i - 244, 512);
         ctx.closePath();
         ctx.fill();
       }
 
-      ctx.strokeStyle = '#e2e8f0';
-      ctx.lineWidth = 8;
-      ctx.strokeRect(4, 4, 248, 248);
+      ctx.strokeStyle = '#cbd5e1';
+      ctx.lineWidth = 12;
+      ctx.strokeRect(6, 6, 500, 500);
+
+      // Заклёпки по краям
+      ctx.fillStyle = '#94a3b8';
+      for (let p = 24; p < 490; p += 46) {
+        ctx.beginPath(); ctx.arc(20, p, 4, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(492, p, 4, 0, Math.PI * 2); ctx.fill();
+      }
 
       const tex = new THREE.CanvasTexture(c);
       tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
       tex.repeat.set(1, 4);
+      tex.anisotropy = 8;
       return tex;
     }
 
-    // Текстура стен и потолка современных комнат/лабораторий (уровни 21–30)
     function createRoomWallTexture() {
       const c = document.createElement('canvas');
       c.width = 512;
@@ -934,7 +1503,6 @@
       ctx.fillStyle = '#cbd5e1';
       ctx.fillRect(0, 0, 512, 512);
 
-      // Архитектурные композитные панели
       ctx.strokeStyle = '#64748b';
       ctx.lineWidth = 4;
       for (let y = 0; y < 512; y += 128) {
@@ -942,10 +1510,16 @@
           ctx.fillStyle = ((x + y) / 128) % 2 === 0 ? '#e2e8f0' : '#cbd5e1';
           ctx.fillRect(x + 3, y + 3, 122, 122);
           ctx.strokeRect(x + 2, y + 2, 124, 124);
+
+          // Технологические болты в углах панелей
+          ctx.fillStyle = '#475569';
+          ctx.fillRect(x + 10, y + 10, 5, 5);
+          ctx.fillRect(x + 113, y + 10, 5, 5);
+          ctx.fillRect(x + 10, y + 113, 5, 5);
+          ctx.fillRect(x + 113, y + 113, 5, 5);
         }
       }
 
-      // Предупреждающая оранжевая полоса вдоль стены
       ctx.fillStyle = '#f59e0b';
       ctx.fillRect(0, 244, 512, 16);
       ctx.fillStyle = '#0f172a';
@@ -960,22 +1534,22 @@
 
     function createPineNeedleTexture() {
       const c = document.createElement('canvas');
-      c.width = 256;
-      c.height = 256;
+      c.width = 512;
+      c.height = 512;
       const ctx = c.getContext('2d');
 
-      ctx.fillStyle = '#16422b';
-      ctx.fillRect(0, 0, 256, 256);
+      ctx.fillStyle = '#143d27';
+      ctx.fillRect(0, 0, 512, 512);
 
-      const shades = ['#1f5c3d', '#2d7a53', '#123522', '#40916c'];
-      for (let i = 0; i < 1100; i++) {
+      const shades = ['#1d5738', '#2a754d', '#0f301e', '#3a885e', '#4aa374'];
+      for (let i = 0; i < 4200; i++) {
         ctx.strokeStyle = shades[i % shades.length];
-        ctx.lineWidth = 2.5;
-        const x = (i * 37) % 256;
-        const y = (i * 53) % 256;
+        ctx.lineWidth = 2.4;
+        const x = (i * 37) % 512;
+        const y = (i * 53) % 512;
         ctx.beginPath();
         ctx.moveTo(x, y);
-        ctx.lineTo(x + ((i % 3) - 1) * 7, y + 14);
+        ctx.lineTo(x + ((i % 5) - 2) * 5, y + 16);
         ctx.stroke();
       }
 
@@ -987,15 +1561,17 @@
 
     function createBarkTexture() {
       const c = document.createElement('canvas');
-      c.width = 128;
-      c.height = 128;
+      c.width = 256;
+      c.height = 256;
       const ctx = c.getContext('2d');
 
-      ctx.fillStyle = '#5c3d28';
-      ctx.fillRect(0, 0, 128, 128);
-      ctx.fillStyle = '#3b2416';
-      for (let x = 0; x < 128; x += 8) {
-        ctx.fillRect(x, (x * 13) % 64, 3, 55);
+      ctx.fillStyle = '#523624';
+      ctx.fillRect(0, 0, 256, 256);
+      for (let i = 0; i < 450; i++) {
+        ctx.fillStyle = i % 2 === 0 ? '#362114' : '#694630';
+        const x = (i * 19) % 256;
+        const y = (i * 47) % 256;
+        ctx.fillRect(x, y, 4, 34);
       }
       const tex = new THREE.CanvasTexture(c);
       tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
@@ -1008,7 +1584,7 @@
       c.height = 256;
       const ctx = c.getContext('2d');
 
-      ctx.fillStyle = '#991b1b';
+      ctx.fillStyle = '#7f1d1d';
       ctx.fillRect(0, 0, 256, 256);
       ctx.strokeStyle = '#fca5a5';
       ctx.lineWidth = 10;
@@ -1023,37 +1599,61 @@
       return tex;
     }
 
-    // Земля современного города/парка
+    const groundTextures = createRealisticGroundTextures();
     const ground = new THREE.Mesh(
       new THREE.PlaneGeometry(1000, 1000),
-      new THREE.MeshStandardMaterial({ map: createModernGroundTexture(), roughness: 0.85 })
+      new THREE.MeshStandardMaterial({
+        map: groundTextures.map,
+        bumpMap: groundTextures.bumpMap,
+        bumpScale: 0.08,
+        roughness: 0.88
+      })
     );
     ground.rotation.x = -Math.PI / 2;
     ground.receiveShadow = true;
     scene.add(ground);
 
-    // Центральная посадочная площадка
+    // Детализированная посадочная площадка с металлическим кантом и огнями
+    const helipadGroup = new THREE.Group();
     const helipad = new THREE.Mesh(
-      new THREE.CylinderGeometry(5.5, 5.9, 0.14, 48),
-      new THREE.MeshStandardMaterial({ map: createHelipadTexture(), roughness: 0.55 })
+      new THREE.CylinderGeometry(5.5, 5.9, 0.14, 64),
+      new THREE.MeshStandardMaterial({ map: createHelipadTexture(), roughness: 0.62, metalness: 0.1 })
     );
-    helipad.position.set(0, 0.07, 0);
+    helipad.position.y = 0.07;
     helipad.receiveShadow = true;
-    scene.add(helipad);
+    helipadGroup.add(helipad);
 
-    // Материалы
-    const archMat = new THREE.MeshStandardMaterial({ map: createModernArchTexture(), roughness: 0.35, metalness: 0.4 });
-    const pineLeafMat = new THREE.MeshStandardMaterial({ map: createPineNeedleTexture(), roughness: 0.78 });
-    const barkMat = new THREE.MeshStandardMaterial({ map: createBarkTexture(), roughness: 0.9 });
+    const padRim = new THREE.Mesh(
+      new THREE.TorusGeometry(5.7, 0.12, 12, 64),
+      new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.4, metalness: 0.7 })
+    );
+    padRim.rotation.x = Math.PI / 2;
+    padRim.position.y = 0.08;
+    helipadGroup.add(padRim);
+
+    const padLightMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+    for (let i = 0; i < 12; i++) {
+      const ang = (i / 12) * Math.PI * 2;
+      const beacon = new THREE.Mesh(new THREE.SphereGeometry(0.11, 10, 10), padLightMat);
+      beacon.position.set(Math.cos(ang) * 5.65, 0.16, Math.sin(ang) * 5.65);
+      helipadGroup.add(beacon);
+    }
+    scene.add(helipadGroup);
+
+    const glassTex = createModernGlassBuildingTextures();
+    const archMat = new THREE.MeshStandardMaterial({ map: createModernArchTexture(), roughness: 0.32, metalness: 0.55 });
+    const pineLeafMat = new THREE.MeshStandardMaterial({ map: createPineNeedleTexture(), roughness: 0.82 });
+    const barkMat = new THREE.MeshStandardMaterial({ map: createBarkTexture(), bumpMap: createBarkTexture(), bumpScale: 0.06, roughness: 0.92 });
     const buildingMat = new THREE.MeshStandardMaterial({
-      map: createModernGlassBuildingTexture(),
-      roughness: 0.18,
-      metalness: 0.65
+      map: glassTex.map,
+      roughnessMap: glassTex.roughnessMap,
+      roughness: 0.25,
+      metalness: 0.72
     });
     const roomWallMat = new THREE.MeshStandardMaterial({
       map: createRoomWallTexture(),
-      roughness: 0.45,
-      metalness: 0.15
+      roughness: 0.42,
+      metalness: 0.22
     });
     const hazardMat = new THREE.MeshStandardMaterial({
       map: createHazardBlockTexture(),
@@ -1062,7 +1662,7 @@
       roughness: 0.35
     });
 
-    // Фоновый горизонт современного мегаполиса (вне игровой зоны, для реализма)
+    // Фоновый мегаполис
     const skylineGroup = new THREE.Group();
     for (let i = 0; i < 36; i++) {
       const ang = (i / 36) * Math.PI * 2;
@@ -1077,100 +1677,194 @@
     scene.add(skylineGroup);
 
     // =========================================================================
-    // 3. ДЕТАЛИЗИРОВАННАЯ 3D МОДЕЛЬ КВАДРОКОПТЕРА И СИСТЕМА ОБЛОМКОВ
+    // 4. ФОТОРЕАЛИСТИЧНАЯ 3D-МОДЕЛЬ КВАДРОКОПТЕРА (DJI / CINE-DRONE STYLE)
     // =========================================================================
     const droneRoot = new THREE.Group();
     const droneBody = new THREE.Group();
     droneRoot.add(droneBody);
     scene.add(droneRoot);
 
-    const carbonMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.3, metalness: 0.7 });
-    const accentMat = new THREE.MeshStandardMaterial({ color: 0x0ea5e9, roughness: 0.2, metalness: 0.5 });
-    const motorMat = new THREE.MeshStandardMaterial({ color: 0xcbd5e1, roughness: 0.2, metalness: 0.85 });
+    const bodyShellMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.32, metalness: 0.45 });
+    const carbonFrameMat = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.28, metalness: 0.75 });
+    const titaniumAccentMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.22, metalness: 0.85 });
+    const copperCoilMat = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.25, metalness: 0.9 });
+    const orangeTipMat = new THREE.MeshStandardMaterial({ color: 0xf97316, roughness: 0.3 });
 
-    const chassis = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.14, 0.68), carbonMat);
-    chassis.castShadow = true;
-    droneBody.add(chassis);
+    // 1. Обтекаемый аэродинамический фюзеляж
+    const lowerCore = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.10, 0.56), carbonFrameMat);
+    lowerCore.castShadow = true;
+    droneBody.add(lowerCore);
 
-    const topShell = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.08, 0.52), accentMat);
-    topShell.position.set(0, 0.09, -0.02);
-    topShell.castShadow = true;
-    droneBody.add(topShell);
+    const upperAeroShell = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.08, 0.50), bodyShellMat);
+    upperAeroShell.position.set(0, 0.075, 0.02);
+    upperAeroShell.castShadow = true;
+    droneBody.add(upperAeroShell);
 
-    const cameraHousing = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.14, 0.14), carbonMat);
-    cameraHousing.position.set(0, 0.02, -0.36);
-    droneBody.add(cameraHousing);
+    // Носовой обтекатель и передние сенсоры препятствий ("глаза" дрона)
+    const noseCone = new THREE.Mesh(new THREE.SphereGeometry(0.155, 20, 16), bodyShellMat);
+    noseCone.scale.set(1.0, 0.58, 1.15);
+    noseCone.position.set(0, 0.04, -0.24);
+    noseCone.castShadow = true;
+    droneBody.add(noseCone);
 
-    const lens = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.055, 0.055, 0.06, 16),
-      new THREE.MeshStandardMaterial({ color: 0x090d16, roughness: 0.05, metalness: 0.95 })
+    const sensorLensMat = new THREE.MeshStandardMaterial({ color: 0x05080f, roughness: 0.05, metalness: 0.95 });
+    [-0.075, 0.075].forEach(sx => {
+      const sensorRing = new THREE.Mesh(new THREE.CylinderGeometry(0.026, 0.026, 0.02, 14), titaniumAccentMat);
+      sensorRing.rotation.x = Math.PI / 2;
+      sensorRing.position.set(sx, 0.045, -0.38);
+      droneBody.add(sensorRing);
+
+      const sensorEye = new THREE.Mesh(new THREE.CylinderGeometry(0.019, 0.019, 0.024, 14), sensorLensMat);
+      sensorEye.rotation.x = Math.PI / 2;
+      sensorEye.position.set(sx, 0.045, -0.383);
+      droneBody.add(sensorEye);
+    });
+
+    // Аккумуляторный блок сверху с 4 светодиодами заряда и вентиляционными ребрами
+    const batteryPack = new THREE.Mesh(new THREE.BoxGeometry(0.21, 0.055, 0.32), titaniumAccentMat);
+    batteryPack.position.set(0, 0.125, 0.05);
+    batteryPack.castShadow = true;
+    droneBody.add(batteryPack);
+
+    const batLedMat = new THREE.MeshBasicMaterial({ color: 0x10b981 });
+    for (let b = 0; b < 4; b++) {
+      const ledDot = new THREE.Mesh(new THREE.BoxGeometry(0.025, 0.008, 0.014), batLedMat);
+      ledDot.position.set(-0.045 + b * 0.03, 0.154, 0.08);
+      droneBody.add(ledDot);
+    }
+
+    // 2. Трёхосевой подвес камеры (3-Axis Gimbal) и объектив Hasselblad-типа
+    const gimbalGroup = new THREE.Group();
+    gimbalGroup.position.set(0, -0.04, -0.32);
+    droneBody.add(gimbalGroup);
+
+    const gimbalBracket = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.09, 0.08), carbonFrameMat);
+    gimbalGroup.add(gimbalBracket);
+
+    const cameraBody = new THREE.Mesh(new THREE.BoxGeometry(0.115, 0.105, 0.11), bodyShellMat);
+    cameraBody.position.set(0, -0.01, -0.05);
+    cameraBody.castShadow = true;
+    gimbalGroup.add(cameraBody);
+
+    const lensBarrel = new THREE.Mesh(new THREE.CylinderGeometry(0.046, 0.048, 0.045, 24), titaniumAccentMat);
+    lensBarrel.rotation.x = Math.PI / 2;
+    lensBarrel.position.set(0, -0.01, -0.115);
+    gimbalGroup.add(lensBarrel);
+
+    const coatedGlass = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.038, 0.038, 0.008, 24),
+      new THREE.MeshStandardMaterial({
+        color: 0x0c4a6e,
+        emissive: 0x0284c7,
+        emissiveIntensity: 0.35,
+        roughness: 0.02,
+        metalness: 0.98
+      })
     );
-    lens.rotation.x = Math.PI / 2;
-    lens.position.set(0, 0.02, -0.43);
-    droneBody.add(lens);
+    coatedGlass.rotation.x = Math.PI / 2;
+    coatedGlass.position.set(0, -0.01, -0.136);
+    gimbalGroup.add(coatedGlass);
 
-    [-0.18, 0.18].forEach(x => {
-      const skid = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.03, 0.62), carbonMat);
-      skid.position.set(x, -0.18, 0);
+    // 3. Посадочные опоры с демпферами
+    [-0.14, 0.14].forEach(x => {
+      const skid = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.48, 10), carbonFrameMat);
+      skid.rotation.x = Math.PI / 2;
+      skid.position.set(x, -0.155, 0.02);
       skid.castShadow = true;
       droneBody.add(skid);
 
-      [-0.18, 0.18].forEach(z => {
-        const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.14, 8), carbonMat);
-        leg.position.set(x, -0.11, z);
-        droneBody.add(leg);
+      [-0.14, 0.16].forEach(z => {
+        const strut = new THREE.Mesh(new THREE.CylinderGeometry(0.011, 0.014, 0.12, 8), bodyShellMat);
+        strut.position.set(x, -0.095, z);
+        strut.rotation.z = x > 0 ? -0.18 : 0.18;
+        droneBody.add(strut);
       });
     });
 
+    // 4. Аэродинамические лучи, бесколлекторные моторы с медной обмоткой и складные лопасти
     const propellers = [];
     const armConfigs = [
-      { x: -0.42, z: -0.42, front: true,  dir: 1 },
-      { x:  0.42, z: -0.42, front: true,  dir: -1 },
-      { x: -0.42, z:  0.42, front: false, dir: -1 },
-      { x:  0.42, z:  0.42, front: false, dir: 1 }
+      { x: -0.44, z: -0.38, front: true,  dir: 1 },
+      { x:  0.44, z: -0.38, front: true,  dir: -1 },
+      { x: -0.42, z:  0.40, front: false, dir: -1 },
+      { x:  0.42, z:  0.40, front: false, dir: 1 }
     ];
 
     const propBladeMat = new THREE.MeshStandardMaterial({
-      color: 0xf8fafc,
-      transparent: true,
-      opacity: 0.78,
-      roughness: 0.2
+      color: 0x1e293b,
+      roughness: 0.25,
+      metalness: 0.3
     });
     const blurDiscMat = new THREE.MeshBasicMaterial({
-      color: 0x38bdf8,
+      color: 0x94a3b8,
       transparent: true,
-      opacity: 0.2,
+      opacity: 0.16,
       side: THREE.DoubleSide
     });
 
     armConfigs.forEach(cfg => {
-      const arm = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.04, 0.62), carbonMat);
-      arm.position.set(cfg.x * 0.5, 0.01, cfg.z * 0.5);
-      arm.rotation.y = Math.atan2(cfg.x, cfg.z);
+      const dx = cfg.x * 0.82;
+      const dz = cfg.z * 0.78;
+      const armLen = Math.hypot(dx, dz);
+
+      const arm = new THREE.Mesh(new THREE.BoxGeometry(0.052, 0.036, armLen), bodyShellMat);
+      arm.position.set(dx * 0.52, 0.02, dz * 0.52);
+      arm.rotation.y = Math.atan2(dx, dz);
       arm.castShadow = true;
       droneBody.add(arm);
 
-      const motor = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.065, 0.08, 16), motorMat);
-      motor.position.set(cfg.x, 0.05, cfg.z);
-      motor.castShadow = true;
-      droneBody.add(motor);
+      // Металлический шарнир луча у корпуса
+      const hinge = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 0.052, 12), titaniumAccentMat);
+      hinge.position.set(cfg.x * 0.28, 0.02, cfg.z * 0.26);
+      droneBody.add(hinge);
 
+      // Стакан мотора (статор + медные обмотки + вращающийся колокол)
+      const motorBase = new THREE.Mesh(new THREE.CylinderGeometry(0.052, 0.046, 0.035, 18), carbonFrameMat);
+      motorBase.position.set(cfg.x, 0.035, cfg.z);
+      droneBody.add(motorBase);
+
+      const copperRing = new THREE.Mesh(new THREE.CylinderGeometry(0.048, 0.048, 0.018, 18), copperCoilMat);
+      copperRing.position.set(cfg.x, 0.052, cfg.z);
+      droneBody.add(copperRing);
+
+      const motorBell = new THREE.Mesh(new THREE.CylinderGeometry(0.054, 0.054, 0.032, 20), titaniumAccentMat);
+      motorBell.position.set(cfg.x, 0.072, cfg.z);
+      motorBell.castShadow = true;
+      droneBody.add(motorBell);
+
+      // Навигационный LED-индикатор на конце луча
       const ledColor = cfg.front ? 0x10b981 : 0xef4444;
       const led = new THREE.Mesh(
-        new THREE.SphereGeometry(0.032, 10, 10),
+        new THREE.SphereGeometry(0.024, 10, 10),
         new THREE.MeshBasicMaterial({ color: ledColor })
       );
-      led.position.set(cfg.x, -0.02, cfg.z);
+      led.position.set(cfg.x, 0.005, cfg.z);
       droneBody.add(led);
 
+      // Двухлопастной пропеллер с оранжевыми законцовками и ступицей
       const propGroup = new THREE.Group();
-      propGroup.position.set(cfg.x, 0.10, cfg.z);
+      propGroup.position.set(cfg.x, 0.095, cfg.z);
 
-      const blade = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.008, 0.042), propBladeMat);
-      const disc = new THREE.Mesh(new THREE.RingGeometry(0.07, 0.23, 24), blurDiscMat);
+      const hub = new THREE.Mesh(new THREE.ConeGeometry(0.026, 0.028, 14), titaniumAccentMat);
+      hub.position.y = 0.01;
+      propGroup.add(hub);
+
+      [-1, 1].forEach(side => {
+        const blade = new THREE.Mesh(new THREE.BoxGeometry(0.21, 0.005, 0.034), propBladeMat);
+        blade.position.set(side * 0.115, 0, 0);
+        blade.rotation.x = side * cfg.dir * 0.14;
+        propGroup.add(blade);
+
+        const tip = new THREE.Mesh(new THREE.BoxGeometry(0.028, 0.0055, 0.032), orangeTipMat);
+        tip.position.set(side * 0.228, 0, 0);
+        tip.rotation.x = side * cfg.dir * 0.14;
+        propGroup.add(tip);
+      });
+
+      const disc = new THREE.Mesh(new THREE.RingGeometry(0.055, 0.24, 28), blurDiscMat);
       disc.rotation.x = -Math.PI / 2;
+      propGroup.add(disc);
 
-      propGroup.add(blade, disc);
       droneBody.add(propGroup);
       propellers.push({ mesh: propGroup, dir: cfg.dir });
     });
@@ -1191,7 +1885,7 @@
 
     function spawnExplosion(pos) {
       clearDebris();
-      const shardMats = [carbonMat, accentMat, motorMat, new THREE.MeshBasicMaterial({ color: 0xf59e0b })];
+      const shardMats = [carbonFrameMat, bodyShellMat, titaniumAccentMat, new THREE.MeshBasicMaterial({ color: 0xf59e0b })];
 
       for (let i = 0; i < 24; i++) {
         const geo = i % 3 === 0
@@ -1244,17 +1938,17 @@
     }
 
     // =========================================================================
-    // 4. ГЕНЕРАТОР 30 УРОВНЕЙ (ЗДАНИЯ, АРКИ, ЁЛКИ, КОМНАТЫ И ЛАЗЕРЫ)
+    // 5. ГЕНЕРАТОР 30 УРОВНЕЙ (ГЕОМЕТРИЯ И МАРШРУТЫ СОХРАНЕНЫ БЕЗ ИЗМЕНЕНИЙ)
     // =========================================================================
     const levelContainer = new THREE.Group();
     scene.add(levelContainer);
 
-    let levelBoxes = [];   // Здания и стены комнат (AABB коллайдеры)
-    let levelArches = [];  // Поворотные арки
-    let levelTrees = [];   // Ёлки
-    let levelRings = [];   // Кольца
-    let levelHazards = []; // Подвижные барьеры и турбины
-    let levelLasers = [];  // Лазерные лучи (уровни 21-30)
+    let levelBoxes = [];
+    let levelArches = [];
+    let levelTrees = [];
+    let levelRings = [];
+    let levelHazards = [];
+    let levelLasers = [];
 
     let currentLevelIndex = 0;
     let currentRingIdx = 0;
@@ -1307,7 +2001,6 @@
       addBoxCollider(x, h / 2, z, w, h, d, buildingMat, 'УДАР О НЕБОСКРЁБ');
     }
 
-    // Построение закрытой комнаты / коридора с дверными проёмами спереди и сзади
     function addRoom(cfg) {
       const cx = cfg.x || 0;
       const cz = cfg.z;
@@ -1316,16 +2009,12 @@
       const d = cfg.d || 24;
       const doorW = cfg.doorW || 8.5;
       const doorH = cfg.doorH || 7.2;
-      const t = 0.8; // Толщина стен
+      const t = 0.8;
 
-      // Левая и правая стены
       addBoxCollider(cx - w / 2, h / 2, cz, t, h, d, roomWallMat, 'УДАР О СТЕНУ КОМНАТЫ');
       addBoxCollider(cx + w / 2, h / 2, cz, t, h, d, roomWallMat, 'УДАР О СТЕНУ КОМНАТЫ');
-
-      // Потолок комнаты
       addBoxCollider(cx, h + t / 2, cz, w + t, t, d, roomWallMat, 'УДАР О ПОТОЛОК КОМНАТЫ');
 
-      // Входная (передняя, z + d/2) и выходная (задняя, z - d/2) стены с проёмом
       const sidePanelW = (w - doorW) / 2;
       const lintelH = h - doorH;
 
@@ -1339,7 +2028,6 @@
         }
       });
 
-      // Яркие потолочные светильники внутри комнаты для отличной видимости
       const lampMat = new THREE.MeshBasicMaterial({ color: 0xe0f2fe });
       for (let lz = cz - d / 2 + 4; lz <= cz + d / 2 - 4; lz += 8) {
         const lamp = new THREE.Mesh(new THREE.BoxGeometry(w * 0.45, 0.15, 0.8), lampMat);
@@ -1348,7 +2036,6 @@
       }
     }
 
-    // Лазерные лучи для уровней 21–30
     const laserCoreMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
     const laserGlowMat = new THREE.MeshBasicMaterial({ color: 0xff1744, transparent: true, opacity: 0.72 });
     const emitterMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.8, roughness: 0.2 });
@@ -1496,7 +2183,7 @@
       ];
 
       tiers.forEach(t => {
-        const cone = new THREE.Mesh(new THREE.ConeGeometry(t.r, t.h, 12), pineLeafMat);
+        const cone = new THREE.Mesh(new THREE.ConeGeometry(t.r, t.h, 14), pineLeafMat);
         cone.position.y = t.y;
         cone.castShadow = true;
         cone.receiveShadow = true;
@@ -1570,10 +2257,9 @@
     }
 
     // =========================================================================
-    // 5. КОНФИГУРАЦИЯ ВСЕХ 30 УРОВНЕЙ (С ИСПРАВЛЕННЫМ 7-М И 10 ЛАЗЕРНЫМИ)
+    // 6. ВСЕ 30 УРОВНЕЙ (ОРИГИНАЛЬНЫЕ МАРШРУТЫ)
     // =========================================================================
     const LEVELS = [
-      // --- УРОВНИ 1–10: СОВРЕМЕННЫЙ ГОРОД И ПАРК ---
       {
         name: 'Ур. 1 — Первый взлёт',
         desc: 'Прямой коридор и широкие обручи над парком',
@@ -1745,8 +2431,6 @@
         buildings: [{ x: 0, z: -64, w: 15, h: 46, d: 15 }],
         hazards: []
       },
-
-      // --- УРОВНИ 11–20: ПОДВИЖНЫЕ ПРЕПЯТСТВИЯ ---
       {
         name: 'Ур. 11 — Скользящие барьеры',
         desc: 'Уклоняйтесь от движущихся красных стен',
@@ -1898,7 +2582,7 @@
           { kind: 'slider', x: 3.5, y: 7.5, z: -38, w: 3.2, h: 3.2, d: 3.2, moveY: 2.8, moveX: 2.0, speed: 2.5, phase: 3.14 },
           { kind: 'slider', x: 0, y: 6.5, z: -64, w: 3.6, h: 3.6, d: 3.6, moveX: 5.0, speed: 2.8, phase: 1.2 },
           { kind: 'slider', x: -4.0, y: 4.5, z: -92, w: 3.2, h: 3.2, d: 3.2, moveY: 3.0, speed: 3.0, phase: 2.0 },
-          { kind: 'slider', x: 4.0, y: 8.5, z: -96, w: 3.2, h: 3.2, d: 3.2, moveY: 3.0, speed: 3.0, phase: 5.14 }
+          { kind: 4.0, y: 8.5, z: -96, w: 3.2, h: 3.2, d: 3.2, moveY: 3.0, speed: 3.0, phase: 5.14 }
         ]
       },
       {
@@ -1939,8 +2623,6 @@
           { kind: 'spinner', x: -14, y: 6.5, z: -60, w: 11.0, h: 1.0, d: 1.0, rotSpeedZ: -2.2 }
         ]
       },
-
-      // --- УРОВНИ 21–30: КОМНАТЫ И ЛАЗЕРЫ ---
       {
         name: 'Ур. 21 — Лазерный холл',
         desc: 'Влетите в первую комнату и облетите горизонтальные лазеры',
@@ -2125,16 +2807,31 @@
     ];
 
     // =========================================================================
-    // 6. ЛОББИ И НАВИГАЦИЯ ПО УРОВНЯМ
+    // 7. УПРАВЛЕНИЕ ЛОББИ, МОДАЛЬНЫМИ ОКНАМИ И АНИМАЦИЕЙ ПРИЛЁТА В SLOW-MO
     // =========================================================================
     const lobbyOverlay = document.getElementById('lobby-overlay');
+    const levelsModal = document.getElementById('levels-modal');
+    const settingsModal = document.getElementById('settings-modal');
     const hudLayer = document.getElementById('hud-layer');
     const levelSelect = document.getElementById('level-select');
-    const btnStartPlay = document.getElementById('btn-start-play');
 
     let isInLobby = true;
+    let lobbyCineTime = 0;
 
-    function buildLobbyGrids() {
+    function resetLobbyArrivalAnimation() {
+      lobbyCineTime = 0;
+    }
+
+    document.getElementById('btn-replay-arrival').onclick = () => {
+      resetLobbyArrivalAnimation();
+    };
+
+    function updateLobbySummary() {
+      document.getElementById('lobby-current-lvl').textContent = LEVELS[currentLevelIndex].name;
+      document.getElementById('lobby-progress').textContent = `${completedLevels.size} / ${LEVELS.length}`;
+    }
+
+    function buildLevelGrids() {
       const g1 = document.getElementById('grid-stage-1');
       const g2 = document.getElementById('grid-stage-2');
       const g3 = document.getElementById('grid-stage-3');
@@ -2144,13 +2841,11 @@
       levelSelect.innerHTML = '';
 
       LEVELS.forEach((lvl, idx) => {
-        // Dropdown в HUD
         const opt = document.createElement('option');
         opt.value = idx;
         opt.textContent = lvl.name;
         levelSelect.appendChild(opt);
 
-        // Карточка в Лобби
         const tile = document.createElement('button');
         tile.className = 'lvl-tile' +
           (idx >= 20 ? ' laser-tile' : '') +
@@ -2167,8 +2862,8 @@
           <div class="lvl-tile-name">${shortName}</div>
         `;
         tile.onclick = () => {
-          loadLevel(idx, false);
-          closeLobby();
+          levelsModal.classList.remove('open');
+          startGameWithLoading(idx);
         };
 
         if (idx < 10) g1.appendChild(tile);
@@ -2176,34 +2871,132 @@
         else g3.appendChild(tile);
       });
 
-      btnStartPlay.textContent = `▶ ИГРАТЬ (Уровень ${currentLevelIndex + 1})`;
+      levelSelect.value = currentLevelIndex;
+      updateLobbySummary();
     }
 
-    function openLobby() {
-      isInLobby = true;
-      isMouseDragging = false;
-      container.classList.remove('dragging');
-      Object.keys(keys).forEach(k => { keys[k] = false; });
-      document.querySelectorAll('.key-cap').forEach(el => el.classList.remove('pressed'));
+    function openLobby(withTransition = false) {
+      const enterLobby = () => {
+        isInLobby = true;
+        isMouseDragging = false;
+        container.classList.remove('dragging');
+        Object.keys(keys).forEach(k => { keys[k] = false; });
+        document.querySelectorAll('.key-cap').forEach(el => el.classList.remove('pressed'));
 
-      buildLobbyGrids();
-      lobbyOverlay.classList.remove('hidden');
-      hudLayer.classList.add('hidden');
+        buildLevelGrids();
+        resetLobbyArrivalAnimation();
+        lobbyOverlay.classList.remove('hidden');
+        hudLayer.classList.add('hidden');
+        document.getElementById('reticle').style.opacity = '0';
+      };
+
+      if (withTransition) {
+        runLoadingTransition({
+          tag: 'ВОЗВРАТ НА БАЗУ',
+          title: 'Главное лобби',
+          desc: 'Перевод дрона в режим демонстрации...',
+          duration: 650
+        }, enterLobby);
+      } else {
+        enterLobby();
+      }
     }
 
-    function closeLobby() {
-      isInLobby = false;
-      lobbyOverlay.classList.add('hidden');
-      hudLayer.classList.remove('hidden');
-      loadLevel(currentLevelIndex, true);
+    function startGameWithLoading(lvlIdx) {
+      const targetIdx = (lvlIdx + LEVELS.length) % LEVELS.length;
+      const lvl = LEVELS[targetIdx];
+
+      runLoadingTransition({
+        tag: `ЭТАП ${Math.floor(targetIdx / 10) + 1} • МАРШРУТ ${targetIdx + 1} / 30`,
+        title: lvl.name,
+        desc: lvl.desc,
+        duration: 850
+      }, () => {
+        isInLobby = false;
+        lobbyOverlay.classList.add('hidden');
+        levelsModal.classList.remove('open');
+        settingsModal.classList.remove('open');
+        hudLayer.classList.remove('hidden');
+        applyCameraMode(simSettings.defaultCamera);
+        loadLevel(targetIdx, true);
+      });
     }
 
-    btnStartPlay.onclick = () => closeLobby();
-    document.getElementById('btn-open-lobby').onclick = (e) => {
-      e.target.blur();
-      openLobby();
+    document.getElementById('btn-start-play').onclick = () => {
+      startGameWithLoading(currentLevelIndex);
     };
 
+    document.getElementById('btn-open-levels').onclick = () => {
+      buildLevelGrids();
+      levelsModal.classList.add('open');
+    };
+
+    document.getElementById('btn-close-levels').onclick = () => {
+      levelsModal.classList.remove('open');
+    };
+
+    document.getElementById('btn-open-settings').onclick = () => {
+      settingsModal.classList.add('open');
+    };
+
+    document.getElementById('btn-close-settings').onclick = () => {
+      settingsModal.classList.remove('open');
+    };
+
+    document.getElementById('btn-open-lobby').onclick = (e) => {
+      e.target.blur();
+      openLobby(true);
+    };
+
+    // Обработчики настроек
+    const setVolume = document.getElementById('set-volume');
+    const setVolumeVal = document.getElementById('set-volume-val');
+    setVolume.oninput = () => {
+      simSettings.volume = parseInt(setVolume.value, 10) / 100;
+      setVolumeVal.textContent = `${setVolume.value}%`;
+    };
+
+    const setSens = document.getElementById('set-sens');
+    const setSensVal = document.getElementById('set-sens-val');
+    setSens.oninput = () => {
+      simSettings.mouseSensitivity = parseInt(setSens.value, 10) / 100;
+      setSensVal.textContent = `${simSettings.mouseSensitivity.toFixed(1)}x`;
+    };
+
+    const setFov = document.getElementById('set-fov');
+    const setFovVal = document.getElementById('set-fov-val');
+    setFov.oninput = () => {
+      simSettings.fov = parseInt(setFov.value, 10);
+      setFovVal.textContent = `${simSettings.fov}°`;
+      camera.fov = simSettings.fov;
+      camera.updateProjectionMatrix();
+    };
+
+    document.getElementById('set-quality').onchange = (e) => {
+      simSettings.quality = e.target.value;
+      if (simSettings.quality === 'high') {
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        sunLight.castShadow = true;
+      } else if (simSettings.quality === 'medium') {
+        renderer.setPixelRatio(1.25);
+        renderer.shadowMap.enabled = true;
+        sunLight.castShadow = true;
+      } else {
+        renderer.setPixelRatio(1);
+        renderer.shadowMap.enabled = false;
+        sunLight.castShadow = false;
+      }
+    };
+
+    document.getElementById('set-cam').onchange = (e) => {
+      simSettings.defaultCamera = e.target.value;
+      applyCameraMode(simSettings.defaultCamera);
+    };
+
+    // =========================================================================
+    // 8. ЗАГРУЗКА УРОВНЯ И ЗВУКОВОЙ СИНТЕЗАТОР
+    // =========================================================================
     function clearLevelObjects() {
       while (levelContainer.children.length > 0) {
         levelContainer.remove(levelContainer.children[0]);
@@ -2229,6 +3022,7 @@
 
       levelSelect.value = currentLevelIndex;
       document.getElementById('hud-level-desc').textContent = lvl.desc;
+      updateLobbySummary();
 
       (lvl.buildings || []).forEach(b => addBuilding(b.x, b.z, b.w, b.h, b.d));
       (lvl.rooms || []).forEach(rm => addRoom(rm));
@@ -2263,22 +3057,19 @@
 
     levelSelect.onchange = (e) => {
       e.target.blur();
-      loadLevel(parseInt(e.target.value, 10));
+      startGameWithLoading(parseInt(e.target.value, 10));
     };
 
     document.getElementById('btn-prev-lvl').onclick = (e) => {
       e.target.blur();
-      loadLevel(currentLevelIndex - 1);
+      startGameWithLoading(currentLevelIndex - 1);
     };
 
     document.getElementById('btn-next-lvl').onclick = (e) => {
       e.target.blur();
-      loadLevel(currentLevelIndex + 1);
+      startGameWithLoading(currentLevelIndex + 1);
     };
 
-    // =========================================================================
-    // 7. УВЕДОМЛЕНИЯ И ЗВУКОВОЙ ДВИЖОК
-    // =========================================================================
     let toastTimeout = null;
     function showToast(msg, color = 'rgba(16, 185, 129, 0.96)') {
       const el = document.getElementById('toast-banner');
@@ -2294,7 +3085,6 @@
     let motorOsc1 = null;
     let motorOsc2 = null;
     let motorGain = null;
-    let soundEnabled = false;
 
     function initAudioIfNeeded() {
       if (audioCtx) return;
@@ -2325,14 +3115,14 @@
     }
 
     function playCrashSound() {
-      if (!soundEnabled || !audioCtx) return;
+      if (!simSettings.soundEnabled || !audioCtx) return;
       const now = audioCtx.currentTime;
       const osc = audioCtx.createOscillator();
       const g = audioCtx.createGain();
       osc.type = 'sawtooth';
       osc.frequency.setValueAtTime(145, now);
       osc.frequency.exponentialRampToValueAtTime(28, now + 0.45);
-      g.gain.setValueAtTime(0.45, now);
+      g.gain.setValueAtTime(0.45 * simSettings.volume, now);
       g.gain.exponentialRampToValueAtTime(0.001, now + 0.48);
       osc.connect(g);
       g.connect(audioCtx.destination);
@@ -2341,14 +3131,14 @@
     }
 
     function playRingSound() {
-      if (!soundEnabled || !audioCtx) return;
+      if (!simSettings.soundEnabled || !audioCtx) return;
       const now = audioCtx.currentTime;
       const osc = audioCtx.createOscillator();
       const g = audioCtx.createGain();
       osc.type = 'sine';
       osc.frequency.setValueAtTime(587.33, now);
       osc.frequency.setValueAtTime(880, now + 0.08);
-      g.gain.setValueAtTime(0.22, now);
+      g.gain.setValueAtTime(0.24 * simSettings.volume, now);
       g.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
       osc.connect(g);
       g.connect(audioCtx.destination);
@@ -2359,20 +3149,21 @@
     function toggleSoundState() {
       initAudioIfNeeded();
       if (audioCtx.state === 'suspended') audioCtx.resume();
-      soundEnabled = !soundEnabled;
-      const label = soundEnabled ? '🔊 Звук: Вкл' : '🔇 Звук: Выкл';
+      simSettings.soundEnabled = !simSettings.soundEnabled;
+
       const hudBtn = document.getElementById('btn-sound');
-      const lobbyBtn = document.getElementById('lobby-sound-btn');
-      hudBtn.textContent = label;
-      lobbyBtn.textContent = label;
-      hudBtn.classList.toggle('active', soundEnabled);
+      const setBtn = document.getElementById('set-sound-btn');
+      hudBtn.textContent = simSettings.soundEnabled ? '🔊 Звук: Вкл' : '🔇 Звук: Выкл';
+      setBtn.textContent = simSettings.soundEnabled ? '🔊 Включен' : '🔇 Выкл';
+      hudBtn.classList.toggle('active', simSettings.soundEnabled);
+      setBtn.classList.toggle('active', simSettings.soundEnabled);
     }
 
     document.getElementById('btn-sound').onclick = (e) => { e.target.blur(); toggleSoundState(); };
-    document.getElementById('lobby-sound-btn').onclick = (e) => { e.target.blur(); toggleSoundState(); };
+    document.getElementById('set-sound-btn').onclick = () => toggleSoundState();
 
     // =========================================================================
-    // 8. КЛАССИЧЕСКОЕ УПРАВЛЕНИЕ, МЫШЬ И ФИЗИКА СТОЛКНОВЕНИЙ
+    // 9. ФИЗИКА ПОЛЁТА, УПРАВЛЕНИЕ И СТОЛКНОВЕНИЯ
     // =========================================================================
     const droneState = {
       pos: new THREE.Vector3(0, 0.35, 0),
@@ -2392,9 +3183,19 @@
     }
 
     window.addEventListener('keydown', (e) => {
+      if (isTransitioning) return;
+
       if (e.code === 'Escape') {
-        if (isInLobby) closeLobby();
-        else openLobby();
+        if (levelsModal.classList.contains('open')) {
+          levelsModal.classList.remove('open');
+          return;
+        }
+        if (settingsModal.classList.contains('open')) {
+          settingsModal.classList.remove('open');
+          return;
+        }
+        if (isInLobby) startGameWithLoading(currentLevelIndex);
+        else openLobby(true);
         return;
       }
 
@@ -2428,7 +3229,7 @@
     const mouseIndicator = document.getElementById('mouse-indicator');
 
     container.addEventListener('mousedown', (e) => {
-      if (isInLobby || e.button !== 0) return;
+      if (isInLobby || isTransitioning || e.button !== 0) return;
       isMouseDragging = true;
       lastMouseX = e.clientX;
       container.classList.add('dragging');
@@ -2441,7 +3242,7 @@
         ? e.movementX
         : (e.clientX - lastMouseX);
       lastMouseX = e.clientX;
-      mouseYawDelta -= dx * 0.0045;
+      mouseYawDelta -= dx * 0.0045 * simSettings.mouseSensitivity;
     });
 
     window.addEventListener('mouseup', () => {
@@ -2461,30 +3262,36 @@
       mouseYawDelta = 0;
       droneRoot.visible = (cameraMode !== 'fpv' || isInLobby);
       droneRoot.position.copy(droneState.pos);
-      droneRoot.rotation.y = 0;
+      droneRoot.rotation.set(0, 0, 0);
       droneBody.rotation.set(0, 0, 0);
+    }
+
+    function applyCameraMode(mode) {
+      cameraMode = mode;
+      const btn = document.getElementById('btn-cam');
+      const reticle = document.getElementById('reticle');
+      document.getElementById('set-cam').value = mode;
+
+      if (cameraMode === 'chase') {
+        btn.textContent = '🎥 Камера: 3-е лицо';
+        droneRoot.visible = !isCrashed;
+        reticle.style.opacity = isInLobby ? '0' : '0.6';
+      } else if (cameraMode === 'fpv') {
+        btn.textContent = '🎥 Камера: От 1-го лица (FPV)';
+        droneRoot.visible = isInLobby;
+        reticle.style.opacity = isInLobby ? '0' : '0.9';
+      } else {
+        btn.textContent = '🎥 Камера: Сверху (Посадка)';
+        droneRoot.visible = !isCrashed;
+        reticle.style.opacity = isInLobby ? '0' : '0.2';
+      }
     }
 
     function cycleCamera(e) {
       if (e && e.target) e.target.blur();
-      const btn = document.getElementById('btn-cam');
-      const reticle = document.getElementById('reticle');
-      if (cameraMode === 'chase') {
-        cameraMode = 'fpv';
-        btn.textContent = '🎥 Камера: От 1-го лица (FPV)';
-        droneRoot.visible = false;
-        reticle.style.opacity = '0.9';
-      } else if (cameraMode === 'fpv') {
-        cameraMode = 'top';
-        btn.textContent = '🎥 Камера: Сверху (Посадка)';
-        droneRoot.visible = !isCrashed;
-        reticle.style.opacity = '0.2';
-      } else {
-        cameraMode = 'chase';
-        btn.textContent = '🎥 Камера: 3-е лицо';
-        droneRoot.visible = !isCrashed;
-        reticle.style.opacity = '0.6';
-      }
+      if (cameraMode === 'chase') applyCameraMode('fpv');
+      else if (cameraMode === 'fpv') applyCameraMode('top');
+      else applyCameraMode('chase');
     }
 
     document.getElementById('btn-cam').onclick = cycleCamera;
@@ -2512,7 +3319,6 @@
       }, 1550);
     }
 
-    // Расстояние от точки P до отрезка AB в 3D (для точных хитбоксов лазеров)
     function distPointToSegment3D(p, a, b) {
       const ab = b.clone().sub(a);
       const ap = p.clone().sub(a);
@@ -2526,7 +3332,6 @@
     function checkAllCollisions(pos) {
       const dr = 0.34;
 
-      // 1. Здания и стены/потолки комнат
       for (const b of levelBoxes) {
         if (pos.x + dr > b.minX && pos.x - dr < b.maxX &&
             pos.y + dr * 0.7 > b.minY && pos.y - dr * 0.7 < b.maxY &&
@@ -2536,7 +3341,6 @@
         }
       }
 
-      // 2. Лазерные лучи (уровни 21–30)
       for (const l of levelLasers) {
         if (!l.active) continue;
         const d = distPointToSegment3D(pos, l.curP1, l.curP2);
@@ -2546,7 +3350,6 @@
         }
       }
 
-      // 3. Текстурированные ёлки
       for (const t of levelTrees) {
         const distXZ = Math.hypot(pos.x - t.x, pos.z - t.z);
         if (pos.y < t.trunkH && distXZ < (t.trunkR + dr)) {
@@ -2563,7 +3366,6 @@
         }
       }
 
-      // 4. Арки
       for (const a of levelArches) {
         const dx = pos.x - a.x;
         const dz = pos.z - a.z;
@@ -2588,7 +3390,6 @@
         }
       }
 
-      // 5. Подвижные препятствия (уровни 11–20)
       for (const h of levelHazards) {
         const m = h.mesh;
         const dx = pos.x - m.position.x;
@@ -2609,7 +3410,6 @@
         }
       }
 
-      // 6. Обручи (обод уничтожает дрон, центр засчитывает прохождение)
       for (let i = 0; i < levelRings.length; i++) {
         const ring = levelRings[i];
         const m = ring.mesh;
@@ -2642,16 +3442,17 @@
             } else {
               raceFinished = true;
               completedLevels.add(currentLevelIndex);
+              updateLobbySummary();
               targetBeacon.visible = false;
               const isLast = currentLevelIndex === LEVELS.length - 1;
               showToast(
-                isLast ? '🏆 ВСЕ 30 УРОВНЕЙ ПРОЙДЕНЫ!' : `УРОВЕНЬ ${currentLevelIndex + 1} ПРОЙДЕН! СЛЕДУЮЩИЙ...`,
+                isLast ? '🏆 ВСЕ 30 УРОВНЕЙ ПРОЙДЕНЫ!' : `УРОВЕНЬ ${currentLevelIndex + 1} ПРОЙДЕН!`,
                 'rgba(16, 185, 129, 0.96)'
               );
               if (!isLast) {
                 crashTimer = setTimeout(() => {
-                  loadLevel(currentLevelIndex + 1);
-                }, 1750);
+                  startGameWithLoading(currentLevelIndex + 1);
+                }, 1450);
               }
             }
           }
@@ -2662,10 +3463,92 @@
     }
 
     // =========================================================================
-    // 9. ГЛАВНЫЙ ЦИКЛ ФИЗИКИ И РЕНДЕРА
+    // 10. ГЛАВНЫЙ ЦИКЛ ФИЗИКИ, SLOW-MO АНИМАЦИИ ЛОББИ И РЕНДЕРА
     // =========================================================================
     const clock = new THREE.Clock();
     let elapsedTotal = 0;
+
+    const cinePill = document.getElementById('cine-state-pill');
+    const cineTimeScaleLabel = document.getElementById('cine-time-scale');
+
+    function updateLobbyCinematic(rawDt) {
+      lobbyCineTime += rawDt;
+
+      // Фаза 0..2.2с: быстрый подлёт дрона из глубины города с виражом
+      // Фаза >2.2с: резкое, плавное замедление времени (Bullet-Time 0.14x) при зависании над площадкой
+      const arrivalDuration = 2.25;
+      let timeScale = 1.0;
+
+      if (lobbyCineTime < arrivalDuration) {
+        const p = lobbyCineTime / arrivalDuration;
+        // Ease-out cubic для эффектного торможения в воздухе
+        const ease = 1 - Math.pow(1 - p, 3);
+        timeScale = 1.0 - Math.pow(p, 2.5) * 0.86;
+
+        const startPos = new THREE.Vector3(-18, 12.5, -52);
+        const hoverPos = new THREE.Vector3(1.1, 2.15, 0.4);
+        droneRoot.position.lerpVectors(startPos, hoverPos, ease);
+
+        // Наклон при разгоне и резкое выравнивание ("клевок" вверх при торможении)
+        const pitchAngle = p < 0.65 ? -0.38 * (1 - p) : 0.24 * Math.sin(((p - 0.65) / 0.35) * Math.PI);
+        const rollAngle = Math.sin(p * Math.PI) * -0.32;
+        const yawAngle = (1 - ease) * -0.55 - 0.32;
+
+        droneRoot.rotation.y = yawAngle;
+        droneBody.rotation.x = pitchAngle;
+        droneBody.rotation.z = rollAngle;
+
+        cinePill.textContent = 'ПОДЛЁТ ДРОНА';
+        cinePill.classList.remove('slowmo');
+      } else {
+        timeScale = 0.14;
+        const slowT = (lobbyCineTime - arrivalDuration) * timeScale;
+
+        // Замедленное кинематографическое парение в Bullet-Time
+        droneRoot.position.set(
+          1.1 + Math.sin(slowT * 2.2) * 0.22,
+          2.15 + Math.cos(slowT * 3.0) * 0.12,
+          0.4 + Math.sin(slowT * 1.8) * 0.18
+        );
+        droneRoot.rotation.y = -0.32 + Math.sin(slowT * 1.4) * 0.15;
+        droneBody.rotation.x = Math.sin(slowT * 2.4) * 0.04;
+        droneBody.rotation.z = Math.cos(slowT * 2.1) * 0.05;
+
+        cinePill.textContent = 'BULLET-TIME • SLOW-MO';
+        cinePill.classList.add('slowmo');
+      }
+
+      cineTimeScaleLabel.textContent = `Скорость времени: ${timeScale.toFixed(2)}x`;
+
+      // Вращение лопастей строго зависит от текущего замедления времени (timeScale)!
+      droneRoot.visible = true;
+      propellers.forEach(p => {
+        p.mesh.rotation.y += (58 * timeScale) * p.dir * rawDt;
+      });
+
+      groundMarker.position.set(droneRoot.position.x, 0.15, droneRoot.position.z);
+      const markerScale = Math.max(0.45, 1 - (droneRoot.position.y - 0.3) * 0.03);
+      groundMarker.scale.set(markerScale, markerScale, 1);
+
+      // Кинематографичный облет камеры справа, чтобы левая панель лобби не перекрывала дрон
+      const camOrbit = (lobbyCineTime < arrivalDuration)
+        ? (lobbyCineTime / arrivalDuration) * 0.45
+        : 0.45 + (lobbyCineTime - arrivalDuration) * 0.06;
+
+      const camTargetPos = new THREE.Vector3(
+        droneRoot.position.x + Math.sin(camOrbit) * 3.2 + 0.9,
+        droneRoot.position.y + 0.65,
+        droneRoot.position.z + Math.cos(camOrbit) * 3.4
+      );
+      camera.position.lerp(camTargetPos, Math.min(1, rawDt * 5));
+      camera.lookAt(droneRoot.position.x - 0.65, droneRoot.position.y - 0.05, droneRoot.position.z);
+
+      if (audioCtx && motorGain) {
+        motorGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
+      }
+
+      return timeScale;
+    }
 
     function updateDynamicObjects(dt) {
       elapsedTotal += dt;
@@ -2696,29 +3579,23 @@
       }
     }
 
-    function updatePhysics(dt) {
-      updateDynamicObjects(dt);
-
-      // В Лобби камера плавно облетает дрон на площадке
+    function updatePhysics(rawDt) {
       if (isInLobby) {
-        droneRoot.visible = true;
-        propellers.forEach(p => { p.mesh.rotation.y += 14 * p.dir * dt; });
-        const orbitAngle = elapsedTotal * 0.35;
-        camera.position.set(Math.sin(orbitAngle) * 7.5, 3.4, Math.cos(orbitAngle) * 7.5);
-        camera.lookAt(0, 1.2, -6);
-        if (audioCtx && motorGain) motorGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
+        const timeScale = updateLobbyCinematic(rawDt);
+        updateDynamicObjects(rawDt * timeScale);
         return;
       }
 
-      if (spawnGraceTimer > 0) spawnGraceTimer -= dt;
+      updateDynamicObjects(rawDt);
+
+      if (spawnGraceTimer > 0) spawnGraceTimer -= rawDt;
 
       if (isCrashed) {
-        updateDebris(dt);
+        updateDebris(rawDt);
         if (audioCtx && motorGain) motorGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.03);
         return;
       }
 
-      // Классическое управление
       let forwardInput = 0;
       let strafeInput = 0;
       let yawInput = 0;
@@ -2738,28 +3615,28 @@
       }
 
       const targetYawVel = yawInput * 2.25;
-      droneState.yawVel += (targetYawVel - droneState.yawVel) * Math.min(1, dt * 8);
-      droneState.yaw += droneState.yawVel * dt + mouseYawDelta;
+      droneState.yawVel += (targetYawVel - droneState.yawVel) * Math.min(1, rawDt * 8);
+      droneState.yaw += droneState.yawVel * rawDt + mouseYawDelta;
       mouseYawDelta = 0;
 
       const maxTilt = 0.44;
       const targetPitch = -forwardInput * maxTilt;
       const targetRoll = -strafeInput * maxTilt;
-      droneState.pitch += (targetPitch - droneState.pitch) * Math.min(1, dt * 8);
-      droneState.roll += (targetRoll - droneState.roll) * Math.min(1, dt * 8);
+      droneState.pitch += (targetPitch - droneState.pitch) * Math.min(1, rawDt * 8);
+      droneState.roll += (targetRoll - droneState.roll) * Math.min(1, rawDt * 8);
 
       const forwardDir = new THREE.Vector3(-Math.sin(droneState.yaw), 0, -Math.cos(droneState.yaw));
       const rightDir = new THREE.Vector3(Math.cos(droneState.yaw), 0, -Math.sin(droneState.yaw));
 
-      droneState.vel.addScaledVector(forwardDir, forwardInput * 28.0 * dt);
-      droneState.vel.addScaledVector(rightDir, strafeInput * 28.0 * dt);
-      droneState.vel.y += throttleInput * 23.0 * dt;
+      droneState.vel.addScaledVector(forwardDir, forwardInput * 28.0 * rawDt);
+      droneState.vel.addScaledVector(rightDir, strafeInput * 28.0 * rawDt);
+      droneState.vel.y += throttleInput * 23.0 * rawDt;
 
-      droneState.vel.x *= Math.pow(0.14, dt);
-      droneState.vel.z *= Math.pow(0.14, dt);
-      droneState.vel.y *= Math.pow(0.12, dt);
+      droneState.vel.x *= Math.pow(0.14, rawDt);
+      droneState.vel.z *= Math.pow(0.14, rawDt);
+      droneState.vel.y *= Math.pow(0.12, rawDt);
 
-      const nextPos = droneState.pos.clone().addScaledVector(droneState.vel, dt);
+      const nextPos = droneState.pos.clone().addScaledVector(droneState.vel, rawDt);
 
       const floorY = (Math.hypot(nextPos.x, nextPos.z) < 5.6) ? 0.35 : 0.22;
       if (nextPos.y <= floorY) {
@@ -2777,6 +3654,10 @@
       droneBody.rotation.x = droneState.pitch;
       droneBody.rotation.z = droneState.roll;
 
+      // Стабилизация 3-осевого подвеса камеры (компенсирует крен дрона)
+      gimbalGroup.rotation.z = -droneState.roll * 0.75;
+      gimbalGroup.rotation.x = -droneState.pitch * 0.55;
+
       groundMarker.position.set(droneState.pos.x, 0.15, droneState.pos.z);
       const markerScale = Math.max(0.4, 1 - (droneState.pos.y - 0.3) * 0.025);
       groundMarker.scale.set(markerScale, markerScale, 1);
@@ -2787,19 +3668,19 @@
         (droneState.pos.y > 0.4 ? 0.45 : 0.1)
       );
       propellers.forEach(p => {
-        p.mesh.rotation.y += (18 + totalEffort * 42) * p.dir * dt;
+        p.mesh.rotation.y += (18 + totalEffort * 42) * p.dir * rawDt;
       });
 
-      if (soundEnabled && audioCtx && motorGain) {
+      if (simSettings.soundEnabled && audioCtx && motorGain) {
         const targetFreq = 85 + totalEffort * 95 + droneState.vel.length() * 1.8;
         motorOsc1.frequency.setTargetAtTime(targetFreq, audioCtx.currentTime, 0.05);
         motorOsc2.frequency.setTargetAtTime(targetFreq * 2.02, audioCtx.currentTime, 0.05);
-        motorGain.gain.setTargetAtTime(0.06 + totalEffort * 0.08, audioCtx.currentTime, 0.05);
+        motorGain.gain.setTargetAtTime((0.06 + totalEffort * 0.08) * simSettings.volume, audioCtx.currentTime, 0.05);
       } else if (audioCtx && motorGain) {
         motorGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
       }
 
-      updateCamera(dt, forwardDir);
+      updateCamera(rawDt, forwardDir);
 
       const altitude = Math.max(0, droneState.pos.y - 0.35);
       const speedKmh = Math.round(droneState.vel.length() * 3.6);
@@ -2847,9 +3728,9 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    // Инициализация сцены и Лобби
+    // Первичный запуск в общем лобби
     loadLevel(0, false);
-    buildLobbyGrids();
+    openLobby(false);
 
     function animate() {
       requestAnimationFrame(animate);
