@@ -418,6 +418,256 @@
       box-shadow: 0 16px 34px rgba(14, 165, 233, 0.65);
     }
 
+
+    .btn-lobby-custom {
+      width: 100%;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(14, 165, 233, 0.26) 100%);
+      border: 1px solid rgba(56, 189, 248, 0.55);
+      color: #ffffff;
+      padding: 13px 16px;
+      border-radius: 13px;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+      cursor: pointer;
+      transition: all 0.16s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 8px 22px rgba(14, 165, 233, 0.22);
+    }
+
+    .btn-lobby-custom:hover {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.35) 0%, rgba(14, 165, 233, 0.4) 100%);
+      border-color: #38bdf8;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(14, 165, 233, 0.35);
+    }
+
+    .lobby-drone-pill {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: rgba(14, 165, 233, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.28);
+      border-radius: 12px;
+      padding: 10px 14px;
+    }
+
+    .drone-color-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+      flex-shrink: 0;
+    }
+
+    /* Модальное окно кастомизации с живым 3D-обзором справа */
+    #customization-modal {
+      justify-content: flex-start;
+      background: linear-gradient(90deg, rgba(7, 11, 20, 0.78) 0%, rgba(7, 11, 20, 0.25) 55%, rgba(7, 11, 20, 0.05) 100%);
+      backdrop-filter: blur(4px);
+      padding: 24px 32px;
+    }
+
+    .modal-card.custom-card {
+      max-width: 520px;
+      max-height: 92vh;
+      background: rgba(12, 19, 34, 0.94);
+      backdrop-filter: blur(18px);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+    }
+
+    @media (max-width: 780px) {
+      #customization-modal {
+        justify-content: center;
+        padding: 12px;
+        background: rgba(7, 11, 20, 0.82);
+      }
+      .modal-card.custom-card {
+        max-width: 100%;
+      }
+    }
+
+    .drone-types-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 9px;
+    }
+
+    @media (max-width: 480px) {
+      .drone-types-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .drone-type-card {
+      background: rgba(255, 255, 255, 0.045);
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      padding: 11px 12px;
+      color: var(--text);
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .drone-type-card:hover {
+      background: rgba(56, 189, 248, 0.14);
+      border-color: rgba(56, 189, 248, 0.6);
+      transform: translateY(-1px);
+    }
+
+    .drone-type-card.selected {
+      background: rgba(14, 165, 233, 0.24);
+      border-color: var(--accent-bright);
+      box-shadow: 0 0 0 1px var(--accent-bright), 0 8px 20px rgba(14, 165, 233, 0.25);
+    }
+
+    .drone-type-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .drone-type-name {
+      font-size: 13px;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .drone-rotor-tag {
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.18);
+      color: var(--accent-bright);
+      white-space: nowrap;
+    }
+
+    .drone-type-sub {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .drone-mini-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      margin-top: 2px;
+    }
+
+    .d-stat-line {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      color: #cbd5e1;
+    }
+
+    .d-stat-line span:first-child {
+      width: 68px;
+      color: var(--muted);
+    }
+
+    .d-stat-bar {
+      flex: 1;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .d-stat-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #0ea5e9, #10b981);
+      border-radius: 4px;
+    }
+
+    .livery-presets-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    @media (max-width: 480px) {
+      .livery-presets-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .livery-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 8px;
+      color: #f8fafc;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+
+    .livery-btn:hover {
+      border-color: var(--accent-bright);
+      background: rgba(56, 189, 248, 0.14);
+    }
+
+    .livery-btn.selected {
+      border-color: var(--accent-bright);
+      background: rgba(14, 165, 233, 0.24);
+      box-shadow: 0 0 0 1px var(--accent-bright);
+    }
+
+    .livery-swatch {
+      width: 100%;
+      height: 16px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+    }
+
+    .color-picker-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .color-pick-box {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: #cbd5e1;
+      text-align: center;
+    }
+
+    .color-pick-box input[type="color"] {
+      width: 100%;
+      height: 28px;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      cursor: pointer;
+    }
+
     .lobby-secondary-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -1260,8 +1510,17 @@
         </div>
       </div>
 
+      <div class="lobby-drone-pill">
+        <div>
+          <div class="lobby-stat-label">Выбранный БПЛА и расцветка</div>
+          <div class="lobby-stat-val" id="lobby-current-drone" style="font-size: 13.5px;">Квадрокоптер X4 • Титан БАС</div>
+        </div>
+        <div class="drone-color-dot" id="lobby-drone-dot" style="background: #334155;"></div>
+      </div>
+
       <div class="lobby-menu-buttons">
         <button class="btn-play-main" id="btn-start-play">▶ ИГРАТЬ</button>
+        <button class="btn-lobby-custom" id="btn-open-custom">🎨 Кастомизация дрона</button>
         <div class="lobby-secondary-row">
           <button class="btn-lobby-sec" id="btn-open-levels">🗺️ Уровни (30)</button>
           <button class="btn-lobby-sec" id="btn-open-settings">⚙️ Настройки</button>
@@ -1278,6 +1537,65 @@
       <span class="cine-pill" id="cine-state-pill">ПОДЛЁТ ДРОНА</span>
       <span id="cine-time-scale">Время: 1.00x</span>
       <button class="btn" id="btn-replay-arrival" title="Повторить анимацию прилёта">↺ Повтор</button>
+    </div>
+  </div>
+
+  <!-- МОДАЛЬНОЕ ОКНО: КАСТОМИЗАЦИЯ ДРОНОВ И РАСЦВЕТОК -->
+  <div class="modal-backdrop" id="customization-modal">
+    <div class="modal-card custom-card">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title">🎨 Ангар и кастомизация БПЛА</h2>
+          <p style="font-size: 11.5px; color: var(--muted); margin-top: 2px;">Выберите класс дрона и расцветку (крутите мышью справа для обзора 360°)</p>
+        </div>
+        <button class="btn-close-modal" id="btn-close-custom">✓ Применить</button>
+      </div>
+
+      <div class="settings-section-label">1. Класс и конструкция дрона</div>
+      <div class="drone-types-grid" id="drone-types-grid"></div>
+
+      <div class="settings-section-label">2. Готовые расцветки и камуфляж</div>
+      <div class="livery-presets-grid" id="livery-presets-grid"></div>
+
+      <div class="settings-section-label">3. Своя расцветка и покрытие</div>
+      <div class="color-picker-row">
+        <label class="color-pick-box">
+          <span>Корпус</span>
+          <input type="color" id="cust-primary-color" value="#334155" />
+        </label>
+        <label class="color-pick-box">
+          <span>Лучи / Декор</span>
+          <input type="color" id="cust-accent-color" value="#0ea5e9" />
+        </label>
+        <label class="color-pick-box">
+          <span>Винты / LED</span>
+          <input type="color" id="cust-glow-color" value="#f97316" />
+        </label>
+      </div>
+
+      <div class="setting-row" style="padding: 9px 12px;">
+        <div class="setting-info">
+          <div class="setting-name" style="font-size: 12.5px;">Покрытие корпуса</div>
+          <div class="setting-hint">Тип отражения поверхности</div>
+        </div>
+        <div class="setting-control">
+          <select class="level-select" id="cust-finish">
+            <option value="metallic">Металлик</option>
+            <option value="matte">Матовый (Тактический)</option>
+            <option value="gloss">Глянец</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="setting-row" style="padding: 9px 12px;">
+        <div class="setting-info">
+          <div class="setting-name" style="font-size: 12.5px;">Логотип «БАС» на корпусе дрона</div>
+          <div class="setting-hint">Фирменная эмблема на броне/крыльях</div>
+        </div>
+        <div class="setting-control">
+          <input type="checkbox" id="cust-show-logo" checked style="width: 18px; height: 18px; cursor: pointer;" />
+        </div>
+      </div>
     </div>
   </div>
 
@@ -2172,6 +2490,188 @@
       roughness: 0.35
     });
 
+    // Генерация бесшовной карбоновой текстуры
+    function createBasCarbonPattern(ctx) {
+      const size = 128;
+      const pCanvas = document.createElement('canvas');
+      pCanvas.width = size;
+      pCanvas.height = size;
+      const pCtx = pCanvas.getContext('2d');
+
+      // 1. Базовый градиент (металлический сине-голубой)
+      const grad = pCtx.createLinearGradient(0, 0, size, size);
+      grad.addColorStop(0, '#0284c7');
+      grad.addColorStop(0.5, '#38bdf8');
+      grad.addColorStop(1, '#1d4ed8');
+      pCtx.fillStyle = grad;
+      pCtx.fillRect(0, 0, size, size);
+
+      // 2. Карбоновая / технологичная сетка
+      pCtx.strokeStyle = 'rgba(255, 255, 255, 0.14)';
+      pCtx.lineWidth = 2;
+      const step = 16;
+
+      for (let i = -size; i < size * 2; i += step) {
+        pCtx.beginPath();
+        pCtx.moveTo(i, 0);
+        pCtx.lineTo(i + size, size);
+        pCtx.stroke();
+
+        pCtx.beginPath();
+        pCtx.moveTo(i + size, 0);
+        pCtx.lineTo(i, size);
+        pCtx.stroke();
+      }
+
+      // 3. Микро-шум для объема текстуры
+      for (let x = 0; x < size; x += 4) {
+        for (let y = 0; y < size; y += 4) {
+          if ((x + y) % 8 === 0) {
+            pCtx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+            pCtx.fillRect(x, y, 2, 2);
+          }
+        }
+      }
+
+      return ctx.createPattern(pCanvas, 'repeat');
+    }
+
+    // Отрисовка векторного логотипа БАС
+    function drawBasVectorLogo(ctx, width, height, withDarkBg) {
+      ctx.clearRect(0, 0, width, height);
+
+      // Тёмный технологичный фон (#0f172a)
+      if (withDarkBg) {
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(0, 0, width, height);
+      } else {
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+        ctx.beginPath();
+        ctx.roundRect(4, 4, width - 8, height - 8, 22);
+        ctx.fill();
+      }
+
+      const pattern = createBasCarbonPattern(ctx);
+
+      // Масштабируем координаты viewBox="0 0 360 120" под размер холста
+      const scaleX = width / 360;
+      const scaleY = height / 120;
+
+      ctx.save();
+      ctx.scale(scaleX, scaleY);
+
+      // Скошенная плашка-контур: M 15,10 L 345,10 L 330,110 L 5,110 Z
+      ctx.beginPath();
+      ctx.moveTo(15, 10);
+      ctx.lineTo(345, 10);
+      ctx.lineTo(330, 110);
+      ctx.lineTo(5, 110);
+      ctx.closePath();
+
+      ctx.strokeStyle = pattern;
+      ctx.lineWidth = 4;
+      ctx.stroke();
+
+      // Текст логотипа БАС с карбоновой заливкой
+      ctx.fillStyle = pattern;
+      ctx.font = "900 82px 'Arial Black', Impact, sans-serif";
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      if ('letterSpacing' in ctx) {
+        ctx.letterSpacing = '8px';
+      }
+      ctx.fillText('БАС', 180, 65);
+
+      ctx.restore();
+    }
+
+    function createBasLogoTextures() {
+      // 1. Текстура для фасадов зданий (соотношение сторон 3:1)
+      const bCanvas = document.createElement('canvas');
+      bCanvas.width = 720;
+      bCanvas.height = 240;
+      const bCtx = bCanvas.getContext('2d');
+      drawBasVectorLogo(bCtx, 720, 240, true);
+
+      const buildingTex = new THREE.CanvasTexture(bCanvas);
+      buildingTex.anisotropy = 8;
+
+      // 2. Текстура для корпуса дрона
+      const dCanvas = document.createElement('canvas');
+      dCanvas.width = 720;
+      dCanvas.height = 240;
+      const dCtx = dCanvas.getContext('2d');
+      drawBasVectorLogo(dCtx, 720, 240, false);
+
+      const droneTex = new THREE.CanvasTexture(dCanvas);
+      droneTex.anisotropy = 8;
+
+      return { buildingTex, droneTex };
+    }
+
+    const basLogoTextures = createBasLogoTextures();
+    const basBuildingBannerMat = new THREE.MeshStandardMaterial({
+      map: basLogoTextures.buildingTex,
+      emissiveMap: basLogoTextures.buildingTex,
+      emissive: 0xffffff,
+      emissiveIntensity: 0.28,
+      roughness: 0.25,
+      metalness: 0.15
+    });
+    const basBannerFrameMat = new THREE.MeshStandardMaterial({
+      color: 0x0f172a,
+      roughness: 0.3,
+      metalness: 0.8
+    });
+    const basDroneLogoMat = new THREE.MeshStandardMaterial({
+      map: basLogoTextures.droneTex,
+      transparent: true,
+      roughness: 0.22,
+      metalness: 0.15
+    });
+
+    function attachBuildingLogoBanners(parentGroup, x, yCenter, z, w, h, d, onlyInward = false) {
+      const bannerH = Math.min(Math.max(h * 0.14, 2.4), 5.6);
+      const bannerW = bannerH * 2.8;
+      const bannerY = yCenter + h * 0.33;
+
+      const addFaceBanner = (px, py, pz, rotY, maxSpan) => {
+        const scale = Math.min(1, (maxSpan * 0.78) / bannerW);
+        const fw = bannerW * scale;
+        const fh = bannerH * scale;
+        if (fw < 1.5) return;
+
+        const frame = new THREE.Mesh(new THREE.BoxGeometry(fw + 0.35, fh + 0.35, 0.14), basBannerFrameMat);
+        frame.position.set(px, py, pz);
+        frame.rotation.y = rotY;
+        parentGroup.add(frame);
+
+        const face = new THREE.Mesh(new THREE.PlaneGeometry(fw, fh), basBuildingBannerMat);
+        const normal = new THREE.Vector3(Math.sin(rotY), 0, Math.cos(rotY));
+        face.position.set(px + normal.x * 0.08, py, pz + normal.z * 0.08);
+        face.rotation.y = rotY;
+        parentGroup.add(face);
+      };
+
+      if (onlyInward) {
+        // Для дальних небоскрёбов размещаем логотип БАС на фасаде, обращённом к центру арены
+        const toCenter = new THREE.Vector2(-x, -z);
+        if (Math.abs(toCenter.x) > Math.abs(toCenter.y)) {
+          const signX = Math.sign(toCenter.x);
+          addFaceBanner(x + signX * (w / 2 + 0.06), bannerY, z, signX > 0 ? Math.PI / 2 : -Math.PI / 2, d);
+        } else {
+          const signZ = Math.sign(toCenter.y);
+          addFaceBanner(x, bannerY, z + signZ * (d / 2 + 0.06), signZ > 0 ? 0 : Math.PI, w);
+        }
+      } else {
+        // На игровых зданиях логотип БАС со всех 4 сторон фасада
+        addFaceBanner(x, bannerY, z + d / 2 + 0.06, 0, w);
+        addFaceBanner(x, bannerY, z - d / 2 - 0.06, Math.PI, w);
+        addFaceBanner(x + w / 2 + 0.06, bannerY, z, Math.PI / 2, d);
+        addFaceBanner(x - w / 2 - 0.06, bannerY, z, -Math.PI / 2, d);
+      }
+    }
+
     const skylineGroup = new THREE.Group();
     for (let i = 0; i < 36; i++) {
       const ang = (i / 36) * Math.PI * 2;
@@ -2179,15 +2679,111 @@
       const bw = 18 + (i % 3) * 8;
       const bh = 45 + (i % 6) * 22;
       const bd = 18 + ((i + 1) % 3) * 8;
+      const tx = Math.cos(ang) * dist;
+      const tz = Math.sin(ang) * dist;
       const tower = new THREE.Mesh(new THREE.BoxGeometry(bw, bh, bd), buildingMat);
-      tower.position.set(Math.cos(ang) * dist, bh / 2, Math.sin(ang) * dist);
+      tower.position.set(tx, bh / 2, tz);
       skylineGroup.add(tower);
+      if (i % 2 === 0) {
+        attachBuildingLogoBanners(skylineGroup, tx, bh / 2, tz, bw, bh, bd, true);
+      }
     }
     scene.add(skylineGroup);
 
     // =========================================================================
-    // 5. РЕАЛИСТИЧНАЯ 3D-МОДЕЛЬ КВАДРОКОПТЕРА
+    // 5. СИСТЕМА КАСТОМИЗАЦИИ И 6 ВИДОВ 3D-ДРОНОВ (КВАДРО, ГЕКСА, ОКТО, БОЕВОЙ, FPV, VTOL)
     // =========================================================================
+    const DRONE_TYPES = {
+      quad: {
+        id: 'quad',
+        name: 'Квадрокоптер X4',
+        shortName: 'Квадрокоптер X4',
+        rotors: '4 винта',
+        desc: 'Классический разведывательный квадрокоптер с 3-осевым подвесом камеры.',
+        stats: { speed: 68, agility: 78, stability: 82 },
+        physics: { speedMult: 1.0, climbMult: 1.0, agilityMult: 1.0, maxTilt: 0.44 }
+      },
+      hexa: {
+        id: 'hexa',
+        name: 'Гексакоптер X6',
+        shortName: 'Гексакоптер X6',
+        rotors: '6 винтов',
+        desc: 'Тяжёлый 6-лучевой носитель с повышенной грузоподъёмностью и стабильностью.',
+        stats: { speed: 65, agility: 70, stability: 96 },
+        physics: { speedMult: 0.96, climbMult: 1.16, agilityMult: 0.92, maxTilt: 0.40 }
+      },
+      octo: {
+        id: 'octo',
+        name: 'Октокоптер X8',
+        shortName: 'Октокоптер X8',
+        rotors: '8 винтов',
+        desc: 'Сверхмощный 8-роторный промышленный БПЛА с защитным контуром.',
+        stats: { speed: 74, agility: 68, stability: 100 },
+        physics: { speedMult: 1.04, climbMult: 1.24, agilityMult: 0.88, maxTilt: 0.39 }
+      },
+      combat: {
+        id: 'combat',
+        name: 'Боевой БПЛА «Беркут»',
+        shortName: 'Боевой «Беркут»',
+        rotors: '4 импеллера',
+        desc: 'Бронированный тактический аппарат в стелс-корпусе с оптоэлектронной турелью.',
+        stats: { speed: 92, agility: 84, stability: 86 },
+        physics: { speedMult: 1.18, climbMult: 1.12, agilityMult: 1.08, maxTilt: 0.48 }
+      },
+      racer: {
+        id: 'racer',
+        name: 'Гоночный FPV 5"',
+        shortName: 'Гоночный FPV',
+        rotors: '4 спорт-винта',
+        desc: 'Ультралёгкий карбоновый гоночный дрон для скоростного прохождения трасс.',
+        stats: { speed: 100, agility: 100, stability: 65 },
+        physics: { speedMult: 1.26, climbMult: 1.18, agilityMult: 1.28, maxTilt: 0.54 }
+      },
+      vtol: {
+        id: 'vtol',
+        name: 'Конвертоплан «Сокол»',
+        shortName: 'Конвертоплан VTOL',
+        rotors: '4+1 винт',
+        desc: 'Крылатый гибридный БПЛА вертикального взлёта с маршевым толкающим винтом.',
+        stats: { speed: 95, agility: 72, stability: 92 },
+        physics: { speedMult: 1.22, climbMult: 1.05, agilityMult: 0.90, maxTilt: 0.42 }
+      }
+    };
+
+    const LIVERY_PRESETS = [
+      { id: 'titan',   name: 'Титан БАС',      primary: '#334155', accent: '#0ea5e9', glow: '#f97316', finish: 'metallic' },
+      { id: 'arctic',  name: 'Арктика',        primary: '#f1f5f9', accent: '#2563eb', glow: '#38bdf8', finish: 'gloss' },
+      { id: 'olive',   name: 'Военный Хаки',   primary: '#3f4f36', accent: '#a39161', glow: '#f59e0b', finish: 'matte' },
+      { id: 'stealth', name: 'Ночной Стелс',   primary: '#111827', accent: '#ef4444', glow: '#ef4444', finish: 'matte' },
+      { id: 'rescue',  name: 'Спасатель МЧС',  primary: '#ea580c', accent: '#facc15', glow: '#ffffff', finish: 'gloss' },
+      { id: 'cyber',   name: 'Кибер Неон',     primary: '#1e1b4b', accent: '#06b6d4', glow: '#ec4899', finish: 'metallic' },
+      { id: 'desert',  name: 'Пустыня',        primary: '#b49a67', accent: '#574428', glow: '#f97316', finish: 'matte' },
+      { id: 'gold',    name: 'Золотой Элит',   primary: '#18181b', accent: '#eab308', glow: '#fde047', finish: 'metallic' }
+    ];
+
+    const droneCustom = {
+      type: 'quad',
+      presetId: 'titan',
+      primaryColor: '#334155',
+      accentColor: '#0ea5e9',
+      glowColor: '#f97316',
+      finish: 'metallic',
+      showLogo: true
+    };
+
+    try {
+      const savedCustom = JSON.parse(localStorage.getItem('aero_drone_custom_v1') || 'null');
+      if (savedCustom && DRONE_TYPES[savedCustom.type]) {
+        Object.assign(droneCustom, savedCustom);
+      }
+    } catch (e) {}
+
+    function saveDroneCustomization() {
+      try {
+        localStorage.setItem('aero_drone_custom_v1', JSON.stringify(droneCustom));
+      } catch (e) {}
+    }
+
     const droneRoot = new THREE.Group();
     const droneBody = new THREE.Group();
     droneRoot.add(droneBody);
@@ -2195,109 +2791,18 @@
 
     const bodyShellMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.32, metalness: 0.45 });
     const carbonFrameMat = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.28, metalness: 0.75 });
-    const titaniumAccentMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.22, metalness: 0.85 });
+    const titaniumAccentMat = new THREE.MeshStandardMaterial({ color: 0x0ea5e9, roughness: 0.24, metalness: 0.78 });
     const copperCoilMat = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.25, metalness: 0.9 });
-    const orangeTipMat = new THREE.MeshStandardMaterial({ color: 0xf97316, roughness: 0.3 });
-
-    const lowerCore = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.10, 0.56), carbonFrameMat);
-    lowerCore.castShadow = true;
-    droneBody.add(lowerCore);
-
-    const upperAeroShell = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.08, 0.50), bodyShellMat);
-    upperAeroShell.position.set(0, 0.075, 0.02);
-    upperAeroShell.castShadow = true;
-    droneBody.add(upperAeroShell);
-
-    const noseCone = new THREE.Mesh(new THREE.SphereGeometry(0.155, 20, 16), bodyShellMat);
-    noseCone.scale.set(1.0, 0.58, 1.15);
-    noseCone.position.set(0, 0.04, -0.24);
-    noseCone.castShadow = true;
-    droneBody.add(noseCone);
-
+    const orangeTipMat = new THREE.MeshStandardMaterial({ color: 0xf97316, emissive: 0xf97316, emissiveIntensity: 0.25, roughness: 0.3 });
     const sensorLensMat = new THREE.MeshStandardMaterial({ color: 0x05080f, roughness: 0.05, metalness: 0.95 });
-    [-0.075, 0.075].forEach(sx => {
-      const sensorRing = new THREE.Mesh(new THREE.CylinderGeometry(0.026, 0.026, 0.02, 14), titaniumAccentMat);
-      sensorRing.rotation.x = Math.PI / 2;
-      sensorRing.position.set(sx, 0.045, -0.38);
-      droneBody.add(sensorRing);
-
-      const sensorEye = new THREE.Mesh(new THREE.CylinderGeometry(0.019, 0.019, 0.024, 14), sensorLensMat);
-      sensorEye.rotation.x = Math.PI / 2;
-      sensorEye.position.set(sx, 0.045, -0.383);
-      droneBody.add(sensorEye);
+    const coatedGlassMat = new THREE.MeshStandardMaterial({
+      color: 0x0c4a6e,
+      emissive: 0x0284c7,
+      emissiveIntensity: 0.35,
+      roughness: 0.02,
+      metalness: 0.98
     });
-
-    const batteryPack = new THREE.Mesh(new THREE.BoxGeometry(0.21, 0.055, 0.32), titaniumAccentMat);
-    batteryPack.position.set(0, 0.125, 0.05);
-    batteryPack.castShadow = true;
-    droneBody.add(batteryPack);
-
-    const batLedMat = new THREE.MeshBasicMaterial({ color: 0x10b981 });
-    for (let b = 0; b < 4; b++) {
-      const ledDot = new THREE.Mesh(new THREE.BoxGeometry(0.025, 0.008, 0.014), batLedMat);
-      ledDot.position.set(-0.045 + b * 0.03, 0.154, 0.08);
-      droneBody.add(ledDot);
-    }
-
-    const gimbalGroup = new THREE.Group();
-    gimbalGroup.position.set(0, -0.04, -0.32);
-    droneBody.add(gimbalGroup);
-
-    const gimbalBracket = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.09, 0.08), carbonFrameMat);
-    gimbalGroup.add(gimbalBracket);
-
-    const cameraBody = new THREE.Mesh(new THREE.BoxGeometry(0.115, 0.105, 0.11), bodyShellMat);
-    cameraBody.position.set(0, -0.01, -0.05);
-    cameraBody.castShadow = true;
-    gimbalGroup.add(cameraBody);
-
-    const lensBarrel = new THREE.Mesh(new THREE.CylinderGeometry(0.046, 0.048, 0.045, 24), titaniumAccentMat);
-    lensBarrel.rotation.x = Math.PI / 2;
-    lensBarrel.position.set(0, -0.01, -0.115);
-    gimbalGroup.add(lensBarrel);
-
-    const coatedGlass = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.038, 0.038, 0.008, 24),
-      new THREE.MeshStandardMaterial({
-        color: 0x0c4a6e,
-        emissive: 0x0284c7,
-        emissiveIntensity: 0.35,
-        roughness: 0.02,
-        metalness: 0.98
-      })
-    );
-    coatedGlass.rotation.x = Math.PI / 2;
-    coatedGlass.position.set(0, -0.01, -0.136);
-    gimbalGroup.add(coatedGlass);
-
-    [-0.14, 0.14].forEach(x => {
-      const skid = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.48, 10), carbonFrameMat);
-      skid.rotation.x = Math.PI / 2;
-      skid.position.set(x, -0.155, 0.02);
-      skid.castShadow = true;
-      droneBody.add(skid);
-
-      [-0.14, 0.16].forEach(z => {
-        const strut = new THREE.Mesh(new THREE.CylinderGeometry(0.011, 0.014, 0.12, 8), bodyShellMat);
-        strut.position.set(x, -0.095, z);
-        strut.rotation.z = x > 0 ? -0.18 : 0.18;
-        droneBody.add(strut);
-      });
-    });
-
-    const propellers = [];
-    const armConfigs = [
-      { x: -0.44, z: -0.38, front: true,  dir: 1 },
-      { x:  0.44, z: -0.38, front: true,  dir: -1 },
-      { x: -0.42, z:  0.40, front: false, dir: -1 },
-      { x:  0.42, z:  0.40, front: false, dir: 1 }
-    ];
-
-    const propBladeMat = new THREE.MeshStandardMaterial({
-      color: 0x1e293b,
-      roughness: 0.25,
-      metalness: 0.3
-    });
+    const propBladeMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.25, metalness: 0.3 });
     const blurDiscMat = new THREE.MeshBasicMaterial({
       color: 0x94a3b8,
       transparent: true,
@@ -2305,68 +2810,475 @@
       side: THREE.DoubleSide
     });
 
-    armConfigs.forEach(cfg => {
-      const dx = cfg.x * 0.82;
-      const dz = cfg.z * 0.78;
-      const armLen = Math.hypot(dx, dz);
+    let gimbalGroup = new THREE.Group();
+    const propellers = [];
 
-      const arm = new THREE.Mesh(new THREE.BoxGeometry(0.052, 0.036, armLen), bodyShellMat);
-      arm.position.set(dx * 0.52, 0.02, dz * 0.52);
-      arm.rotation.y = Math.atan2(dx, dz);
-      arm.castShadow = true;
-      droneBody.add(arm);
+    function applyCustomMaterials() {
+      bodyShellMat.color.set(droneCustom.primaryColor);
+      titaniumAccentMat.color.set(droneCustom.accentColor);
+      orangeTipMat.color.set(droneCustom.glowColor);
+      orangeTipMat.emissive.set(droneCustom.glowColor);
 
-      const hinge = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 0.052, 12), titaniumAccentMat);
-      hinge.position.set(cfg.x * 0.28, 0.02, cfg.z * 0.26);
-      droneBody.add(hinge);
+      if (droneCustom.finish === 'matte') {
+        bodyShellMat.roughness = 0.78;
+        bodyShellMat.metalness = 0.15;
+        titaniumAccentMat.roughness = 0.65;
+        titaniumAccentMat.metalness = 0.25;
+      } else if (droneCustom.finish === 'gloss') {
+        bodyShellMat.roughness = 0.12;
+        bodyShellMat.metalness = 0.22;
+        titaniumAccentMat.roughness = 0.15;
+        titaniumAccentMat.metalness = 0.45;
+      } else {
+        bodyShellMat.roughness = 0.30;
+        bodyShellMat.metalness = 0.58;
+        titaniumAccentMat.roughness = 0.22;
+        titaniumAccentMat.metalness = 0.82;
+      }
+    }
 
-      const motorBase = new THREE.Mesh(new THREE.CylinderGeometry(0.052, 0.046, 0.035, 18), carbonFrameMat);
-      motorBase.position.set(cfg.x, 0.035, cfg.z);
-      droneBody.add(motorBase);
+    function addRotorAssembly(parent, cfg, scale = 1.0, shrouded = false) {
+      const motorBase = new THREE.Mesh(new THREE.CylinderGeometry(0.050 * scale, 0.044 * scale, 0.034 * scale, 16), carbonFrameMat);
+      motorBase.position.set(cfg.x, cfg.y || 0.035, cfg.z);
+      parent.add(motorBase);
 
-      const copperRing = new THREE.Mesh(new THREE.CylinderGeometry(0.048, 0.048, 0.018, 18), copperCoilMat);
-      copperRing.position.set(cfg.x, 0.052, cfg.z);
-      droneBody.add(copperRing);
+      const copperRing = new THREE.Mesh(new THREE.CylinderGeometry(0.046 * scale, 0.046 * scale, 0.016 * scale, 16), copperCoilMat);
+      copperRing.position.set(cfg.x, (cfg.y || 0.035) + 0.017 * scale, cfg.z);
+      parent.add(copperRing);
 
-      const motorBell = new THREE.Mesh(new THREE.CylinderGeometry(0.054, 0.054, 0.032, 20), titaniumAccentMat);
-      motorBell.position.set(cfg.x, 0.072, cfg.z);
+      const motorBell = new THREE.Mesh(new THREE.CylinderGeometry(0.052 * scale, 0.052 * scale, 0.030 * scale, 18), titaniumAccentMat);
+      motorBell.position.set(cfg.x, (cfg.y || 0.035) + 0.036 * scale, cfg.z);
       motorBell.castShadow = true;
-      droneBody.add(motorBell);
+      parent.add(motorBell);
+
+      if (shrouded) {
+        const shroud = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.24 * scale, 0.22 * scale, 0.085 * scale, 24, 1, true),
+          new THREE.MeshStandardMaterial({
+            color: bodyShellMat.color,
+            roughness: bodyShellMat.roughness,
+            metalness: bodyShellMat.metalness,
+            side: THREE.DoubleSide
+          })
+        );
+        shroud.position.set(cfg.x, (cfg.y || 0.035) + 0.048 * scale, cfg.z);
+        parent.add(shroud);
+
+        const shroudLip = new THREE.Mesh(
+          new THREE.TorusGeometry(0.24 * scale, 0.016 * scale, 10, 28),
+          titaniumAccentMat
+        );
+        shroudLip.rotation.x = Math.PI / 2;
+        shroudLip.position.set(cfg.x, (cfg.y || 0.035) + 0.088 * scale, cfg.z);
+        parent.add(shroudLip);
+      }
 
       const ledColor = cfg.front ? 0x10b981 : 0xef4444;
       const led = new THREE.Mesh(
-        new THREE.SphereGeometry(0.024, 10, 10),
+        new THREE.SphereGeometry(0.022 * scale, 10, 10),
         new THREE.MeshBasicMaterial({ color: ledColor })
       );
-      led.position.set(cfg.x, 0.005, cfg.z);
-      droneBody.add(led);
+      led.position.set(cfg.x, (cfg.y || 0.035) - 0.025 * scale, cfg.z);
+      parent.add(led);
 
       const propGroup = new THREE.Group();
-      propGroup.position.set(cfg.x, 0.095, cfg.z);
+      propGroup.position.set(cfg.x, (cfg.y || 0.035) + 0.058 * scale, cfg.z);
 
-      const hub = new THREE.Mesh(new THREE.ConeGeometry(0.026, 0.028, 14), titaniumAccentMat);
-      hub.position.y = 0.01;
+      const hub = new THREE.Mesh(new THREE.ConeGeometry(0.024 * scale, 0.026 * scale, 14), titaniumAccentMat);
+      hub.position.y = 0.01 * scale;
       propGroup.add(hub);
 
-      [-1, 1].forEach(side => {
-        const blade = new THREE.Mesh(new THREE.BoxGeometry(0.21, 0.005, 0.034), propBladeMat);
-        blade.position.set(side * 0.115, 0, 0);
-        blade.rotation.x = side * cfg.dir * 0.14;
-        propGroup.add(blade);
+      const bladeCount = cfg.blades || 2;
+      for (let b = 0; b < bladeCount; b++) {
+        const angle = (b / bladeCount) * Math.PI * 2;
+        const bWrap = new THREE.Group();
+        bWrap.rotation.y = angle;
 
-        const tip = new THREE.Mesh(new THREE.BoxGeometry(0.028, 0.0055, 0.032), orangeTipMat);
-        tip.position.set(side * 0.228, 0, 0);
-        tip.rotation.x = side * cfg.dir * 0.14;
-        propGroup.add(tip);
-      });
+        const blade = new THREE.Mesh(new THREE.BoxGeometry(0.20 * scale, 0.005, 0.032 * scale), propBladeMat);
+        blade.position.set(0.11 * scale, 0, 0);
+        blade.rotation.x = cfg.dir * 0.14;
+        bWrap.add(blade);
 
-      const disc = new THREE.Mesh(new THREE.RingGeometry(0.055, 0.24, 28), blurDiscMat);
+        const tip = new THREE.Mesh(new THREE.BoxGeometry(0.028 * scale, 0.0055, 0.030 * scale), orangeTipMat);
+        tip.position.set(0.218 * scale, 0, 0);
+        tip.rotation.x = cfg.dir * 0.14;
+        bWrap.add(tip);
+
+        propGroup.add(bWrap);
+      }
+
+      const disc = new THREE.Mesh(new THREE.RingGeometry(0.05 * scale, 0.23 * scale, 26), blurDiscMat);
       disc.rotation.x = -Math.PI / 2;
       propGroup.add(disc);
 
-      droneBody.add(propGroup);
-      propellers.push({ mesh: propGroup, dir: cfg.dir });
-    });
+      parent.add(propGroup);
+      propellers.push({ mesh: propGroup, dir: cfg.dir, axis: 'y' });
+    }
+
+    function addDroneLogoPlate(parent, x, y, z, w, h, rotX = -Math.PI / 2, rotY = 0, rotZ = 0) {
+      if (!droneCustom.showLogo) return;
+      const plate = new THREE.Mesh(new THREE.PlaneGeometry(w, h), basDroneLogoMat);
+      plate.position.set(x, y, z);
+      plate.rotation.set(rotX, rotY, rotZ);
+      parent.add(plate);
+    }
+
+    function buildGimbalCamera(parent, x, y, z, scale = 1.0) {
+      const g = new THREE.Group();
+      g.position.set(x, y, z);
+      parent.add(g);
+
+      const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.14 * scale, 0.09 * scale, 0.08 * scale), carbonFrameMat);
+      g.add(bracket);
+
+      const camBody = new THREE.Mesh(new THREE.BoxGeometry(0.115 * scale, 0.105 * scale, 0.11 * scale), bodyShellMat);
+      camBody.position.set(0, -0.01 * scale, -0.05 * scale);
+      camBody.castShadow = true;
+      g.add(camBody);
+
+      const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.045 * scale, 0.047 * scale, 0.044 * scale, 20), titaniumAccentMat);
+      lens.rotation.x = Math.PI / 2;
+      lens.position.set(0, -0.01 * scale, -0.112 * scale);
+      g.add(lens);
+
+      const glass = new THREE.Mesh(new THREE.CylinderGeometry(0.037 * scale, 0.037 * scale, 0.008, 20), coatedGlassMat);
+      glass.rotation.x = Math.PI / 2;
+      glass.position.set(0, -0.01 * scale, -0.132 * scale);
+      g.add(glass);
+
+      return g;
+    }
+
+    function buildLandingSkids(parent, spanX = 0.15, dropY = 0.155, lenZ = 0.48) {
+      [-spanX, spanX].forEach(x => {
+        const skid = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, lenZ, 10), carbonFrameMat);
+        skid.rotation.x = Math.PI / 2;
+        skid.position.set(x, -dropY, 0.02);
+        skid.castShadow = true;
+        parent.add(skid);
+
+        [-lenZ * 0.3, lenZ * 0.32].forEach(z => {
+          const strut = new THREE.Mesh(new THREE.CylinderGeometry(0.011, 0.014, dropY * 0.85, 8), bodyShellMat);
+          strut.position.set(x, -dropY * 0.56, z);
+          strut.rotation.z = x > 0 ? -0.18 : 0.18;
+          parent.add(strut);
+        });
+      });
+    }
+
+    function rebuildDroneModel() {
+      while (droneBody.children.length > 0) {
+        droneBody.remove(droneBody.children[0]);
+      }
+      propellers.length = 0;
+      applyCustomMaterials();
+
+      const type = droneCustom.type;
+
+      if (type === 'quad') {
+        // 1. КВАДРОКОПТЕР X4
+        const lowerCore = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.10, 0.56), carbonFrameMat);
+        lowerCore.castShadow = true;
+        droneBody.add(lowerCore);
+
+        const upperShell = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.08, 0.50), bodyShellMat);
+        upperShell.position.set(0, 0.075, 0.02);
+        upperShell.castShadow = true;
+        droneBody.add(upperShell);
+
+        const noseCone = new THREE.Mesh(new THREE.SphereGeometry(0.155, 20, 16), bodyShellMat);
+        noseCone.scale.set(1.0, 0.58, 1.15);
+        noseCone.position.set(0, 0.04, -0.24);
+        droneBody.add(noseCone);
+
+        [-0.075, 0.075].forEach(sx => {
+          const ring = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.02, 12), titaniumAccentMat);
+          ring.rotation.x = Math.PI / 2;
+          ring.position.set(sx, 0.045, -0.38);
+          droneBody.add(ring);
+          const eye = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.024, 12), sensorLensMat);
+          eye.rotation.x = Math.PI / 2;
+          eye.position.set(sx, 0.045, -0.383);
+          droneBody.add(eye);
+        });
+
+        const batteryPack = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.055, 0.32), titaniumAccentMat);
+        batteryPack.position.set(0, 0.125, 0.05);
+        droneBody.add(batteryPack);
+
+        addDroneLogoPlate(droneBody, 0, 0.156, 0.05, 0.21, 0.13);
+        gimbalGroup = buildGimbalCamera(droneBody, 0, -0.04, -0.32, 1.0);
+        buildLandingSkids(droneBody, 0.14, 0.155, 0.48);
+
+        const arms = [
+          { x: -0.44, z: -0.38, front: true, dir: 1 },
+          { x:  0.44, z: -0.38, front: true, dir: -1 },
+          { x: -0.42, z:  0.40, front: false, dir: -1 },
+          { x:  0.42, z:  0.40, front: false, dir: 1 }
+        ];
+        arms.forEach(cfg => {
+          const dx = cfg.x * 0.82, dz = cfg.z * 0.78;
+          const arm = new THREE.Mesh(new THREE.BoxGeometry(0.052, 0.036, Math.hypot(dx, dz)), bodyShellMat);
+          arm.position.set(dx * 0.52, 0.02, dz * 0.52);
+          arm.rotation.y = Math.atan2(dx, dz);
+          arm.castShadow = true;
+          droneBody.add(arm);
+          addRotorAssembly(droneBody, cfg, 1.0, false);
+        });
+
+      } else if (type === 'hexa') {
+        // 2. ГЕКСАКОПТЕР X6 (6 ЛУЧЕЙ)
+        const hexHull = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.28, 0.12, 6), carbonFrameMat);
+        hexHull.castShadow = true;
+        droneBody.add(hexHull);
+
+        const hexDome = new THREE.Mesh(new THREE.CylinderGeometry(0.20, 0.25, 0.09, 6), bodyShellMat);
+        hexDome.position.y = 0.09;
+        hexDome.castShadow = true;
+        droneBody.add(hexDome);
+
+        const topDeck = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.04, 0.34), titaniumAccentMat);
+        topDeck.position.set(0, 0.145, 0.02);
+        droneBody.add(topDeck);
+
+        addDroneLogoPlate(droneBody, 0, 0.168, 0.02, 0.25, 0.16);
+        gimbalGroup = buildGimbalCamera(droneBody, 0, -0.05, -0.28, 1.1);
+        buildLandingSkids(droneBody, 0.18, 0.18, 0.52);
+
+        const radius = 0.54;
+        for (let i = 0; i < 6; i++) {
+          const ang = (i * Math.PI) / 3 + Math.PI / 6;
+          const ax = Math.cos(ang) * radius;
+          const az = Math.sin(ang) * radius;
+
+          const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.026, radius * 0.86, 10), bodyShellMat);
+          arm.position.set(ax * 0.52, 0.025, az * 0.52);
+          arm.rotation.z = Math.PI / 2;
+          arm.rotation.y = -ang;
+          arm.castShadow = true;
+          droneBody.add(arm);
+
+          const stripe = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.06, 10), titaniumAccentMat);
+          stripe.position.set(ax * 0.72, 0.025, az * 0.72);
+          stripe.rotation.z = Math.PI / 2;
+          stripe.rotation.y = -ang;
+          droneBody.add(stripe);
+
+          addRotorAssembly(droneBody, {
+            x: ax,
+            y: 0.04,
+            z: az,
+            front: az < 0,
+            dir: i % 2 === 0 ? 1 : -1
+          }, 0.88, false);
+        }
+
+      } else if (type === 'octo') {
+        // 3. ОКТОКОПТЕР X8 (8 ЛУЧЕЙ + ЗАЩИТНОЕ КОЛЬЦО)
+        const centerDrum = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.31, 0.13, 8), carbonFrameMat);
+        centerDrum.castShadow = true;
+        droneBody.add(centerDrum);
+
+        const upperCap = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.28, 0.09, 8), bodyShellMat);
+        upperCap.position.y = 0.10;
+        droneBody.add(upperCap);
+
+        const logoPlateBase = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.03, 0.22), titaniumAccentMat);
+        logoPlateBase.position.y = 0.155;
+        droneBody.add(logoPlateBase);
+
+        addDroneLogoPlate(droneBody, 0, 0.173, 0, 0.27, 0.17);
+        gimbalGroup = buildGimbalCamera(droneBody, 0, -0.06, -0.31, 1.15);
+        buildLandingSkids(droneBody, 0.20, 0.19, 0.56);
+
+        const radius = 0.58;
+        for (let i = 0; i < 8; i++) {
+          const ang = (i * Math.PI) / 4 + Math.PI / 8;
+          const ax = Math.cos(ang) * radius;
+          const az = Math.sin(ang) * radius;
+
+          const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.019, 0.022, radius * 0.88, 8), bodyShellMat);
+          arm.position.set(ax * 0.52, 0.025, az * 0.52);
+          arm.rotation.z = Math.PI / 2;
+          arm.rotation.y = -ang;
+          droneBody.add(arm);
+
+          addRotorAssembly(droneBody, {
+            x: ax,
+            y: 0.04,
+            z: az,
+            front: az < 0,
+            dir: i % 2 === 0 ? 1 : -1
+          }, 0.78, false);
+        }
+
+      } else if (type === 'combat') {
+        // 4. БОЕВОЙ / ТАКТИЧЕСКИЙ БПЛА «БЕРКУТ» (Бронированный стелс-корпус + 4 импеллера + турель)
+        const armorHull = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.13, 0.68), bodyShellMat);
+        armorHull.castShadow = true;
+        droneBody.add(armorHull);
+
+        // Угловатая стелс-надстройка
+        const stealthSpine = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.22, 0.54, 4), titaniumAccentMat);
+        stealthSpine.rotation.x = Math.PI / 2;
+        stealthSpine.rotation.y = Math.PI / 4;
+        stealthSpine.position.set(0, 0.095, 0.03);
+        stealthSpine.castShadow = true;
+        droneBody.add(stealthSpine);
+
+        // Бронированный носовой обтекатель
+        const noseWedge = new THREE.Mesh(new THREE.ConeGeometry(0.21, 0.28, 4), bodyShellMat);
+        noseWedge.rotation.x = -Math.PI / 2;
+        noseWedge.rotation.z = Math.PI / 4;
+        noseWedge.scale.set(1.1, 1.0, 0.65);
+        noseWedge.position.set(0, 0.02, -0.46);
+        droneBody.add(noseWedge);
+
+        // Боковые тактические пилоны и двойное хвостовое оперение
+        [-0.23, 0.23].forEach(sx => {
+          const sidePod = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.07, 0.44), carbonFrameMat);
+          sidePod.position.set(sx, -0.02, 0.02);
+          droneBody.add(sidePod);
+
+          const vTail = new THREE.Mesh(new THREE.BoxGeometry(0.022, 0.18, 0.16), titaniumAccentMat);
+          vTail.position.set(sx * 0.75, 0.11, 0.30);
+          vTail.rotation.z = sx > 0 ? -0.28 : 0.28;
+          droneBody.add(vTail);
+        });
+
+        // Логотип БАС на бронеплите
+        addDroneLogoPlate(droneBody, 0, 0.155, 0.04, 0.24, 0.15);
+
+        // Оптоэлектронная турель под носом
+        gimbalGroup = buildGimbalCamera(droneBody, 0, -0.08, -0.34, 1.15);
+        buildLandingSkids(droneBody, 0.16, 0.16, 0.52);
+
+        const tacticalArms = [
+          { x: -0.45, z: -0.34, front: true, dir: 1, blades: 3 },
+          { x:  0.45, z: -0.34, front: true, dir: -1, blades: 3 },
+          { x: -0.45, z:  0.34, front: false, dir: -1, blades: 3 },
+          { x:  0.45, z:  0.34, front: false, dir: 1, blades: 3 }
+        ];
+        tacticalArms.forEach(cfg => {
+          const pylon = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.045, 0.11), carbonFrameMat);
+          pylon.position.set(cfg.x * 0.58, 0.02, cfg.z);
+          droneBody.add(pylon);
+          addRotorAssembly(droneBody, cfg, 0.96, true);
+        });
+
+      } else if (type === 'racer') {
+        // 5. ГОНОЧНЫЙ FPV DRONE 5"
+        const carbonPlate = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.04, 0.42), carbonFrameMat);
+        carbonPlate.castShadow = true;
+        droneBody.add(carbonPlate);
+
+        const aeroCanopy = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.09, 0.34), bodyShellMat);
+        aeroCanopy.position.set(0, 0.065, 0.02);
+        aeroCanopy.castShadow = true;
+        droneBody.add(aeroCanopy);
+
+        const dorsalFin = new THREE.Mesh(new THREE.BoxGeometry(0.024, 0.11, 0.22), titaniumAccentMat);
+        dorsalFin.position.set(0, 0.13, 0.06);
+        dorsalFin.rotation.x = -0.25;
+        droneBody.add(dorsalFin);
+
+        // Задняя неоновая LED-полоса
+        const tailBar = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.025, 0.02), orangeTipMat);
+        tailBar.position.set(0, 0.05, 0.22);
+        droneBody.add(tailBar);
+
+        addDroneLogoPlate(droneBody, 0, 0.112, 0.01, 0.16, 0.10);
+        gimbalGroup = buildGimbalCamera(droneBody, 0, 0.04, -0.21, 0.85);
+
+        const racerArms = [
+          { x: -0.36, z: -0.30, front: true, dir: 1, blades: 3 },
+          { x:  0.36, z: -0.30, front: true, dir: -1, blades: 3 },
+          { x: -0.36, z:  0.30, front: false, dir: -1, blades: 3 },
+          { x:  0.36, z:  0.30, front: false, dir: 1, blades: 3 }
+        ];
+        racerArms.forEach(cfg => {
+          const dx = cfg.x * 0.85, dz = cfg.z * 0.85;
+          const arm = new THREE.Mesh(new THREE.BoxGeometry(0.042, 0.024, Math.hypot(dx, dz)), carbonFrameMat);
+          arm.position.set(dx * 0.5, 0.01, dz * 0.5);
+          arm.rotation.y = Math.atan2(dx, dz);
+          droneBody.add(arm);
+          addRotorAssembly(droneBody, cfg, 0.90, false);
+        });
+
+      } else if (type === 'vtol') {
+        // 6. КОНВЕРТОПЛАН / КРЫЛАТЫЙ БПЛА VTOL «СОКОЛ»
+        const fuselage = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.13, 0.72, 16), bodyShellMat);
+        fuselage.rotation.x = Math.PI / 2;
+        fuselage.castShadow = true;
+        droneBody.add(fuselage);
+
+        const nose = new THREE.Mesh(new THREE.SphereGeometry(0.11, 16, 14), titaniumAccentMat);
+        nose.scale.set(1, 0.9, 1.4);
+        nose.position.set(0, 0, -0.38);
+        droneBody.add(nose);
+
+        // Главные крылья
+        const mainWing = new THREE.Mesh(new THREE.BoxGeometry(1.42, 0.028, 0.24), bodyShellMat);
+        mainWing.position.set(0, 0.03, 0.02);
+        mainWing.castShadow = true;
+        droneBody.add(mainWing);
+
+        const wingTrim = new THREE.Mesh(new THREE.BoxGeometry(1.44, 0.032, 0.045), titaniumAccentMat);
+        wingTrim.position.set(0, 0.03, -0.09);
+        droneBody.add(wingTrim);
+
+        // Две хвостовые балки и стабилизатор
+        [-0.36, 0.36].forEach(bx => {
+          const boom = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.76, 10), carbonFrameMat);
+          boom.rotation.x = Math.PI / 2;
+          boom.position.set(bx, 0.02, 0.04);
+          droneBody.add(boom);
+
+          const fin = new THREE.Mesh(new THREE.BoxGeometry(0.018, 0.14, 0.12), titaniumAccentMat);
+          fin.position.set(bx, 0.09, 0.38);
+          droneBody.add(fin);
+        });
+
+        const hTail = new THREE.Mesh(new THREE.BoxGeometry(0.74, 0.02, 0.11), bodyShellMat);
+        hTail.position.set(0, 0.15, 0.40);
+        droneBody.add(hTail);
+
+        // Логотипы БАС на обоих крыльях!
+        addDroneLogoPlate(droneBody, -0.50, 0.047, 0.03, 0.24, 0.15);
+        addDroneLogoPlate(droneBody,  0.50, 0.047, 0.03, 0.24, 0.15);
+
+        gimbalGroup = buildGimbalCamera(droneBody, 0, -0.08, -0.28, 0.95);
+        buildLandingSkids(droneBody, 0.14, 0.15, 0.44);
+
+        // 4 подъёмных ротора на балках
+        const vtolRotors = [
+          { x: -0.36, y: 0.04, z: -0.30, front: true, dir: 1 },
+          { x:  0.36, y: 0.04, z: -0.30, front: true, dir: -1 },
+          { x: -0.36, y: 0.04, z:  0.34, front: false, dir: -1 },
+          { x:  0.36, y: 0.04, z:  0.34, front: false, dir: 1 }
+        ];
+        vtolRotors.forEach(cfg => addRotorAssembly(droneBody, cfg, 0.78, false));
+
+        // Задний маршевый толкающий винт!
+        const pusherGroup = new THREE.Group();
+        pusherGroup.position.set(0, 0.0, 0.38);
+        const pHub = new THREE.Mesh(new THREE.ConeGeometry(0.026, 0.04, 12), titaniumAccentMat);
+        pHub.rotation.x = Math.PI / 2;
+        pusherGroup.add(pHub);
+        [-1, 1].forEach(side => {
+          const pBlade = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.028, 0.006), propBladeMat);
+          pBlade.position.x = side * 0.12;
+          pusherGroup.add(pBlade);
+          const pTip = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.028, 0.007), orangeTipMat);
+          pTip.position.x = side * 0.24;
+          pusherGroup.add(pTip);
+        });
+        droneBody.add(pusherGroup);
+        propellers.push({ mesh: pusherGroup, dir: 1, axis: 'z' });
+      }
+    }
+
+    rebuildDroneModel();
 
     const groundMarker = new THREE.Mesh(
       new THREE.RingGeometry(0.32, 0.42, 32),
@@ -2498,6 +3410,7 @@
 
     function addBuilding(x, z, w, h, d) {
       addBoxCollider(x, h / 2, z, w, h, d, buildingMat, 'УДАР О НЕБОСКРЁБ');
+      attachBuildingLogoBanners(levelContainer, x, h / 2, z, w, h, d, false);
     }
 
     function addRoom(cfg) {
@@ -3780,6 +4693,7 @@
         lobbyOverlay.classList.add('hidden');
         levelsModal.classList.remove('open');
         settingsModal.classList.remove('open');
+        customModal.classList.remove('open');
         hudLayer.classList.remove('hidden');
         touchLayer.classList.toggle('visible', simSettings.inputMode === 'mobile');
         applyCameraMode(simSettings.defaultCamera);
@@ -3789,6 +4703,172 @@
 
     document.getElementById('btn-start-play').onclick = () => {
       startGameWithLoading(currentLevelIndex);
+    };
+
+    // =========================================================================
+    // КАСТОМИЗАЦИЯ ДРОНОВ И РАСЦВЕТОК (UI + СОХРАНЕНИЕ + 360° ОСМОТР В ЛОББИ)
+    // =========================================================================
+    const customModal = document.getElementById('customization-modal');
+    let lobbyInspectYawOffset = 0;
+    let isLobbyOrbiting = false;
+    let lastLobbyOrbitX = 0;
+
+    container.addEventListener('mousedown', (e) => {
+      if (!isInLobby || e.button !== 0) return;
+      isLobbyOrbiting = true;
+      lastLobbyOrbitX = e.clientX;
+      container.classList.add('dragging');
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isLobbyOrbiting || !isInLobby) return;
+      const dx = e.clientX - lastLobbyOrbitX;
+      lastLobbyOrbitX = e.clientX;
+      lobbyInspectYawOffset += dx * 0.01;
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (isLobbyOrbiting) {
+        isLobbyOrbiting = false;
+        if (isInLobby) container.classList.remove('dragging');
+      }
+    });
+
+    container.addEventListener('touchstart', (e) => {
+      if (!isInLobby || e.touches.length !== 1) return;
+      isLobbyOrbiting = true;
+      lastLobbyOrbitX = e.touches[0].clientX;
+    }, { passive: true });
+
+    container.addEventListener('touchmove', (e) => {
+      if (!isLobbyOrbiting || !isInLobby || e.touches.length !== 1) return;
+      const dx = e.touches[0].clientX - lastLobbyOrbitX;
+      lastLobbyOrbitX = e.touches[0].clientX;
+      lobbyInspectYawOffset += dx * 0.012;
+    }, { passive: true });
+
+    container.addEventListener('touchend', () => {
+      isLobbyOrbiting = false;
+    });
+
+    function updateLobbyDronePill() {
+      const dInfo = DRONE_TYPES[droneCustom.type] || DRONE_TYPES.quad;
+      const preset = LIVERY_PRESETS.find(p => p.id === droneCustom.presetId);
+      const liveryName = preset ? preset.name : 'Своя расцветка';
+      const elText = document.getElementById('lobby-current-drone');
+      const elDot = document.getElementById('lobby-drone-dot');
+      if (elText) elText.textContent = `${dInfo.shortName} • ${liveryName}`;
+      if (elDot) {
+        elDot.style.background = `linear-gradient(135deg, ${droneCustom.primaryColor} 50%, ${droneCustom.accentColor} 50%)`;
+      }
+    }
+
+    function renderCustomizationUI() {
+      const typesGrid = document.getElementById('drone-types-grid');
+      typesGrid.innerHTML = '';
+
+      Object.values(DRONE_TYPES).forEach(dt => {
+        const card = document.createElement('button');
+        card.className = 'drone-type-card' + (droneCustom.type === dt.id ? ' selected' : '');
+        card.innerHTML = `
+          <div class="drone-type-head">
+            <span class="drone-type-name">${dt.name}</span>
+            <span class="drone-rotor-tag">${dt.rotors}</span>
+          </div>
+          <div class="drone-type-sub">${dt.desc}</div>
+          <div class="drone-mini-stats">
+            <div class="d-stat-line"><span>Скорость</span><div class="d-stat-bar"><div class="d-stat-fill" style="width:${dt.stats.speed}%"></div></div></div>
+            <div class="d-stat-line"><span>Манёвр</span><div class="d-stat-bar"><div class="d-stat-fill" style="width:${dt.stats.agility}%"></div></div></div>
+            <div class="d-stat-line"><span>Стабильн.</span><div class="d-stat-bar"><div class="d-stat-fill" style="width:${dt.stats.stability}%"></div></div></div>
+          </div>
+        `;
+        card.onclick = () => {
+          droneCustom.type = dt.id;
+          rebuildDroneModel();
+          saveDroneCustomization();
+          renderCustomizationUI();
+          updateLobbyDronePill();
+        };
+        typesGrid.appendChild(card);
+      });
+
+      const liveriesGrid = document.getElementById('livery-presets-grid');
+      liveriesGrid.innerHTML = '';
+
+      LIVERY_PRESETS.forEach(lv => {
+        const btn = document.createElement('button');
+        btn.className = 'livery-btn' + (droneCustom.presetId === lv.id ? ' selected' : '');
+        btn.innerHTML = `
+          <div class="livery-swatch" style="background: linear-gradient(135deg, ${lv.primary} 0%, ${lv.primary} 55%, ${lv.accent} 55%, ${lv.glow} 100%);"></div>
+          <span>${lv.name}</span>
+        `;
+        btn.onclick = () => {
+          droneCustom.presetId = lv.id;
+          droneCustom.primaryColor = lv.primary;
+          droneCustom.accentColor = lv.accent;
+          droneCustom.glowColor = lv.glow;
+          droneCustom.finish = lv.finish;
+          rebuildDroneModel();
+          saveDroneCustomization();
+          renderCustomizationUI();
+          updateLobbyDronePill();
+        };
+        liveriesGrid.appendChild(btn);
+      });
+
+      document.getElementById('cust-primary-color').value = droneCustom.primaryColor;
+      document.getElementById('cust-accent-color').value = droneCustom.accentColor;
+      document.getElementById('cust-glow-color').value = droneCustom.glowColor;
+      document.getElementById('cust-finish').value = droneCustom.finish;
+      document.getElementById('cust-show-logo').checked = droneCustom.showLogo;
+    }
+
+    document.getElementById('cust-primary-color').oninput = (e) => {
+      droneCustom.presetId = 'custom';
+      droneCustom.primaryColor = e.target.value;
+      rebuildDroneModel();
+      saveDroneCustomization();
+      updateLobbyDronePill();
+    };
+
+    document.getElementById('cust-accent-color').oninput = (e) => {
+      droneCustom.presetId = 'custom';
+      droneCustom.accentColor = e.target.value;
+      rebuildDroneModel();
+      saveDroneCustomization();
+      updateLobbyDronePill();
+    };
+
+    document.getElementById('cust-glow-color').oninput = (e) => {
+      droneCustom.presetId = 'custom';
+      droneCustom.glowColor = e.target.value;
+      rebuildDroneModel();
+      saveDroneCustomization();
+      updateLobbyDronePill();
+    };
+
+    document.getElementById('cust-finish').onchange = (e) => {
+      droneCustom.presetId = 'custom';
+      droneCustom.finish = e.target.value;
+      rebuildDroneModel();
+      saveDroneCustomization();
+      updateLobbyDronePill();
+    };
+
+    document.getElementById('cust-show-logo').onchange = (e) => {
+      droneCustom.showLogo = e.target.checked;
+      rebuildDroneModel();
+      saveDroneCustomization();
+    };
+
+    document.getElementById('btn-open-custom').onclick = () => {
+      lobbyInspectYawOffset = 0;
+      renderCustomizationUI();
+      customModal.classList.add('open');
+    };
+
+    document.getElementById('btn-close-custom').onclick = () => {
+      customModal.classList.remove('open');
     };
 
     document.getElementById('btn-open-levels').onclick = () => {
@@ -4068,6 +5148,10 @@
         }
         if (settingsModal.classList.contains('open')) {
           settingsModal.classList.remove('open');
+          return;
+        }
+        if (customModal.classList.contains('open')) {
+          customModal.classList.remove('open');
           return;
         }
         if (!deviceSelectOverlay.classList.contains('hidden')) return;
@@ -4484,7 +5568,7 @@
       const divePitch = -0.34 * (1 - smoothstep(0.0, 0.65, u));
       const desiredPitch = divePitch + flareWave * 0.26 + Math.sin(slowPhase * 2.3) * 0.035 * blendSlow;
       const desiredRoll = -Math.sin(u * Math.PI) * 0.36 + Math.cos(slowPhase * 1.9) * 0.045 * blendSlow;
-      const desiredYaw = -0.75 * (1 - easeU) - 0.34 + Math.sin(slowPhase * 1.3) * 0.14 * blendSlow;
+      const desiredYaw = -0.75 * (1 - easeU) - 0.34 + Math.sin(slowPhase * 1.3) * 0.14 * blendSlow + lobbyInspectYawOffset;
 
       const rotLerp = 1 - Math.exp(-10 * rawDt);
       droneRoot.rotation.y += (desiredYaw - droneRoot.rotation.y) * rotLerp;
@@ -4507,7 +5591,8 @@
       // Лопасти замедляются синхронно со скоростью времени
       droneRoot.visible = true;
       propellers.forEach(p => {
-        p.mesh.rotation.y += (64 * timeScale) * p.dir * rawDt;
+        if (p.axis === 'z') p.mesh.rotation.z += (64 * timeScale) * p.dir * rawDt;
+        else p.mesh.rotation.y += (64 * timeScale) * p.dir * rawDt;
       });
       blurDiscMat.opacity = 0.06 + 0.16 * timeScale;
 
@@ -4517,7 +5602,8 @@
 
       // Плавная кинематографичная камера, удерживающая дрон в правой части экрана
       const orbitAngle = u * 0.42 + Math.max(0, lobbyCineTime - arrivalDuration) * 0.055;
-      const camRadius = 3.6 - 0.4 * blendSlow;
+      const isCustomOpen = customModal && customModal.classList.contains('open');
+      const camRadius = (isCustomOpen ? 2.45 : 3.6) - 0.35 * blendSlow;
       const desiredCamPos = new THREE.Vector3(
         droneRoot.position.x + Math.sin(orbitAngle) * camRadius + 0.85,
         droneRoot.position.y + 0.58,
@@ -4643,23 +5729,24 @@
         raceStartTime = performance.now();
       }
 
-      const targetYawVel = yawInput * 2.25;
+      const dPhys = (DRONE_TYPES[droneCustom.type] || DRONE_TYPES.quad).physics;
+      const targetYawVel = yawInput * 2.25 * dPhys.agilityMult;
       droneState.yawVel += (targetYawVel - droneState.yawVel) * Math.min(1, rawDt * 8);
       droneState.yaw += droneState.yawVel * rawDt + mouseYawDelta;
       mouseYawDelta = 0;
 
-      const maxTilt = 0.44;
+      const maxTilt = dPhys.maxTilt;
       const targetPitch = -forwardInput * maxTilt;
       const targetRoll = -strafeInput * maxTilt;
-      droneState.pitch += (targetPitch - droneState.pitch) * Math.min(1, rawDt * 8);
-      droneState.roll += (targetRoll - droneState.roll) * Math.min(1, rawDt * 8);
+      droneState.pitch += (targetPitch - droneState.pitch) * Math.min(1, rawDt * (8 * dPhys.agilityMult));
+      droneState.roll += (targetRoll - droneState.roll) * Math.min(1, rawDt * (8 * dPhys.agilityMult));
 
       const forwardDir = new THREE.Vector3(-Math.sin(droneState.yaw), 0, -Math.cos(droneState.yaw));
       const rightDir = new THREE.Vector3(Math.cos(droneState.yaw), 0, -Math.sin(droneState.yaw));
 
-      droneState.vel.addScaledVector(forwardDir, forwardInput * 28.0 * rawDt);
-      droneState.vel.addScaledVector(rightDir, strafeInput * 28.0 * rawDt);
-      droneState.vel.y += throttleInput * 23.0 * rawDt;
+      droneState.vel.addScaledVector(forwardDir, forwardInput * 28.0 * dPhys.speedMult * rawDt);
+      droneState.vel.addScaledVector(rightDir, strafeInput * 28.0 * dPhys.speedMult * rawDt);
+      droneState.vel.y += throttleInput * 23.0 * dPhys.climbMult * rawDt;
 
       droneState.vel.x *= Math.pow(0.14, rawDt);
       droneState.vel.z *= Math.pow(0.14, rawDt);
@@ -4696,7 +5783,8 @@
         (droneState.pos.y > 0.4 ? 0.45 : 0.1)
       );
       propellers.forEach(p => {
-        p.mesh.rotation.y += (18 + totalEffort * 42) * p.dir * rawDt;
+        if (p.axis === 'z') p.mesh.rotation.z += (22 + totalEffort * 52) * p.dir * rawDt;
+        else p.mesh.rotation.y += (18 + totalEffort * 42) * p.dir * rawDt;
       });
 
       if (simSettings.soundEnabled && audioCtx && motorGain) {
@@ -4760,6 +5848,8 @@
     loadLevel(0, false);
     buildLevelGrids();
     renderBindingLists();
+    renderCustomizationUI();
+    updateLobbyDronePill();
 
     function animate() {
       requestAnimationFrame(animate);
