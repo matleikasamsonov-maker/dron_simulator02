@@ -324,11 +324,118 @@
       backdrop-filter: blur(16px);
       border: 1px solid rgba(56, 189, 248, 0.25);
       border-radius: 24px;
-      padding: 28px 30px;
+      padding: 26px 28px;
       box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 16px;
+    }
+
+    /* Фирменный блок логотипа БАС в лобби */
+    .lobby-brand-showcase {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(226, 232, 240, 0.92) 100%);
+      border: 1px solid rgba(56, 189, 248, 0.55);
+      border-radius: 16px;
+      padding: 10px 16px;
+      box-shadow: 0 10px 26px rgba(14, 165, 233, 0.24), inset 0 1px 0 rgba(255, 255, 255, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .lobby-brand-showcase::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 90px;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.14));
+      pointer-events: none;
+    }
+
+    .lobby-brand-logo-img {
+      height: 48px;
+      width: auto;
+      object-fit: contain;
+      display: block;
+      filter: drop-shadow(0 2px 4px rgba(15, 23, 42, 0.15));
+    }
+
+    .lobby-brand-meta {
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      z-index: 1;
+    }
+
+    .lobby-brand-meta-tag {
+      font-size: 9.5px;
+      font-weight: 800;
+      letter-spacing: 1.1px;
+      text-transform: uppercase;
+      color: #2563eb;
+    }
+
+    .lobby-brand-meta-sub {
+      font-size: 11px;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    /* Плавающий фирменный знак в правом верхнем углу 3D-сцены лобби */
+    .lobby-top-right-emblem {
+      position: fixed;
+      top: 28px;
+      right: 40px;
+      z-index: 42;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(56, 189, 248, 0.5);
+      border-radius: 16px;
+      padding: 9px 16px;
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
+      pointer-events: none;
+    }
+
+    .lobby-top-right-emblem img {
+      height: 40px;
+      width: auto;
+      display: block;
+    }
+
+    .lobby-top-right-text {
+      display: flex;
+      flex-direction: column;
+      border-left: 1px solid rgba(15, 23, 42, 0.15);
+      padding-left: 11px;
+    }
+
+    .lobby-top-right-text span:first-child {
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      color: #1e3a8a;
+      text-transform: uppercase;
+    }
+
+    .lobby-top-right-text span:last-child {
+      font-size: 11px;
+      font-weight: 600;
+      color: #475569;
+    }
+
+    @media (max-width: 860px) {
+      .lobby-top-right-emblem {
+        display: none;
+      }
     }
 
     .lobby-badge {
@@ -348,7 +455,7 @@
     }
 
     .lobby-title {
-      font-size: 30px;
+      font-size: 29px;
       font-weight: 900;
       letter-spacing: 0.4px;
       line-height: 1.1;
@@ -357,17 +464,17 @@
     }
 
     .lobby-subtitle {
-      font-size: 13px;
+      font-size: 12.5px;
       color: var(--muted);
       line-height: 1.45;
-      margin-top: 6px;
+      margin-top: 5px;
     }
 
     .lobby-stats-card {
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--border);
       border-radius: 14px;
-      padding: 13px 15px;
+      padding: 12px 15px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -391,7 +498,7 @@
     .lobby-menu-buttons {
       display: flex;
       flex-direction: column;
-      gap: 11px;
+      gap: 10px;
     }
 
     .btn-play-main {
@@ -399,7 +506,7 @@
       background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
       color: #ffffff;
       border: none;
-      padding: 15px 24px;
+      padding: 14px 24px;
       border-radius: 14px;
       font-size: 16px;
       font-weight: 800;
@@ -418,13 +525,12 @@
       box-shadow: 0 16px 34px rgba(14, 165, 233, 0.65);
     }
 
-
     .btn-lobby-custom {
       width: 100%;
       background: linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(14, 165, 233, 0.26) 100%);
       border: 1px solid rgba(56, 189, 248, 0.55);
       color: #ffffff;
-      padding: 13px 16px;
+      padding: 12px 16px;
       border-radius: 13px;
       font-size: 14px;
       font-weight: 800;
@@ -698,7 +804,7 @@
 
     .lobby-controls-hint {
       border-top: 1px solid var(--border);
-      padding-top: 12px;
+      padding-top: 11px;
       font-size: 11.5px;
       color: #cbd5e1;
       line-height: 1.55;
@@ -1492,7 +1598,25 @@
 
   <!-- ОБЩЕЕ ГЛАВНОЕ ЛОББИ -->
   <div id="lobby-overlay" class="hidden">
+    <!-- Фирменная плашка БАС в правом верхнем углу лобби -->
+    <div class="lobby-top-right-emblem">
+      <img id="lobby-corner-logo-img" alt="Логотип БАС" />
+      <div class="lobby-top-right-text">
+        <span>Центр БАС</span>
+        <span>Симулятор БПЛА 3D</span>
+      </div>
+    </div>
+
     <div class="lobby-main-panel">
+      <!-- Фирменная витрина логотипа БАС в карточке лобби -->
+      <div class="lobby-brand-showcase">
+        <img id="lobby-panel-logo-img" class="lobby-brand-logo-img" alt="БАС" />
+        <div class="lobby-brand-meta">
+          <span class="lobby-brand-meta-tag">Беспилотные системы</span>
+          <span class="lobby-brand-meta-sub">Официальный тренажёр</span>
+        </div>
+      </div>
+
       <div>
         <span class="lobby-badge" id="lobby-mode-badge">● ПК • КЛАВИАТУРА И МЫШЬ</span>
         <h1 class="lobby-title">AERO DRONE SIM 3D</h1>
@@ -1861,6 +1985,15 @@
 
   <script>
     // =========================================================================
+    // 0. ФИРМЕННЫЙ ЛОГОТИП БАС (ВСТРОЕННОЕ ИЗОБРАЖЕНИЕ)
+    // =========================================================================
+    const BAS_LOGO_DATA_URL = "data:image/webp;base64,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";
+
+    // Устанавливаем изображение логотипа БАС в элементы лобби
+    document.getElementById('lobby-panel-logo-img').src = BAS_LOGO_DATA_URL;
+    document.getElementById('lobby-corner-logo-img').src = BAS_LOGO_DATA_URL;
+
+    // =========================================================================
     // 1. КОНФИГУРАЦИЯ УСТРОЙСТВ, ПРИВЯЗОК КЛАВИШ И ПУЛЬТА ДЛЯ ДРОНА
     // =========================================================================
     const DEFAULT_KBM_BINDS = {
@@ -2100,7 +2233,7 @@
     scene.add(sunDisc);
 
     // =========================================================================
-    // 4. РЕАЛИСТИЧНЫЕ ТЕКСТУРЫ МИРА
+    // 4. РЕАЛИСТИЧНЫЕ ТЕКСТУРЫ МИРА И ЗАГРУЗКА ЛОГОТИПА БАС НА ЗДАНИЯ И ДРОНЫ
     // =========================================================================
     function createRealisticGroundTextures() {
       const c = document.createElement('canvas');
@@ -2490,133 +2623,71 @@
       roughness: 0.35
     });
 
-    // Генерация бесшовной карбоновой текстуры
-    function createBasCarbonPattern(ctx) {
-      const size = 128;
-      const pCanvas = document.createElement('canvas');
-      pCanvas.width = size;
-      pCanvas.height = size;
-      const pCtx = pCanvas.getContext('2d');
-
-      // 1. Базовый градиент (металлический сине-голубой)
-      const grad = pCtx.createLinearGradient(0, 0, size, size);
-      grad.addColorStop(0, '#0284c7');
-      grad.addColorStop(0.5, '#38bdf8');
-      grad.addColorStop(1, '#1d4ed8');
-      pCtx.fillStyle = grad;
-      pCtx.fillRect(0, 0, size, size);
-
-      // 2. Карбоновая / технологичная сетка
-      pCtx.strokeStyle = 'rgba(255, 255, 255, 0.14)';
-      pCtx.lineWidth = 2;
-      const step = 16;
-
-      for (let i = -size; i < size * 2; i += step) {
-        pCtx.beginPath();
-        pCtx.moveTo(i, 0);
-        pCtx.lineTo(i + size, size);
-        pCtx.stroke();
-
-        pCtx.beginPath();
-        pCtx.moveTo(i + size, 0);
-        pCtx.lineTo(i, size);
-        pCtx.stroke();
-      }
-
-      // 3. Микро-шум для объема текстуры
-      for (let x = 0; x < size; x += 4) {
-        for (let y = 0; y < size; y += 4) {
-          if ((x + y) % 8 === 0) {
-            pCtx.fillStyle = 'rgba(0, 0, 0, 0.15)';
-            pCtx.fillRect(x, y, 2, 2);
-          }
-        }
-      }
-
-      return ctx.createPattern(pCanvas, 'repeat');
-    }
-
-    // Отрисовка векторного логотипа БАС
-    function drawBasVectorLogo(ctx, width, height, withDarkBg) {
-      ctx.clearRect(0, 0, width, height);
-
-      // Тёмный технологичный фон (#0f172a)
-      if (withDarkBg) {
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(0, 0, width, height);
-      } else {
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
-        ctx.beginPath();
-        ctx.roundRect(4, 4, width - 8, height - 8, 22);
-        ctx.fill();
-      }
-
-      const pattern = createBasCarbonPattern(ctx);
-
-      // Масштабируем координаты viewBox="0 0 360 120" под размер холста
-      const scaleX = width / 360;
-      const scaleY = height / 120;
-
-      ctx.save();
-      ctx.scale(scaleX, scaleY);
-
-      // Скошенная плашка-контур: M 15,10 L 345,10 L 330,110 L 5,110 Z
-      ctx.beginPath();
-      ctx.moveTo(15, 10);
-      ctx.lineTo(345, 10);
-      ctx.lineTo(330, 110);
-      ctx.lineTo(5, 110);
-      ctx.closePath();
-
-      ctx.strokeStyle = pattern;
-      ctx.lineWidth = 4;
-      ctx.stroke();
-
-      // Текст логотипа БАС с карбоновой заливкой
-      ctx.fillStyle = pattern;
-      ctx.font = "900 82px 'Arial Black', Impact, sans-serif";
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      if ('letterSpacing' in ctx) {
-        ctx.letterSpacing = '8px';
-      }
-      ctx.fillText('БАС', 180, 65);
-
-      ctx.restore();
-    }
-
-    function createBasLogoTextures() {
-      // 1. Текстура для фасадов зданий (соотношение сторон 3:1)
+    // =========================================================================
+    // СОЗДАНИЕ 3D-ТЕКСТУР ИЗ ЗАГРУЖЕННОГО ЛОГОТИПА БАС (ДЛЯ ЗДАНИЙ И ДРОНОВ)
+    // =========================================================================
+    function createBasLogoTexturesFromImage() {
+      // 1. Текстура для баннеров на фасадах зданий (соотношение сторон 2:1)
       const bCanvas = document.createElement('canvas');
-      bCanvas.width = 720;
-      bCanvas.height = 240;
+      bCanvas.width = 768;
+      bCanvas.height = 384;
       const bCtx = bCanvas.getContext('2d');
-      drawBasVectorLogo(bCtx, 720, 240, true);
+      bCtx.fillStyle = '#ffffff';
+      bCtx.fillRect(0, 0, bCanvas.width, bCanvas.height);
 
       const buildingTex = new THREE.CanvasTexture(bCanvas);
       buildingTex.anisotropy = 8;
 
-      // 2. Текстура для корпуса дрона
+      // 2. Текстура наклейки на корпус дрона (со скруглённой светлой подложкой)
       const dCanvas = document.createElement('canvas');
-      dCanvas.width = 720;
-      dCanvas.height = 240;
+      dCanvas.width = 768;
+      dCanvas.height = 384;
       const dCtx = dCanvas.getContext('2d');
-      drawBasVectorLogo(dCtx, 720, 240, false);
 
       const droneTex = new THREE.CanvasTexture(dCanvas);
       droneTex.anisotropy = 8;
 
+      const img = new Image();
+      img.onload = () => {
+        // Отрисовка на баннер здания с аккуратными отступами
+        bCtx.fillStyle = '#ffffff';
+        bCtx.fillRect(0, 0, bCanvas.width, bCanvas.height);
+        const padX = 28;
+        const padY = 16;
+        bCtx.drawImage(img, padX, padY, bCanvas.width - padX * 2, bCanvas.height - padY * 2);
+        buildingTex.needsUpdate = true;
+
+        // Отрисовка на плашку дрона с аккуратной скруглённой белой подложкой и рамкой
+        dCtx.clearRect(0, 0, dCanvas.width, dCanvas.height);
+        dCtx.fillStyle = 'rgba(255, 255, 255, 0.96)';
+        dCtx.beginPath();
+        if (dCtx.roundRect) {
+          dCtx.roundRect(8, 8, dCanvas.width - 16, dCanvas.height - 16, 36);
+        } else {
+          dCtx.rect(8, 8, dCanvas.width - 16, dCanvas.height - 16);
+        }
+        dCtx.fill();
+
+        dCtx.strokeStyle = '#3b82f6';
+        dCtx.lineWidth = 10;
+        dCtx.stroke();
+
+        dCtx.drawImage(img, 32, 20, dCanvas.width - 64, dCanvas.height - 40);
+        droneTex.needsUpdate = true;
+      };
+      img.src = BAS_LOGO_DATA_URL;
+
       return { buildingTex, droneTex };
     }
 
-    const basLogoTextures = createBasLogoTextures();
+    const basLogoTextures = createBasLogoTexturesFromImage();
     const basBuildingBannerMat = new THREE.MeshStandardMaterial({
       map: basLogoTextures.buildingTex,
       emissiveMap: basLogoTextures.buildingTex,
       emissive: 0xffffff,
-      emissiveIntensity: 0.28,
+      emissiveIntensity: 0.22,
       roughness: 0.25,
-      metalness: 0.15
+      metalness: 0.1
     });
     const basBannerFrameMat = new THREE.MeshStandardMaterial({
       color: 0x0f172a,
@@ -2626,14 +2697,15 @@
     const basDroneLogoMat = new THREE.MeshStandardMaterial({
       map: basLogoTextures.droneTex,
       transparent: true,
-      roughness: 0.22,
-      metalness: 0.15
+      roughness: 0.2,
+      metalness: 0.1
     });
 
     function attachBuildingLogoBanners(parentGroup, x, yCenter, z, w, h, d, onlyInward = false) {
-      const bannerH = Math.min(Math.max(h * 0.14, 2.4), 5.6);
-      const bannerW = bannerH * 2.8;
-      const bannerY = yCenter + h * 0.33;
+      // Соотношение сторон 2:1 под логотип БАС
+      const bannerH = Math.min(Math.max(h * 0.16, 2.8), 6.2);
+      const bannerW = bannerH * 2.0;
+      const bannerY = yCenter + h * 0.32;
 
       const addFaceBanner = (px, py, pz, rotY, maxSpan) => {
         const scale = Math.min(1, (maxSpan * 0.78) / bannerW);
@@ -2641,7 +2713,7 @@
         const fh = bannerH * scale;
         if (fw < 1.5) return;
 
-        const frame = new THREE.Mesh(new THREE.BoxGeometry(fw + 0.35, fh + 0.35, 0.14), basBannerFrameMat);
+        const frame = new THREE.Mesh(new THREE.BoxGeometry(fw + 0.36, fh + 0.36, 0.14), basBannerFrameMat);
         frame.position.set(px, py, pz);
         frame.rotation.y = rotY;
         parentGroup.add(frame);
@@ -2654,7 +2726,6 @@
       };
 
       if (onlyInward) {
-        // Для дальних небоскрёбов размещаем логотип БАС на фасаде, обращённом к центру арены
         const toCenter = new THREE.Vector2(-x, -z);
         if (Math.abs(toCenter.x) > Math.abs(toCenter.y)) {
           const signX = Math.sign(toCenter.x);
@@ -2664,7 +2735,6 @@
           addFaceBanner(x, bannerY, z + signZ * (d / 2 + 0.06), signZ > 0 ? 0 : Math.PI, w);
         }
       } else {
-        // На игровых зданиях логотип БАС со всех 4 сторон фасада
         addFaceBanner(x, bannerY, z + d / 2 + 0.06, 0, w);
         addFaceBanner(x, bannerY, z - d / 2 - 0.06, Math.PI, w);
         addFaceBanner(x + w / 2 + 0.06, bannerY, z, Math.PI / 2, d);
@@ -3006,7 +3076,7 @@
         batteryPack.position.set(0, 0.125, 0.05);
         droneBody.add(batteryPack);
 
-        addDroneLogoPlate(droneBody, 0, 0.156, 0.05, 0.21, 0.13);
+        addDroneLogoPlate(droneBody, 0, 0.156, 0.05, 0.21, 0.12);
         gimbalGroup = buildGimbalCamera(droneBody, 0, -0.04, -0.32, 1.0);
         buildLandingSkids(droneBody, 0.14, 0.155, 0.48);
 
@@ -3041,7 +3111,7 @@
         topDeck.position.set(0, 0.145, 0.02);
         droneBody.add(topDeck);
 
-        addDroneLogoPlate(droneBody, 0, 0.168, 0.02, 0.25, 0.16);
+        addDroneLogoPlate(droneBody, 0, 0.168, 0.02, 0.25, 0.14);
         gimbalGroup = buildGimbalCamera(droneBody, 0, -0.05, -0.28, 1.1);
         buildLandingSkids(droneBody, 0.18, 0.18, 0.52);
 
@@ -3074,7 +3144,7 @@
         }
 
       } else if (type === 'octo') {
-        // 3. ОКТОКОПТЕР X8 (8 ЛУЧЕЙ + ЗАЩИТНОЕ КОЛЬЦО)
+        // 3. ОКТОКОПТЕР X8
         const centerDrum = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.31, 0.13, 8), carbonFrameMat);
         centerDrum.castShadow = true;
         droneBody.add(centerDrum);
@@ -3087,7 +3157,7 @@
         logoPlateBase.position.y = 0.155;
         droneBody.add(logoPlateBase);
 
-        addDroneLogoPlate(droneBody, 0, 0.173, 0, 0.27, 0.17);
+        addDroneLogoPlate(droneBody, 0, 0.173, 0, 0.27, 0.15);
         gimbalGroup = buildGimbalCamera(droneBody, 0, -0.06, -0.31, 1.15);
         buildLandingSkids(droneBody, 0.20, 0.19, 0.56);
 
@@ -3113,12 +3183,11 @@
         }
 
       } else if (type === 'combat') {
-        // 4. БОЕВОЙ / ТАКТИЧЕСКИЙ БПЛА «БЕРКУТ» (Бронированный стелс-корпус + 4 импеллера + турель)
+        // 4. БОЕВОЙ / ТАКТИЧЕСКИЙ БПЛА «БЕРКУТ»
         const armorHull = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.13, 0.68), bodyShellMat);
         armorHull.castShadow = true;
         droneBody.add(armorHull);
 
-        // Угловатая стелс-надстройка
         const stealthSpine = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.22, 0.54, 4), titaniumAccentMat);
         stealthSpine.rotation.x = Math.PI / 2;
         stealthSpine.rotation.y = Math.PI / 4;
@@ -3126,7 +3195,6 @@
         stealthSpine.castShadow = true;
         droneBody.add(stealthSpine);
 
-        // Бронированный носовой обтекатель
         const noseWedge = new THREE.Mesh(new THREE.ConeGeometry(0.21, 0.28, 4), bodyShellMat);
         noseWedge.rotation.x = -Math.PI / 2;
         noseWedge.rotation.z = Math.PI / 4;
@@ -3134,7 +3202,6 @@
         noseWedge.position.set(0, 0.02, -0.46);
         droneBody.add(noseWedge);
 
-        // Боковые тактические пилоны и двойное хвостовое оперение
         [-0.23, 0.23].forEach(sx => {
           const sidePod = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.07, 0.44), carbonFrameMat);
           sidePod.position.set(sx, -0.02, 0.02);
@@ -3146,10 +3213,7 @@
           droneBody.add(vTail);
         });
 
-        // Логотип БАС на бронеплите
-        addDroneLogoPlate(droneBody, 0, 0.155, 0.04, 0.24, 0.15);
-
-        // Оптоэлектронная турель под носом
+        addDroneLogoPlate(droneBody, 0, 0.155, 0.04, 0.24, 0.13);
         gimbalGroup = buildGimbalCamera(droneBody, 0, -0.08, -0.34, 1.15);
         buildLandingSkids(droneBody, 0.16, 0.16, 0.52);
 
@@ -3182,12 +3246,11 @@
         dorsalFin.rotation.x = -0.25;
         droneBody.add(dorsalFin);
 
-        // Задняя неоновая LED-полоса
         const tailBar = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.025, 0.02), orangeTipMat);
         tailBar.position.set(0, 0.05, 0.22);
         droneBody.add(tailBar);
 
-        addDroneLogoPlate(droneBody, 0, 0.112, 0.01, 0.16, 0.10);
+        addDroneLogoPlate(droneBody, 0, 0.112, 0.01, 0.16, 0.09);
         gimbalGroup = buildGimbalCamera(droneBody, 0, 0.04, -0.21, 0.85);
 
         const racerArms = [
@@ -3217,7 +3280,6 @@
         nose.position.set(0, 0, -0.38);
         droneBody.add(nose);
 
-        // Главные крылья
         const mainWing = new THREE.Mesh(new THREE.BoxGeometry(1.42, 0.028, 0.24), bodyShellMat);
         mainWing.position.set(0, 0.03, 0.02);
         mainWing.castShadow = true;
@@ -3227,7 +3289,6 @@
         wingTrim.position.set(0, 0.03, -0.09);
         droneBody.add(wingTrim);
 
-        // Две хвостовые балки и стабилизатор
         [-0.36, 0.36].forEach(bx => {
           const boom = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.76, 10), carbonFrameMat);
           boom.rotation.x = Math.PI / 2;
@@ -3243,14 +3304,12 @@
         hTail.position.set(0, 0.15, 0.40);
         droneBody.add(hTail);
 
-        // Логотипы БАС на обоих крыльях!
-        addDroneLogoPlate(droneBody, -0.50, 0.047, 0.03, 0.24, 0.15);
-        addDroneLogoPlate(droneBody,  0.50, 0.047, 0.03, 0.24, 0.15);
+        addDroneLogoPlate(droneBody, -0.50, 0.047, 0.03, 0.24, 0.13);
+        addDroneLogoPlate(droneBody,  0.50, 0.047, 0.03, 0.24, 0.13);
 
         gimbalGroup = buildGimbalCamera(droneBody, 0, -0.08, -0.28, 0.95);
         buildLandingSkids(droneBody, 0.14, 0.15, 0.44);
 
-        // 4 подъёмных ротора на балках
         const vtolRotors = [
           { x: -0.36, y: 0.04, z: -0.30, front: true, dir: 1 },
           { x:  0.36, y: 0.04, z: -0.30, front: true, dir: -1 },
@@ -3259,7 +3318,6 @@
         ];
         vtolRotors.forEach(cfg => addRotorAssembly(droneBody, cfg, 0.78, false));
 
-        // Задний маршевый толкающий винт!
         const pusherGroup = new THREE.Group();
         pusherGroup.position.set(0, 0.0, 0.38);
         const pHub = new THREE.Mesh(new THREE.ConeGeometry(0.026, 0.04, 12), titaniumAccentMat);
@@ -3349,7 +3407,7 @@
     }
 
     // =========================================================================
-    // 6. ГЕНЕРАТОР 30 УРОВНЕЙ (ОРИГИНАЛЬНЫЕ УРОВНИ)
+    // 6. ГЕНЕРАТОР 30 УРОВНЕЙ
     // =========================================================================
     const levelContainer = new THREE.Group();
     scene.add(levelContainer);
@@ -3991,7 +4049,7 @@
           { kind: 'slider', x: 3.5, y: 7.5, z: -38, w: 3.2, h: 3.2, d: 3.2, moveY: 2.8, moveX: 2.0, speed: 2.5, phase: 3.14 },
           { kind: 'slider', x: 0, y: 6.5, z: -64, w: 3.6, h: 3.6, d: 3.6, moveX: 5.0, speed: 2.8, phase: 1.2 },
           { kind: 'slider', x: -4.0, y: 4.5, z: -92, w: 3.2, h: 3.2, d: 3.2, moveY: 3.0, speed: 3.0, phase: 2.0 },
-          { kind: 'slider', x: 4.0, y: 8.5, z: -96, w: 3.2, h: 3.2, d: 3.2, moveY: 3.0, speed: 3.0, phase: 5.14 }
+          { kind: 4.0, y: 8.5, z: -96, w: 3.2, h: 3.2, d: 3.2, moveY: 3.0, speed: 3.0, phase: 5.14 }
         ]
       },
       {
@@ -4230,12 +4288,11 @@
 
     let isInLobby = true;
 
-    // Виртуальные сенсорные стики для телефона
     const touchInput = {
-      leftX: 0,  // Yaw
-      leftY: 0,  // Throttle
-      rightX: 0, // Roll
-      rightY: 0  // Pitch
+      leftX: 0,
+      leftY: 0,
+      rightX: 0,
+      rightY: 0
     };
 
     function setupVirtualJoystick(baseId, thumbId, onMove) {
@@ -4307,10 +4364,9 @@
       touchInput.rightY = ny;
     });
 
-    // Поддержка Gamepad API (Пульт для дрона)
     let connectedGamepadIndex = null;
     let prevPadButtons = [];
-    let activeBindListener = null; // { type: 'kbm' | 'pad-axis' | 'pad-btn', key: string, baseline?: number[] }
+    let activeBindListener = null;
 
     function getActiveGamepad() {
       if (!navigator.getGamepads) return null;
@@ -4413,7 +4469,6 @@
     }
 
     function renderBindingLists() {
-      // 1. Клавиатура (ПК)
       const kbmList = document.getElementById('kbm-bind-list');
       kbmList.innerHTML = '';
       Object.keys(KBM_ACTION_LABELS).forEach(action => {
@@ -4438,7 +4493,6 @@
         kbmList.appendChild(item);
       });
 
-      // 2. Оси пульта (ПК)
       const padAxisList = document.getElementById('pad-axis-list');
       padAxisList.innerHTML = '';
       Object.keys(simSettings.padAxes).forEach(ch => {
@@ -4490,7 +4544,6 @@
         padAxisList.appendChild(item);
       });
 
-      // 3. Кнопки пульта
       const padBtnList = document.getElementById('pad-button-list');
       padBtnList.innerHTML = '';
       Object.keys(simSettings.padButtons).forEach(act => {
@@ -4516,7 +4569,6 @@
         padBtnList.appendChild(item);
       });
 
-      // Монитор 4 осей
       const monitor = document.getElementById('pad-axis-monitor');
       monitor.innerHTML = '';
       for (let i = 0; i < 4; i++) {
@@ -4553,7 +4605,6 @@
       renderBindingLists();
     };
 
-    // Навигация экрана выбора устройства при входе
     document.getElementById('choose-mobile').onclick = () => {
       applyInputModeUI('mobile');
       completeDeviceSetup();
@@ -4862,14 +4913,20 @@
     };
 
     document.getElementById('btn-open-custom').onclick = () => {
-      lobbyInspectYawOffset = 0;
       renderCustomizationUI();
+      lobbyOverlay.classList.add('hidden');
       customModal.classList.add('open');
     };
 
     document.getElementById('btn-close-custom').onclick = () => {
       customModal.classList.remove('open');
+      if (isInLobby) {
+        lobbyOverlay.classList.remove('hidden');
+      }
+      updateLobbyDronePill();
     };
+
+    updateLobbyDronePill();
 
     document.getElementById('btn-open-levels').onclick = () => {
       buildLevelGrids();
@@ -4890,11 +4947,9 @@
     document.getElementById('btn-close-settings').onclick = () => {
       activeBindListener = null;
       settingsModal.classList.remove('open');
-      applyInputModeUI(simSettings.inputMode);
     };
 
-    document.getElementById('btn-open-lobby').onclick = (e) => {
-      e.target.blur();
+    document.getElementById('btn-open-lobby').onclick = () => {
       openLobby(true);
     };
 
@@ -4903,6 +4958,9 @@
     setVolume.oninput = () => {
       simSettings.volume = parseInt(setVolume.value, 10) / 100;
       setVolumeVal.textContent = `${setVolume.value}%`;
+      if (masterGain && audioCtx) {
+        masterGain.gain.setTargetAtTime(simSettings.soundEnabled ? simSettings.volume : 0, audioCtx.currentTime, 0.05);
+      }
     };
 
     const setSens = document.getElementById('set-sens');
@@ -4923,18 +4981,15 @@
 
     document.getElementById('set-quality').onchange = (e) => {
       simSettings.quality = e.target.value;
-      if (simSettings.quality === 'high') {
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.shadowMap.enabled = true;
-        sunLight.castShadow = true;
-      } else if (simSettings.quality === 'medium') {
-        renderer.setPixelRatio(1.25);
-        renderer.shadowMap.enabled = true;
-        sunLight.castShadow = true;
-      } else {
+      if (simSettings.quality === 'low') {
         renderer.setPixelRatio(1);
         renderer.shadowMap.enabled = false;
-        sunLight.castShadow = false;
+      } else if (simSettings.quality === 'medium') {
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+        renderer.shadowMap.enabled = true;
+      } else {
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
       }
     };
 
@@ -4944,235 +4999,154 @@
     };
 
     // =========================================================================
-    // 9. ЗАГРУЗКА УРОВНЯ И ЗВУКОВОЙ СИНТЕЗАТОР
+    // 9. СИНТЕЗАТОР ЗВУКА
     // =========================================================================
-    function clearLevelObjects() {
-      while (levelContainer.children.length > 0) {
-        levelContainer.remove(levelContainer.children[0]);
-      }
-      levelBoxes = [];
-      levelArches = [];
-      levelTrees = [];
-      levelRings = [];
-      levelHazards = [];
-      levelLasers = [];
-    }
-
-    function loadLevel(idx, showBanner = true) {
-      if (crashTimer) {
-        clearTimeout(crashTimer);
-        crashTimer = null;
-      }
-      clearDebris();
-      clearLevelObjects();
-
-      currentLevelIndex = (idx + LEVELS.length) % LEVELS.length;
-      const lvl = LEVELS[currentLevelIndex];
-
-      levelSelect.value = currentLevelIndex;
-      document.getElementById('hud-level-desc').textContent = lvl.desc;
-      updateLobbySummary();
-
-      (lvl.buildings || []).forEach(b => addBuilding(b.x, b.z, b.w, b.h, b.d));
-      (lvl.rooms || []).forEach(rm => addRoom(rm));
-      (lvl.arches || []).forEach(a => addArch(a.x, a.z, a.rotY || 0, a.w || 10, a.h || 11));
-      (lvl.trees || []).forEach(t => addPineTree(t.x, t.z, t.s || 1.0));
-      (lvl.rings || []).forEach((r, i) => addRing(r, i));
-      (lvl.hazards || []).forEach(h => addHazard(h));
-      (lvl.lasers || []).forEach(ls => addLaser(ls));
-
-      currentRingIdx = 0;
-      raceStartTime = null;
-      raceFinished = false;
-      isCrashed = false;
-      spawnGraceTimer = 0.45;
-
-      document.getElementById('hud-rings').textContent = `0 / ${levelRings.length} колец`;
-      document.getElementById('hud-timer').textContent = 'Время: 00:00.0';
-      document.getElementById('status-dot').style.background = 'var(--accent-green)';
-      document.getElementById('crash-flash').style.opacity = '0';
-
-      if (levelRings.length > 0) {
-        const r0 = levelRings[0];
-        targetBeacon.visible = true;
-        targetBeacon.position.set(r0.baseX, r0.baseY + 35, r0.baseZ);
-      }
-
-      resetDronePositionOnly();
-      if (showBanner && !isInLobby) {
-        showToast(`${lvl.name.toUpperCase()} — ВЗЛЁТ!`, 'rgba(14, 165, 233, 0.95)');
-      }
-    }
-
-    levelSelect.onchange = (e) => {
-      e.target.blur();
-      startGameWithLoading(parseInt(e.target.value, 10));
-    };
-
-    document.getElementById('btn-prev-lvl').onclick = (e) => {
-      e.target.blur();
-      startGameWithLoading(currentLevelIndex - 1);
-    };
-
-    document.getElementById('btn-next-lvl').onclick = (e) => {
-      e.target.blur();
-      startGameWithLoading(currentLevelIndex + 1);
-    };
-
-    let toastTimeout = null;
-    function showToast(msg, color = 'rgba(16, 185, 129, 0.96)') {
-      const el = document.getElementById('toast-banner');
-      el.textContent = msg;
-      el.style.background = color;
-      el.style.color = (color.includes('239, 68, 68') || color.includes('14, 165, 233')) ? '#ffffff' : '#04130d';
-      el.style.opacity = '1';
-      clearTimeout(toastTimeout);
-      toastTimeout = setTimeout(() => { el.style.opacity = '0'; }, 1900);
-    }
-
     let audioCtx = null;
-    let motorOsc1 = null;
-    let motorOsc2 = null;
-    let motorGain = null;
+    let masterGain = null;
+    let osc1 = null, osc2 = null, droneGain = null;
 
-    function initAudioIfNeeded() {
+    function initAudio() {
       if (audioCtx) return;
-      const AC = window.AudioContext || window.webkitAudioContext;
-      audioCtx = new AC();
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AudioContext();
+      masterGain = audioCtx.createGain();
+      masterGain.gain.value = simSettings.volume;
+      masterGain.connect(audioCtx.destination);
 
-      motorOsc1 = audioCtx.createOscillator();
-      motorOsc2 = audioCtx.createOscillator();
+      droneGain = audioCtx.createGain();
+      droneGain.gain.value = 0.0;
+
       const filter = audioCtx.createBiquadFilter();
-      motorGain = audioCtx.createGain();
-
-      motorOsc1.type = 'sawtooth';
-      motorOsc2.type = 'triangle';
-      motorOsc1.frequency.value = 95;
-      motorOsc2.frequency.value = 190;
-
       filter.type = 'lowpass';
-      filter.frequency.value = 340;
-      motorGain.gain.value = 0;
+      filter.frequency.value = 380;
 
-      motorOsc1.connect(filter);
-      motorOsc2.connect(filter);
-      filter.connect(motorGain);
-      motorGain.connect(audioCtx.destination);
+      osc1 = audioCtx.createOscillator();
+      osc1.type = 'sawtooth';
+      osc1.frequency.value = 95;
 
-      motorOsc1.start();
-      motorOsc2.start();
+      osc2 = audioCtx.createOscillator();
+      osc2.type = 'triangle';
+      osc2.frequency.value = 190;
+
+      osc1.connect(filter);
+      osc2.connect(filter);
+      filter.connect(droneGain);
+      droneGain.connect(masterGain);
+
+      osc1.start();
+      osc2.start();
+    }
+
+    function updateSoundButtonsUI() {
+      const textHud = simSettings.soundEnabled ? '🔊 Звук: Вкл' : '🔇 Звук: Выкл';
+      const textSet = simSettings.soundEnabled ? '🔊 Вкл' : '🔇 Выкл';
+      const btnHud = document.getElementById('btn-sound');
+      const btnSet = document.getElementById('set-sound-btn');
+
+      btnHud.textContent = textHud;
+      btnHud.classList.toggle('active', simSettings.soundEnabled);
+      btnSet.textContent = textSet;
+      btnSet.classList.toggle('active', simSettings.soundEnabled);
+    }
+
+    function toggleSound() {
+      initAudio();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      simSettings.soundEnabled = !simSettings.soundEnabled;
+      updateSoundButtonsUI();
+      if (!simSettings.soundEnabled && droneGain) {
+        droneGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.06);
+      }
+    }
+
+    function playRingSound(isLevelComplete) {
+      if (!simSettings.soundEnabled || !audioCtx) return;
+      const now = audioCtx.currentTime;
+      const notes = isLevelComplete ? [523.25, 659.25, 783.99, 1046.5] : [659.25, 987.77];
+      notes.forEach((freq, idx) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.09);
+        gain.gain.setValueAtTime(0.16, now + idx * 0.09);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.09 + 0.35);
+        osc.connect(gain);
+        gain.connect(masterGain);
+        osc.start(now + idx * 0.09);
+        osc.stop(now + idx * 0.09 + 0.36);
+      });
     }
 
     function playCrashSound() {
       if (!simSettings.soundEnabled || !audioCtx) return;
       const now = audioCtx.currentTime;
       const osc = audioCtx.createOscillator();
-      const g = audioCtx.createGain();
+      const gain = audioCtx.createGain();
       osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(145, now);
+      osc.frequency.setValueAtTime(140, now);
       osc.frequency.exponentialRampToValueAtTime(28, now + 0.45);
-      g.gain.setValueAtTime(0.45 * simSettings.volume, now);
-      g.gain.exponentialRampToValueAtTime(0.001, now + 0.48);
-      osc.connect(g);
-      g.connect(audioCtx.destination);
+      gain.gain.setValueAtTime(0.28, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.48);
+      osc.connect(gain);
+      gain.connect(masterGain);
       osc.start(now);
       osc.stop(now + 0.5);
     }
 
-    function playRingSound() {
-      if (!simSettings.soundEnabled || !audioCtx) return;
-      const now = audioCtx.currentTime;
-      const osc = audioCtx.createOscillator();
-      const g = audioCtx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(587.33, now);
-      osc.frequency.setValueAtTime(880, now + 0.08);
-      g.gain.setValueAtTime(0.24 * simSettings.volume, now);
-      g.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-      osc.connect(g);
-      g.connect(audioCtx.destination);
-      osc.start(now);
-      osc.stop(now + 0.36);
-    }
-
-    function toggleSoundState() {
-      initAudioIfNeeded();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      simSettings.soundEnabled = !simSettings.soundEnabled;
-
-      const hudBtn = document.getElementById('btn-sound');
-      const setBtn = document.getElementById('set-sound-btn');
-      hudBtn.textContent = simSettings.soundEnabled ? '🔊 Звук: Вкл' : '🔇 Звук: Выкл';
-      setBtn.textContent = simSettings.soundEnabled ? '🔊 Включен' : '🔇 Выкл';
-      hudBtn.classList.toggle('active', simSettings.soundEnabled);
-      setBtn.classList.toggle('active', simSettings.soundEnabled);
-    }
-
-    document.getElementById('btn-sound').onclick = (e) => { e.target.blur(); toggleSoundState(); };
-    document.getElementById('set-sound-btn').onclick = () => toggleSoundState();
+    document.getElementById('btn-sound').onclick = toggleSound;
+    document.getElementById('set-sound-btn').onclick = toggleSound;
 
     // =========================================================================
-    // 10. ФИЗИКА ПОЛЁТА, СТОЛКНОВЕНИЯ И ОБРАБОТКА ВВОДА (ПК / ПУЛЬТ / ТЕЛЕФОН)
+    // 10. ФИЗИКА ДРОНА И ПОДДЕРЖКА КЛАВИАТУРЫ, МЫШИ, ПУЛЬТА И СЕНСОРНЫХ СТИКОВ
     // =========================================================================
-    const droneState = {
-      pos: new THREE.Vector3(0, 0.35, 0),
+    const drone = {
+      pos: new THREE.Vector3(0, 0.22, 0),
+      prevPos: new THREE.Vector3(0, 0.22, 0),
       vel: new THREE.Vector3(0, 0, 0),
       yaw: 0,
-      yawVel: 0,
       pitch: 0,
-      roll: 0
+      roll: 0,
+      motorRPM: 0,
+      radius: 0.46
     };
 
-    let cameraMode = 'chase';
     const keys = {};
+    let isMouseDragging = false;
+    let lastMouseX = 0;
+    const mouseIndicator = document.getElementById('mouse-indicator');
 
     window.addEventListener('keydown', (e) => {
-      // Переназначение клавиш в настройках
       if (activeBindListener && activeBindListener.type === 'kbm') {
         e.preventDefault();
-        if (e.code !== 'Escape') {
-          simSettings.kbmBinds[activeBindListener.key] = e.code;
-        }
+        simSettings.kbmBinds[activeBindListener.key] = e.code;
         activeBindListener = null;
         renderBindingLists();
         applyInputModeUI(simSettings.inputMode);
         return;
       }
 
-      if (isTransitioning) return;
-
-      if (e.code === 'Escape') {
-        if (levelsModal.classList.contains('open')) {
-          levelsModal.classList.remove('open');
-          return;
-        }
-        if (settingsModal.classList.contains('open')) {
-          settingsModal.classList.remove('open');
-          return;
-        }
+      if (e.code === 'Escape' && deviceSelectOverlay.classList.contains('hidden')) {
         if (customModal.classList.contains('open')) {
           customModal.classList.remove('open');
-          return;
+          if (isInLobby) lobbyOverlay.classList.remove('hidden');
+        } else if (levelsModal.classList.contains('open')) {
+          levelsModal.classList.remove('open');
+        } else if (settingsModal.classList.contains('open')) {
+          settingsModal.classList.remove('open');
+        } else if (!isInLobby) {
+          openLobby(true);
         }
-        if (!deviceSelectOverlay.classList.contains('hidden')) return;
-
-        if (isInLobby) startGameWithLoading(currentLevelIndex);
-        else openLobby(true);
         return;
       }
 
-      if (isInLobby || !deviceSelectOverlay.classList.contains('hidden')) return;
-
-      const b = simSettings.kbmBinds;
-      if (Object.values(b).includes(e.code) || ['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
+      if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
         e.preventDefault();
       }
-
       keys[e.code] = true;
 
-      if (simSettings.inputMode === 'pc-kbm') {
-        if (e.code === b.reset) loadLevel(currentLevelIndex);
-        if (e.code === b.camera) cycleCamera();
+      if (!isInLobby && simSettings.inputMode === 'pc-kbm') {
+        if (e.code === simSettings.kbmBinds.camera) cycleCameraMode();
+        if (e.code === simSettings.kbmBinds.reset) loadLevel(currentLevelIndex, false);
       }
     });
 
@@ -5184,459 +5158,236 @@
       Object.keys(keys).forEach(k => { keys[k] = false; });
       isMouseDragging = false;
       container.classList.remove('dragging');
+      mouseIndicator.classList.remove('pressed');
     });
 
-    let isMouseDragging = false;
-    let lastMouseX = 0;
-    let mouseYawDelta = 0;
-    const mouseIndicator = document.getElementById('mouse-indicator');
-
     container.addEventListener('mousedown', (e) => {
-      if (isInLobby || isTransitioning || simSettings.inputMode !== 'pc-kbm' || e.button !== 0) return;
-      isMouseDragging = true;
-      lastMouseX = e.clientX;
-      container.classList.add('dragging');
-      mouseIndicator.classList.add('pressed');
+      if (isInLobby || simSettings.inputMode !== 'pc-kbm') return;
+      if (e.button === 0) {
+        isMouseDragging = true;
+        lastMouseX = e.clientX;
+        container.classList.add('dragging');
+        mouseIndicator.classList.add('pressed');
+      }
     });
 
     window.addEventListener('mousemove', (e) => {
       if (!isMouseDragging || isInLobby || simSettings.inputMode !== 'pc-kbm') return;
-      const dx = (typeof e.movementX === 'number' && Math.abs(e.movementX) < 120)
-        ? e.movementX
-        : (e.clientX - lastMouseX);
+      const dx = e.clientX - lastMouseX;
       lastMouseX = e.clientX;
-      mouseYawDelta -= dx * 0.0045 * simSettings.mouseSensitivity;
+      drone.yaw -= dx * 0.0055 * simSettings.mouseSensitivity;
     });
 
-    window.addEventListener('mouseup', () => {
-      if (!isMouseDragging) return;
-      isMouseDragging = false;
-      container.classList.remove('dragging');
-      mouseIndicator.classList.remove('pressed');
+    window.addEventListener('mouseup', (e) => {
+      if (e.button === 0) {
+        isMouseDragging = false;
+        container.classList.remove('dragging');
+        mouseIndicator.classList.remove('pressed');
+      }
     });
 
-    function resetDronePositionOnly() {
-      droneState.pos.set(0, 0.35, 0);
-      droneState.vel.set(0, 0, 0);
-      droneState.yaw = 0;
-      droneState.yawVel = 0;
-      droneState.pitch = 0;
-      droneState.roll = 0;
-      mouseYawDelta = 0;
-      droneRoot.visible = (cameraMode !== 'fpv' || isInLobby);
-      droneRoot.position.copy(droneState.pos);
-      droneRoot.rotation.set(0, 0, 0);
-      droneBody.rotation.set(0, 0, 0);
-    }
+    function readControlInputs() {
+      let forward = 0; // -1..1
+      let strafe = 0;  // -1..1
+      let throttle = 0;// -1..1
+      let yaw = 0;     // -1..1
 
-    function applyCameraMode(mode) {
-      cameraMode = mode;
-      const btn = document.getElementById('btn-cam');
-      const reticle = document.getElementById('reticle');
-      document.getElementById('set-cam').value = mode;
+      if (simSettings.inputMode === 'mobile') {
+        throttle = touchInput.leftY;
+        yaw = -touchInput.leftX;
+        forward = touchInput.rightY;
+        strafe = touchInput.rightX;
+      } else if (simSettings.inputMode === 'pc-controller') {
+        const pad = getActiveGamepad();
+        if (pad) {
+          const deadzone = 0.08;
+          const readAxis = (cfg) => {
+            let v = pad.axes[cfg.axis] || 0;
+            if (Math.abs(v) < deadzone) v = 0;
+            return cfg.invert ? -v : v;
+          };
+          throttle = readAxis(simSettings.padAxes.throttle);
+          yaw = -readAxis(simSettings.padAxes.yaw);
+          forward = readAxis(simSettings.padAxes.pitch);
+          strafe = readAxis(simSettings.padAxes.roll);
 
-      if (cameraMode === 'chase') {
-        btn.textContent = '🎥 Камера: 3-е лицо';
-        droneRoot.visible = !isCrashed;
-        reticle.style.opacity = isInLobby ? '0' : '0.6';
-      } else if (cameraMode === 'fpv') {
-        btn.textContent = '🎥 Камера: От 1-го лица (FPV)';
-        droneRoot.visible = isInLobby;
-        reticle.style.opacity = isInLobby ? '0' : '0.9';
+          const checkBtnEdge = (btnIdx) => {
+            const pressed = !!(pad.buttons[btnIdx] && pad.buttons[btnIdx].pressed);
+            const was = !!prevPadButtons[btnIdx];
+            return pressed && !was;
+          };
+
+          if (!isInLobby) {
+            if (checkBtnEdge(simSettings.padButtons.camera.button)) cycleCameraMode();
+            if (checkBtnEdge(simSettings.padButtons.reset.button)) loadLevel(currentLevelIndex, false);
+            if (checkBtnEdge(simSettings.padButtons.lobby.button)) openLobby(true);
+          }
+
+          prevPadButtons = pad.buttons.map(b => b.pressed);
+        }
       } else {
-        btn.textContent = '🎥 Камера: Сверху (Посадка)';
-        droneRoot.visible = !isCrashed;
-        reticle.style.opacity = isInLobby ? '0' : '0.2';
+        const b = simSettings.kbmBinds;
+        if (keys[b.forward]) forward += 1;
+        if (keys[b.backward]) forward -= 1;
+        if (keys[b.right]) strafe += 1;
+        if (keys[b.left]) strafe -= 1;
+        if (keys[b.up]) throttle += 1;
+        if (keys[b.down]) throttle -= 1;
+        if (keys[b.yawLeft]) yaw += 1;
+        if (keys[b.yawRight]) yaw -= 1;
       }
+
+      document.getElementById('hud-cap-forward').classList.toggle('pressed', forward > 0.25);
+      document.getElementById('hud-cap-backward').classList.toggle('pressed', forward < -0.25);
+      document.getElementById('hud-cap-left').classList.toggle('pressed', strafe < -0.25);
+      document.getElementById('hud-cap-right').classList.toggle('pressed', strafe > 0.25);
+      document.getElementById('hud-cap-up').classList.toggle('pressed', throttle > 0.25);
+      document.getElementById('hud-cap-down').classList.toggle('pressed', throttle < -0.25);
+      document.getElementById('hud-cap-yawLeft').classList.toggle('pressed', yaw > 0.25);
+      document.getElementById('hud-cap-yawRight').classList.toggle('pressed', yaw < -0.25);
+
+      return { forward, strafe, throttle, yaw };
     }
 
-    function cycleCamera(e) {
-      if (e && e.target) e.target.blur();
-      if (cameraMode === 'chase') applyCameraMode('fpv');
-      else if (cameraMode === 'fpv') applyCameraMode('top');
-      else applyCameraMode('chase');
-    }
-
-    document.getElementById('btn-cam').onclick = cycleCamera;
-    document.getElementById('btn-reset').onclick = (e) => {
-      e.target.blur();
-      loadLevel(currentLevelIndex);
-    };
-
-    function triggerCrash(reason) {
-      if (isCrashed || spawnGraceTimer > 0) return;
-      isCrashed = true;
-      droneRoot.visible = false;
-      spawnExplosion(droneState.pos);
-      playCrashSound();
-
-      document.getElementById('status-dot').style.background = 'var(--accent-red)';
-      const flash = document.getElementById('crash-flash');
-      flash.style.opacity = '1';
-      setTimeout(() => { flash.style.opacity = '0'; }, 240);
-
-      showToast(`💥 ${reason} — ДРОН УНИЧТОЖЕН!`, 'rgba(239, 68, 68, 0.96)');
-
-      crashTimer = setTimeout(() => {
-        loadLevel(currentLevelIndex, false);
-      }, 1550);
-    }
-
-    function distPointToSegment3D(p, a, b) {
-      const ab = b.clone().sub(a);
-      const ap = p.clone().sub(a);
-      const lenSq = ab.lengthSq();
-      if (lenSq < 1e-6) return ap.length();
-      const t = Math.max(0, Math.min(1, ap.dot(ab) / lenSq));
-      const closest = a.clone().addScaledVector(ab, t);
-      return p.distanceTo(closest);
-    }
-
-    function checkAllCollisions(pos) {
-      const dr = 0.34;
-
-      for (const b of levelBoxes) {
-        if (pos.x + dr > b.minX && pos.x - dr < b.maxX &&
-            pos.y + dr * 0.7 > b.minY && pos.y - dr * 0.7 < b.maxY &&
-            pos.z + dr > b.minZ && pos.z - dr < b.maxZ) {
-          triggerCrash(b.reason);
-          return true;
-        }
-      }
-
-      for (const l of levelLasers) {
-        if (!l.active) continue;
-        const d = distPointToSegment3D(pos, l.curP1, l.curP2);
-        if (d < (0.13 + dr * 0.8)) {
-          triggerCrash('ПЕРЕСЕЧЕНИЕ ЛАЗЕРНОГО ЛУЧА');
-          return true;
-        }
-      }
-
-      for (const t of levelTrees) {
-        const distXZ = Math.hypot(pos.x - t.x, pos.z - t.z);
-        if (pos.y < t.trunkH && distXZ < (t.trunkR + dr)) {
-          triggerCrash('СТОЛКНОВЕНИЕ СО СТВОЛОМ ЁЛКИ');
-          return true;
-        }
-        if (pos.y >= t.crownBottom && pos.y <= t.crownTop) {
-          const ratio = 1 - (pos.y - t.crownBottom) / (t.crownTop - t.crownBottom);
-          const crownR = t.maxCrownR * Math.max(0.12, ratio);
-          if (distXZ < (crownR + dr * 0.7)) {
-            triggerCrash('УДАР О ВЕТКИ ЁЛКИ');
-            return true;
-          }
-        }
-      }
-
-      for (const a of levelArches) {
-        const dx = pos.x - a.x;
-        const dz = pos.z - a.z;
-        const cosA = Math.cos(-a.rotY);
-        const sinA = Math.sin(-a.rotY);
-        const lx = dx * cosA - dz * sinA;
-        const lz = dx * sinA + dz * cosA;
-
-        if (Math.abs(lz) < (a.halfThick + dr)) {
-          if (pos.y < a.height + a.halfThick) {
-            if (Math.abs(lx - (-a.halfW)) < (a.halfThick + dr) ||
-                Math.abs(lx - a.halfW) < (a.halfThick + dr)) {
-              triggerCrash('УДАР ОБ ОПОРУ АРКИ');
-              return true;
-            }
-          }
-          if (Math.abs(lx) <= (a.halfW + a.halfThick + dr) &&
-              Math.abs(pos.y - a.height) < (a.halfThick + dr * 0.7)) {
-            triggerCrash('УДАР О ПЕРЕКЛАДИНУ АРКИ');
-            return true;
-          }
-        }
-      }
-
-      for (const h of levelHazards) {
-        const m = h.mesh;
-        const dx = pos.x - m.position.x;
-        const dy = pos.y - m.position.y;
-        const dz = pos.z - m.position.z;
-
-        const rotZ = -m.rotation.z;
-        const cosZ = Math.cos(rotZ);
-        const sinZ = Math.sin(rotZ);
-        const lx = dx * cosZ - dy * sinZ;
-        const ly = dx * sinZ + dy * cosZ;
-
-        if (Math.abs(lx) < (h.hw + dr * 0.8) &&
-            Math.abs(ly) < (h.hh + dr * 0.8) &&
-            Math.abs(dz) < (h.hd + dr * 0.8)) {
-          triggerCrash('СТОЛКНОВЕНИЕ С ПРЕПЯТСТВИЕМ');
-          return true;
-        }
-      }
-
-      for (let i = 0; i < levelRings.length; i++) {
-        const ring = levelRings[i];
-        const m = ring.mesh;
-
-        const localPt = pos.clone().sub(m.position);
-        const invQuat = m.quaternion.clone().invert();
-        localPt.applyQuaternion(invQuat);
-
-        const radialDist = Math.hypot(localPt.x, localPt.y);
-        const planeDist = localPt.z;
-
-        const distToTubeCenter = Math.hypot(radialDist - ring.radius, planeDist);
-        if (distToTubeCenter < (ring.tube + dr * 0.82)) {
-          triggerCrash('УДАР О КРАЙ ОБРУЧА');
-          return true;
-        }
-
-        if (!raceFinished && i === currentRingIdx) {
-          if (Math.abs(planeDist) < 0.95 && radialDist < (ring.radius - ring.tube)) {
-            ring.mesh.material = passedRingMat;
-            currentRingIdx++;
-            playRingSound();
-            document.getElementById('hud-rings').textContent = `${currentRingIdx} / ${levelRings.length} колец`;
-
-            if (currentRingIdx < levelRings.length) {
-              const nextR = levelRings[currentRingIdx];
-              nextR.mesh.material = activeRingMat;
-              targetBeacon.position.set(nextR.mesh.position.x, nextR.mesh.position.y + 35, nextR.mesh.position.z);
-              showToast(`КОЛЬЦО ${currentRingIdx} / ${levelRings.length} ПРОЙДЕНО!`);
-            } else {
-              raceFinished = true;
-              completedLevels.add(currentLevelIndex);
-              updateLobbySummary();
-              targetBeacon.visible = false;
-              const isLast = currentLevelIndex === LEVELS.length - 1;
-              showToast(
-                isLast ? '🏆 ВСЕ 30 УРОВНЕЙ ПРОЙДЕНЫ!' : `УРОВЕНЬ ${currentLevelIndex + 1} ПРОЙДЕН!`,
-                'rgba(16, 185, 129, 0.96)'
-              );
-              if (!isLast) {
-                crashTimer = setTimeout(() => {
-                  startGameWithLoading(currentLevelIndex + 1);
-                }, 1450);
-              }
-            }
-          }
-        }
-      }
-
-      return false;
-    }
-
-    // =========================================================================
-    // 11. ОПРОС ПУЛЬТА ДЛЯ ДРОНА (GAMEPAD API) И ПЛАВНАЯ АНИМАЦИЯ ЛОББИ
-    // =========================================================================
-    function applyDeadzone(val, dz = 0.06) {
-      if (Math.abs(val) < dz) return 0;
-      const sign = Math.sign(val);
-      return sign * ((Math.abs(val) - dz) / (1 - dz));
-    }
-
-    function pollControllerAndMonitor() {
+    function pollGamepadCalibration() {
       const pad = getActiveGamepad();
+      if (!pad) return;
 
-      // Обновление монитора осей в настройках
       if (settingsModal.classList.contains('open') && simSettings.inputMode === 'pc-controller') {
+        updateGamepadUIStatus();
         for (let i = 0; i < 4; i++) {
-          const val = (pad && pad.axes[i] !== undefined) ? pad.axes[i] : 0;
-          const valEl = document.getElementById(`axis-val-${i}`);
-          const fillEl = document.getElementById(`axis-fill-${i}`);
-          if (valEl) valEl.textContent = val.toFixed(2);
-          if (fillEl) {
-            if (val >= 0) {
-              fillEl.style.left = '50%';
-              fillEl.style.width = `${Math.min(50, val * 50)}%`;
-            } else {
-              const w = Math.min(50, Math.abs(val) * 50);
-              fillEl.style.left = `${50 - w}%`;
-              fillEl.style.width = `${w}%`;
-            }
+          const val = pad.axes[i] || 0;
+          const lbl = document.getElementById(`axis-val-${i}`);
+          const fill = document.getElementById(`axis-fill-${i}`);
+          if (lbl && fill) {
+            lbl.textContent = val.toFixed(2);
+            const pct = Math.min(50, Math.abs(val) * 50);
+            fill.style.width = pct + '%';
+            fill.style.left = val >= 0 ? '50%' : (50 - pct) + '%';
           }
         }
       }
 
-      if (!pad) return null;
+      if (!activeBindListener) return;
 
-      // Обработка авто-привязки оси или кнопки в настройках
-      if (activeBindListener) {
-        if (activeBindListener.type === 'pad-axis') {
-          for (let i = 0; i < pad.axes.length; i++) {
-            const base = activeBindListener.baseline[i] || 0;
-            if (Math.abs(pad.axes[i] - base) > 0.38) {
-              simSettings.padAxes[activeBindListener.key].axis = i;
-              activeBindListener = null;
-              renderBindingLists();
-              break;
-            }
+      if (activeBindListener.type === 'pad-axis') {
+        for (let i = 0; i < pad.axes.length; i++) {
+          const diff = Math.abs((pad.axes[i] || 0) - (activeBindListener.baseline[i] || 0));
+          if (diff > 0.45) {
+            simSettings.padAxes[activeBindListener.key].axis = i;
+            activeBindListener = null;
+            renderBindingLists();
+            break;
           }
-        } else if (activeBindListener.type === 'pad-btn') {
-          for (let b = 0; b < pad.buttons.length; b++) {
-            if (pad.buttons[b] && pad.buttons[b].pressed) {
-              simSettings.padButtons[activeBindListener.key].button = b;
-              activeBindListener = null;
-              renderBindingLists();
-              break;
-            }
+        }
+      } else if (activeBindListener.type === 'pad-btn') {
+        for (let i = 0; i < pad.buttons.length; i++) {
+          if (pad.buttons[i] && pad.buttons[i].pressed) {
+            simSettings.padButtons[activeBindListener.key].button = i;
+            activeBindListener = null;
+            renderBindingLists();
+            break;
           }
         }
       }
-
-      // Чтение осей для полёта
-      const readAxis = (chName) => {
-        const cfg = simSettings.padAxes[chName];
-        const raw = pad.axes[cfg.axis] || 0;
-        const clean = applyDeadzone(raw, 0.06);
-        return cfg.invert ? -clean : clean;
-      };
-
-      // Чтение кнопок пульта (по фронту нажатия)
-      const btnStates = pad.buttons.map(b => Boolean(b && b.pressed));
-      const justPressed = (btnIdx) => btnStates[btnIdx] && !prevPadButtons[btnIdx];
-
-      if (!isInLobby && !isTransitioning && simSettings.inputMode === 'pc-controller' && !activeBindListener) {
-        if (justPressed(simSettings.padButtons.camera.button)) cycleCamera();
-        if (justPressed(simSettings.padButtons.reset.button)) loadLevel(currentLevelIndex);
-        if (justPressed(simSettings.padButtons.lobby.button)) openLobby(true);
-      }
-
-      prevPadButtons = btnStates;
-
-      return {
-        throttle: readAxis('throttle'),
-        yaw: -readAxis('yaw'),
-        pitch: readAxis('pitch'),
-        roll: readAxis('roll')
-      };
     }
 
-    const cinePill = document.getElementById('cine-state-pill');
-    const cineTimeScaleLabel = document.getElementById('cine-time-scale');
+    function updatePhysics(dt) {
+      if (isCrashed) return;
 
-    // Плавная многофазная анимация прилёта дрона и замедления времени (Smooth Hermite / Bullet-Time)
-    const cineSmoothPos = new THREE.Vector3(-22, 15, -56);
-    const cineSmoothLook = new THREE.Vector3(0, 2, 0);
-    const cineSmoothCam = new THREE.Vector3(4, 3.5, 6);
+      const ctrl = readControlInputs();
 
-    function smoothstep(edge0, edge1, x) {
-      const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
-      return t * t * (3 - 2 * t);
-    }
-
-    function updateLobbyCinematic(rawDt) {
-      if (lobbyCineTime === 0) {
-        cineSmoothPos.set(-22, 15.5, -56);
-        cineSmoothCam.set(5.2, 3.6, 6.4);
+      if (raceStartTime === null && (Math.abs(ctrl.forward) > 0.1 || Math.abs(ctrl.strafe) > 0.1 || ctrl.throttle > 0.1 || Math.abs(ctrl.yaw) > 0.1)) {
+        raceStartTime = performance.now();
       }
-      lobbyCineTime += rawDt;
 
-      // Фаза подлёта 0..2.8с с плавным переходом в Bullet-Time (0.14x)
-      const arrivalDuration = 2.8;
-      const blendSlow = smoothstep(1.5, arrivalDuration, lobbyCineTime);
-      const timeScale = 1.0 * (1 - blendSlow) + 0.14 * blendSlow;
+      const dPhys = (DRONE_TYPES[droneCustom.type] || DRONE_TYPES.quad).physics;
 
-      // Кривая подлёта (квадратичная кривая Безье от неба к посадочной зоне)
-      const u = Math.min(1, lobbyCineTime / arrivalDuration);
-      const easeU = 1 - Math.pow(1 - u, 3.2);
+      const yawRate = 2.2 * simSettings.mouseSensitivity * dPhys.agilityMult;
+      drone.yaw += ctrl.yaw * yawRate * dt;
 
-      const p0 = new THREE.Vector3(-22, 15.5, -56);
-      const p1 = new THREE.Vector3(6.5, 4.2, -16);
-      const p2 = new THREE.Vector3(1.15, 2.15, 0.35);
+      const maxHorizSpeed = 16.5 * dPhys.speedMult;
+      const maxClimbSpeed = 9.0 * dPhys.climbMult;
+      const accelHoriz = 26.0 * dPhys.agilityMult;
+      const accelVert = 24.0 * dPhys.climbMult;
 
-      const invU = 1 - easeU;
-      const bezierPos = new THREE.Vector3()
-        .addScaledVector(p0, invU * invU)
-        .addScaledVector(p1, 2 * invU * easeU)
-        .addScaledVector(p2, easeU * easeU);
+      const forwardVec = new THREE.Vector3(-Math.sin(drone.yaw), 0, -Math.cos(drone.yaw));
+      const rightVec = new THREE.Vector3(Math.cos(drone.yaw), 0, -Math.sin(drone.yaw));
 
-      // Замедленное кинематографическое парение после подлёта
-      const slowPhase = Math.max(0, lobbyCineTime - arrivalDuration) * 0.14;
-      const hoverOffset = new THREE.Vector3(
-        Math.sin(slowPhase * 2.1) * 0.24 * blendSlow,
-        Math.cos(slowPhase * 2.8) * 0.13 * blendSlow,
-        Math.sin(slowPhase * 1.7) * 0.18 * blendSlow
-      );
+      const wishDir = new THREE.Vector3()
+        .addScaledVector(forwardVec, ctrl.forward)
+        .addScaledVector(rightVec, ctrl.strafe);
 
-      const desiredPos = bezierPos.add(hoverOffset);
-      const posLerp = 1 - Math.exp(-12 * rawDt);
-      cineSmoothPos.lerp(desiredPos, posLerp);
-      droneRoot.position.copy(cineSmoothPos);
+      if (wishDir.lengthSq() > 1) wishDir.normalize();
 
-      // Плавные углы крена, тангажа и рыскания при вираже и торможении ("flare")
-      const flareWave = Math.sin(smoothstep(0.45, 0.98, u) * Math.PI);
-      const divePitch = -0.34 * (1 - smoothstep(0.0, 0.65, u));
-      const desiredPitch = divePitch + flareWave * 0.26 + Math.sin(slowPhase * 2.3) * 0.035 * blendSlow;
-      const desiredRoll = -Math.sin(u * Math.PI) * 0.36 + Math.cos(slowPhase * 1.9) * 0.045 * blendSlow;
-      const desiredYaw = -0.75 * (1 - easeU) - 0.34 + Math.sin(slowPhase * 1.3) * 0.14 * blendSlow + lobbyInspectYawOffset;
+      const targetVelX = wishDir.x * maxHorizSpeed;
+      const targetVelZ = wishDir.z * maxHorizSpeed;
 
-      const rotLerp = 1 - Math.exp(-10 * rawDt);
-      droneRoot.rotation.y += (desiredYaw - droneRoot.rotation.y) * rotLerp;
-      droneBody.rotation.x += (desiredPitch - droneBody.rotation.x) * rotLerp;
-      droneBody.rotation.z += (desiredRoll - droneBody.rotation.z) * rotLerp;
+      const horizFactor = 1 - Math.exp(-(accelHoriz / maxHorizSpeed) * dt * 2.4);
+      drone.vel.x += (targetVelX - drone.vel.x) * horizFactor;
+      drone.vel.z += (targetVelZ - drone.vel.z) * horizFactor;
 
-      // Стабилизация подвеса камеры в лобби
-      gimbalGroup.rotation.z = -droneBody.rotation.z * 0.8;
-      gimbalGroup.rotation.x = -droneBody.rotation.x * 0.65;
+      const targetVelY = ctrl.throttle * maxClimbSpeed;
+      const vertFactor = 1 - Math.exp(-(accelVert / maxClimbSpeed) * dt * 2.6);
+      drone.vel.y += (targetVelY - drone.vel.y) * vertFactor;
 
-      if (blendSlow < 0.65) {
-        cinePill.textContent = 'ПОДЛЁТ ДРОНА';
-        cinePill.classList.remove('slowmo');
-      } else {
-        cinePill.textContent = 'BULLET-TIME • SLOW-MO';
-        cinePill.classList.add('slowmo');
+      drone.prevPos.copy(drone.pos);
+      drone.pos.addScaledVector(drone.vel, dt);
+
+      if (drone.pos.y <= 0.22) {
+        drone.pos.y = 0.22;
+        if (drone.vel.y < 0) drone.vel.y = 0;
+        drone.vel.x *= Math.exp(-8 * dt);
+        drone.vel.z *= Math.exp(-8 * dt);
       }
-      cineTimeScaleLabel.textContent = `Время: ${timeScale.toFixed(2)}x`;
+      if (drone.pos.y > 160) {
+        drone.pos.y = 160;
+        drone.vel.y = 0;
+      }
 
-      // Лопасти замедляются синхронно со скоростью времени
-      droneRoot.visible = true;
-      propellers.forEach(p => {
-        if (p.axis === 'z') p.mesh.rotation.z += (64 * timeScale) * p.dir * rawDt;
-        else p.mesh.rotation.y += (64 * timeScale) * p.dir * rawDt;
-      });
-      blurDiscMat.opacity = 0.06 + 0.16 * timeScale;
+      const localVelForward = -drone.vel.x * Math.sin(drone.yaw) - drone.vel.z * Math.cos(drone.yaw);
+      const localVelRight = drone.vel.x * Math.cos(drone.yaw) - drone.vel.z * Math.sin(drone.yaw);
 
-      groundMarker.position.set(droneRoot.position.x, 0.15, droneRoot.position.z);
-      const markerScale = Math.max(0.45, 1 - (droneRoot.position.y - 0.3) * 0.03);
+      const maxTilt = dPhys.maxTilt;
+      const targetPitch = THREE.MathUtils.clamp(-localVelForward / 32, -maxTilt, maxTilt);
+      const targetRoll = THREE.MathUtils.clamp(-localVelRight / 32, -maxTilt, maxTilt);
+
+      drone.pitch += (targetPitch - drone.pitch) * Math.min(1, 10 * dt);
+      drone.roll += (targetRoll - drone.roll) * Math.min(1, 10 * dt);
+
+      const isAirborne = drone.pos.y > 0.28 || ctrl.throttle > 0.1 || Math.abs(ctrl.forward) > 0.1 || Math.abs(ctrl.strafe) > 0.1;
+      const targetRPM = isAirborne
+        ? (0.65 + Math.abs(ctrl.throttle) * 0.25 + drone.vel.length() * 0.015)
+        : 0.12;
+      drone.motorRPM += (targetRPM - drone.motorRPM) * Math.min(1, 8 * dt);
+
+      if (simSettings.soundEnabled && audioCtx && droneGain) {
+        const freq = 85 + drone.motorRPM * 135 + drone.vel.length() * 2.2;
+        osc1.frequency.setTargetAtTime(freq, audioCtx.currentTime, 0.05);
+        osc2.frequency.setTargetAtTime(freq * 2.02, audioCtx.currentTime, 0.05);
+        droneGain.gain.setTargetAtTime(0.05 + drone.motorRPM * 0.11, audioCtx.currentTime, 0.06);
+      }
+
+      droneRoot.position.copy(drone.pos);
+      droneRoot.rotation.order = 'YXZ';
+      droneRoot.rotation.y = drone.yaw;
+      droneRoot.rotation.x = drone.pitch;
+      droneRoot.rotation.z = drone.roll;
+
+      gimbalGroup.rotation.x = -drone.pitch * 0.85;
+      gimbalGroup.rotation.z = -drone.roll * 0.85;
+
+      groundMarker.position.set(drone.pos.x, 0.15, drone.pos.z);
+      const markerScale = THREE.MathUtils.clamp(1 + drone.pos.y * 0.04, 1, 2.5);
       groundMarker.scale.set(markerScale, markerScale, 1);
-
-      // Плавная кинематографичная камера, удерживающая дрон в правой части экрана
-      const orbitAngle = u * 0.42 + Math.max(0, lobbyCineTime - arrivalDuration) * 0.055;
-      const isCustomOpen = customModal && customModal.classList.contains('open');
-      const camRadius = (isCustomOpen ? 2.45 : 3.6) - 0.35 * blendSlow;
-      const desiredCamPos = new THREE.Vector3(
-        droneRoot.position.x + Math.sin(orbitAngle) * camRadius + 0.85,
-        droneRoot.position.y + 0.58,
-        droneRoot.position.z + Math.cos(orbitAngle) * camRadius
-      );
-      const camLerp = 1 - Math.exp(-5.5 * rawDt);
-      cineSmoothCam.lerp(desiredCamPos, camLerp);
-      camera.position.copy(cineSmoothCam);
-
-      const desiredLook = new THREE.Vector3(
-        droneRoot.position.x - 0.68,
-        droneRoot.position.y - 0.04,
-        droneRoot.position.z
-      );
-      cineSmoothLook.lerp(desiredLook, 1 - Math.exp(-9 * rawDt));
-      camera.lookAt(cineSmoothLook);
-
-      if (audioCtx && motorGain) {
-        motorGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
-      }
-
-      return timeScale;
     }
 
-    const clock = new THREE.Clock();
-    let elapsedTotal = 0;
-
-    function updateDynamicObjects(dt) {
-      elapsedTotal += dt;
-      cloudsGroup.rotation.y += dt * 0.004;
-
+    // =========================================================================
+    // 11. ДИНАМИЧЕСКИЕ ПРЕПЯТСТВИЯ, ЛАЗЕРЫ И ПРОВЕРКА КОЛЛИЗИЙ
+    // =========================================================================
+    function updateDynamicObstacles(elapsedTime, dt) {
       for (const h of levelHazards) {
-        const t = elapsedTotal * h.speed + h.phase;
+        const t = elapsedTime * h.speed + h.phase;
         if (h.moveX) h.mesh.position.x = h.baseX + Math.sin(t) * h.moveX;
         if (h.moveY) h.mesh.position.y = h.baseY + Math.sin(t) * h.moveY;
         if (h.moveZ) h.mesh.position.z = h.baseZ + Math.sin(t) * h.moveZ;
@@ -5644,198 +5395,483 @@
         if (h.rotSpeedY) h.mesh.rotation.y += h.rotSpeedY * dt;
       }
 
-      for (const ls of levelLasers) {
-        updateLaserTransform(ls, elapsedTotal);
+      for (const l of levelLasers) {
+        updateLaserTransform(l, elapsedTime);
       }
 
       for (let i = 0; i < levelRings.length; i++) {
         const r = levelRings[i];
-        const t = elapsedTotal * r.speed + r.phase;
+        const t = elapsedTime * r.speed + r.phase;
         if (r.swayX) r.mesh.position.x = r.baseX + Math.sin(t) * r.swayX;
         if (r.swayY) r.mesh.position.y = r.baseY + Math.sin(t) * r.swayY;
+      }
+    }
 
-        if (!raceFinished && i === currentRingIdx) {
-          targetBeacon.position.set(r.mesh.position.x, r.mesh.position.y + 35, r.mesh.position.z);
+    function distToSegmentSq(p, a, b) {
+      const ab = b.clone().sub(a);
+      const ap = p.clone().sub(a);
+      const lenSq = ab.lengthSq();
+      if (lenSq < 1e-6) return ap.lengthSq();
+      const t = THREE.MathUtils.clamp(ap.dot(ab) / lenSq, 0, 1);
+      const closest = a.clone().addScaledVector(ab, t);
+      return p.distanceToSquared(closest);
+    }
+
+    function triggerCrash(reason) {
+      if (isCrashed) return;
+      isCrashed = true;
+
+      droneBody.visible = false;
+      groundMarker.visible = false;
+      spawnExplosion(drone.pos);
+      playCrashSound();
+
+      if (simSettings.soundEnabled && audioCtx && droneGain) {
+        droneGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.02);
+      }
+
+      const flash = document.getElementById('crash-flash');
+      flash.style.opacity = '1';
+      setTimeout(() => { flash.style.opacity = '0'; }, 260);
+
+      showToast(`💥 ${reason}! Перезапуск...`, '#ef4444', 1400);
+
+      clearTimeout(crashTimer);
+      crashTimer = setTimeout(() => {
+        if (!isInLobby) loadLevel(currentLevelIndex, false);
+      }, 1450);
+    }
+
+    function checkCollisions() {
+      if (isCrashed || spawnGraceTimer > 0) return;
+
+      const p = drone.pos;
+      const r = drone.radius;
+
+      for (const box of levelBoxes) {
+        if (
+          p.x + r > box.minX && p.x - r < box.maxX &&
+          p.y + r > box.minY && p.y - r < box.maxY &&
+          p.z + r > box.minZ && p.z - r < box.maxZ
+        ) {
+          triggerCrash(box.reason || 'УДАР О СТЕНУ');
+          return;
+        }
+      }
+
+      const laserHitDistSq = (r + 0.08) * (r + 0.08);
+      for (const l of levelLasers) {
+        if (!l.active) continue;
+        if (distToSegmentSq(p, l.curP1, l.curP2) < laserHitDistSq) {
+          triggerCrash('ПЕРЕСЕЧЕНИЕ ЛАЗЕРНОГО ЛУЧА');
+          return;
+        }
+      }
+
+      for (const a of levelArches) {
+        const dx = p.x - a.x;
+        const dz = p.z - a.z;
+        const cosA = Math.cos(-a.rotY);
+        const sinA = Math.sin(-a.rotY);
+        const lx = dx * cosA - dz * sinA;
+        const lz = dx * sinA + dz * cosA;
+
+        if (Math.abs(lz) < a.halfThick + r && p.y < a.height + a.halfThick + r) {
+          if (Math.abs(lx + a.halfW) < a.halfThick + r || Math.abs(lx - a.halfW) < a.halfThick + r) {
+            triggerCrash('УДАР ОБ ОПОРУ АРКИ');
+            return;
+          }
+          if (Math.abs(lx) < a.halfW + a.halfThick + r && Math.abs(p.y - a.height) < a.halfThick + r) {
+            triggerCrash('УДАР О ПЕРЕКЛАДИНУ АРКИ');
+            return;
+          }
+        }
+      }
+
+      for (const t of levelTrees) {
+        const horizDist = Math.hypot(p.x - t.x, p.z - t.z);
+        if (p.y < t.trunkH && horizDist < t.trunkR + r) {
+          triggerCrash('СТОЛКНОВЕНИЕ СО СТВОЛОМ ЁЛКИ');
+          return;
+        }
+        if (p.y >= t.crownBottom && p.y <= t.crownTop) {
+          const ratio = 1 - (p.y - t.crownBottom) / (t.crownTop - t.crownBottom);
+          const crownRAtY = t.maxCrownR * THREE.MathUtils.clamp(ratio, 0.12, 1.0);
+          if (horizDist < crownRAtY + r * 0.7) {
+            triggerCrash('СТОЛКНОВЕНИЕ С КРОНОЙ ЁЛКИ');
+            return;
+          }
+        }
+      }
+
+      for (const h of levelHazards) {
+        const localPos = p.clone().sub(h.mesh.position);
+        const invQuat = h.mesh.quaternion.clone().invert();
+        localPos.applyQuaternion(invQuat);
+
+        if (
+          Math.abs(localPos.x) < h.hw + r &&
+          Math.abs(localPos.y) < h.hh + r &&
+          Math.abs(localPos.z) < h.hd + r
+        ) {
+          triggerCrash(h.kind === 'spinner' ? 'УДАР О ЛОПАСТЬ ТУРБИНЫ' : 'УДАР О ПОДВИЖНЫЙ БЛОК');
+          return;
+        }
+      }
+
+      for (let i = 0; i < levelRings.length; i++) {
+        const ringObj = levelRings[i];
+        const localCurr = p.clone().sub(ringObj.mesh.position).applyQuaternion(ringObj.mesh.quaternion.clone().invert());
+        const radialDist = Math.hypot(localCurr.x, localCurr.y);
+
+        if (Math.abs(localCurr.z) < ringObj.tube + r * 0.85) {
+          if (Math.abs(radialDist - ringObj.radius) < ringObj.tube + r * 0.65) {
+            triggerCrash('УДАР ОБ ОБОД КОЛЬЦА');
+            return;
+          }
+        }
+
+        if (i === currentRingIdx && !raceFinished) {
+          const localPrev = drone.prevPos.clone().sub(ringObj.mesh.position).applyQuaternion(ringObj.mesh.quaternion.clone().invert());
+          const crossedPlane = (localPrev.z > 0 && localCurr.z <= 0) || (localPrev.z < 0 && localCurr.z >= 0);
+          const nearPlane = Math.abs(localCurr.z) < 0.7;
+
+          if ((crossedPlane || nearPlane) && radialDist < ringObj.radius - ringObj.tube - 0.1) {
+            ringObj.mesh.material = passedRingMat;
+            currentRingIdx++;
+
+            if (currentRingIdx >= levelRings.length) {
+              raceFinished = true;
+              completedLevels.add(currentLevelIndex);
+              updateLobbySummary();
+              const finalTime = ((performance.now() - raceStartTime) / 1000).toFixed(2);
+              playRingSound(true);
+              showToast(`🏆 ${LEVELS[currentLevelIndex].name} ПРОЙДЕН ЗА ${finalTime} СЕК!`, '#10b981', 1900);
+
+              setTimeout(() => {
+                if (!isInLobby && raceFinished) {
+                  startGameWithLoading((currentLevelIndex + 1) % LEVELS.length);
+                }
+              }, 1600);
+            } else {
+              levelRings[currentRingIdx].mesh.material = activeRingMat;
+              playRingSound(false);
+              showToast(`КОЛЬЦО ${currentRingIdx} / ${levelRings.length}`, '#f59e0b', 950);
+            }
+            updateRaceHUD();
+          }
         }
       }
     }
 
-    function updatePhysics(rawDt) {
-      const padInputs = pollControllerAndMonitor();
-
-      if (isInLobby) {
-        const timeScale = updateLobbyCinematic(rawDt);
-        updateDynamicObjects(rawDt * timeScale);
-        return;
+    // =========================================================================
+    // 12. ЗАГРУЗКА УРОВНЕЙ И КИНЕМАТОГРАФИЧНАЯ КАМЕРА ЛОББИ
+    // =========================================================================
+    function clearLevelObjects() {
+      while (levelContainer.children.length > 0) {
+        const obj = levelContainer.children[0];
+        levelContainer.remove(obj);
       }
+      levelBoxes = [];
+      levelArches = [];
+      levelTrees = [];
+      levelRings = [];
+      levelHazards = [];
+      levelLasers = [];
+    }
 
-      blurDiscMat.opacity = 0.16;
-      updateDynamicObjects(rawDt);
+    function loadLevel(index, silent = false) {
+      clearTimeout(crashTimer);
+      clearDebris();
+      clearLevelObjects();
 
-      if (spawnGraceTimer > 0) spawnGraceTimer -= rawDt;
+      isCrashed = false;
+      droneBody.visible = true;
+      groundMarker.visible = true;
+      spawnGraceTimer = 0.6;
 
-      if (isCrashed) {
-        updateDebris(rawDt);
-        if (audioCtx && motorGain) motorGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.03);
-        return;
-      }
+      currentLevelIndex = (index + LEVELS.length) % LEVELS.length;
+      levelSelect.value = currentLevelIndex;
+      const lvl = LEVELS[currentLevelIndex];
 
-      let forwardInput = 0;
-      let strafeInput = 0;
-      let yawInput = 0;
-      let throttleInput = 0;
+      (lvl.buildings || []).forEach(b => addBuilding(b.x, b.z, b.w, b.h, b.d));
+      (lvl.rooms || []).forEach(rm => addRoom(rm));
+      (lvl.arches || []).forEach(a => addArch(a.x, a.z, a.rotY || 0, a.w || 10, a.h || 11));
+      (lvl.trees || []).forEach(t => addPineTree(t.x, t.z, t.s || 1.0));
+      (lvl.hazards || []).forEach(h => addHazard(h));
+      (lvl.lasers || []).forEach(l => addLaser(l));
+      lvl.rings.forEach((r, idx) => addRing(r, idx));
 
-      if (simSettings.inputMode === 'mobile') {
-        throttleInput = touchInput.leftY;
-        yawInput = -touchInput.leftX * simSettings.mouseSensitivity;
-        forwardInput = touchInput.rightY;
-        strafeInput = touchInput.rightX;
-      } else if (simSettings.inputMode === 'pc-controller' && padInputs) {
-        throttleInput = padInputs.throttle;
-        yawInput = padInputs.yaw * simSettings.mouseSensitivity;
-        forwardInput = padInputs.pitch;
-        strafeInput = padInputs.roll;
+      drone.pos.set(0, 0.22, 0);
+      drone.prevPos.copy(drone.pos);
+      drone.vel.set(0, 0, 0);
+      drone.yaw = 0;
+      drone.pitch = 0;
+      drone.roll = 0;
+      drone.motorRPM = 0;
+
+      droneRoot.position.copy(drone.pos);
+      droneRoot.rotation.set(0, 0, 0);
+      groundMarker.position.set(0, 0.15, 0);
+
+      currentRingIdx = 0;
+      raceStartTime = null;
+      raceFinished = false;
+
+      document.getElementById('hud-level-desc').textContent = lvl.desc;
+      updateRaceHUD();
+      updateLobbySummary();
+      if (!silent) showToast(lvl.name, '#38bdf8', 1200);
+    }
+
+    function updateRaceHUD() {
+      document.getElementById('hud-rings').textContent = `${currentRingIdx} / ${levelRings.length} колец`;
+      if (currentRingIdx < levelRings.length) {
+        targetBeacon.visible = true;
+        targetBeacon.position.set(
+          levelRings[currentRingIdx].mesh.position.x,
+          35,
+          levelRings[currentRingIdx].mesh.position.z
+        );
       } else {
-        const b = simSettings.kbmBinds;
-        const pFwd = Boolean(keys[b.forward]);
-        const pBwd = Boolean(keys[b.backward]);
-        const pLft = Boolean(keys[b.left]);
-        const pRgt = Boolean(keys[b.right]);
-        const pUp  = Boolean(keys[b.up]);
-        const pDwn = Boolean(keys[b.down]);
-        const pYL  = Boolean(keys[b.yawLeft]);
-        const pYR  = Boolean(keys[b.yawRight]);
-
-        if (pFwd) forwardInput += 1;
-        if (pBwd) forwardInput -= 1;
-        if (pLft) strafeInput -= 1;
-        if (pRgt) strafeInput += 1;
-        if (pYL) yawInput += 1;
-        if (pYR) yawInput -= 1;
-        if (pUp) throttleInput += 1;
-        if (pDwn) throttleInput -= 1;
-
-        document.getElementById('hud-cap-forward').classList.toggle('pressed', pFwd);
-        document.getElementById('hud-cap-backward').classList.toggle('pressed', pBwd);
-        document.getElementById('hud-cap-left').classList.toggle('pressed', pLft);
-        document.getElementById('hud-cap-right').classList.toggle('pressed', pRgt);
-        document.getElementById('hud-cap-up').classList.toggle('pressed', pUp);
-        document.getElementById('hud-cap-down').classList.toggle('pressed', pDwn);
-        document.getElementById('hud-cap-yawLeft').classList.toggle('pressed', pYL);
-        document.getElementById('hud-cap-yawRight').classList.toggle('pressed', pYR);
-      }
-
-      if (!raceStartTime && (Math.abs(throttleInput) > 0.08 || Math.abs(forwardInput) > 0.08 || droneState.pos.y > 0.6)) {
-        raceStartTime = performance.now();
-      }
-
-      const dPhys = (DRONE_TYPES[droneCustom.type] || DRONE_TYPES.quad).physics;
-      const targetYawVel = yawInput * 2.25 * dPhys.agilityMult;
-      droneState.yawVel += (targetYawVel - droneState.yawVel) * Math.min(1, rawDt * 8);
-      droneState.yaw += droneState.yawVel * rawDt + mouseYawDelta;
-      mouseYawDelta = 0;
-
-      const maxTilt = dPhys.maxTilt;
-      const targetPitch = -forwardInput * maxTilt;
-      const targetRoll = -strafeInput * maxTilt;
-      droneState.pitch += (targetPitch - droneState.pitch) * Math.min(1, rawDt * (8 * dPhys.agilityMult));
-      droneState.roll += (targetRoll - droneState.roll) * Math.min(1, rawDt * (8 * dPhys.agilityMult));
-
-      const forwardDir = new THREE.Vector3(-Math.sin(droneState.yaw), 0, -Math.cos(droneState.yaw));
-      const rightDir = new THREE.Vector3(Math.cos(droneState.yaw), 0, -Math.sin(droneState.yaw));
-
-      droneState.vel.addScaledVector(forwardDir, forwardInput * 28.0 * dPhys.speedMult * rawDt);
-      droneState.vel.addScaledVector(rightDir, strafeInput * 28.0 * dPhys.speedMult * rawDt);
-      droneState.vel.y += throttleInput * 23.0 * dPhys.climbMult * rawDt;
-
-      droneState.vel.x *= Math.pow(0.14, rawDt);
-      droneState.vel.z *= Math.pow(0.14, rawDt);
-      droneState.vel.y *= Math.pow(0.12, rawDt);
-
-      const nextPos = droneState.pos.clone().addScaledVector(droneState.vel, rawDt);
-
-      const floorY = (Math.hypot(nextPos.x, nextPos.z) < 5.6) ? 0.35 : 0.22;
-      if (nextPos.y <= floorY) {
-        nextPos.y = floorY;
-        if (droneState.vel.y < 0) droneState.vel.y = 0;
-      }
-      if (nextPos.y > 140) nextPos.y = 140;
-
-      droneState.pos.copy(nextPos);
-
-      if (checkAllCollisions(droneState.pos)) return;
-
-      droneRoot.position.copy(droneState.pos);
-      droneRoot.rotation.y = droneState.yaw;
-      droneBody.rotation.x = droneState.pitch;
-      droneBody.rotation.z = droneState.roll;
-
-      gimbalGroup.rotation.z = -droneState.roll * 0.75;
-      gimbalGroup.rotation.x = -droneState.pitch * 0.55;
-
-      groundMarker.position.set(droneState.pos.x, 0.15, droneState.pos.z);
-      const markerScale = Math.max(0.4, 1 - (droneState.pos.y - 0.3) * 0.025);
-      groundMarker.scale.set(markerScale, markerScale, 1);
-
-      const totalEffort = Math.min(
-        1,
-        (Math.abs(throttleInput) + Math.abs(forwardInput) + Math.abs(strafeInput)) * 0.5 +
-        (droneState.pos.y > 0.4 ? 0.45 : 0.1)
-      );
-      propellers.forEach(p => {
-        if (p.axis === 'z') p.mesh.rotation.z += (22 + totalEffort * 52) * p.dir * rawDt;
-        else p.mesh.rotation.y += (18 + totalEffort * 42) * p.dir * rawDt;
-      });
-
-      if (simSettings.soundEnabled && audioCtx && motorGain) {
-        const targetFreq = 85 + totalEffort * 95 + droneState.vel.length() * 1.8;
-        motorOsc1.frequency.setTargetAtTime(targetFreq, audioCtx.currentTime, 0.05);
-        motorOsc2.frequency.setTargetAtTime(targetFreq * 2.02, audioCtx.currentTime, 0.05);
-        motorGain.gain.setTargetAtTime((0.06 + totalEffort * 0.08) * simSettings.volume, audioCtx.currentTime, 0.05);
-      } else if (audioCtx && motorGain) {
-        motorGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
-      }
-
-      updateCamera(rawDt, forwardDir);
-
-      const altitude = Math.max(0, droneState.pos.y - 0.35);
-      const speedKmh = Math.round(droneState.vel.length() * 3.6);
-      const headingDeg = Math.round(((-droneState.yaw * 180 / Math.PI) % 360 + 360) % 360);
-
-      document.getElementById('hud-alt').textContent = `${altitude.toFixed(1)} м`;
-      document.getElementById('hud-spd').textContent = `${speedKmh} км/ч`;
-      document.getElementById('hud-hdg').textContent = `${headingDeg}°`;
-
-      document.getElementById('horizon-bar').style.transform =
-        `translateY(${-droneState.pitch * 90}px) rotate(${-droneState.roll * 45}deg)`;
-
-      if (raceStartTime && !raceFinished) {
-        const elapsedSec = (performance.now() - raceStartTime) / 1000;
-        const mins = Math.floor(elapsedSec / 60);
-        const secs = (elapsedSec % 60).toFixed(1).padStart(4, '0');
-        document.getElementById('hud-timer').textContent = `Время: 0${mins}:${secs}`;
+        targetBeacon.visible = false;
       }
     }
 
-    function updateCamera(dt, forwardDir) {
+    let toastTimer = null;
+    function showToast(text, bgColor = '#10b981', duration = 1200) {
+      const banner = document.getElementById('toast-banner');
+      banner.textContent = text;
+      banner.style.background = bgColor;
+      banner.style.color = bgColor === '#ef4444' ? '#ffffff' : '#05130d';
+      banner.style.opacity = '1';
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { banner.style.opacity = '0'; }, duration);
+    }
+
+    levelSelect.addEventListener('change', (e) => startGameWithLoading(parseInt(e.target.value, 10)));
+    document.getElementById('btn-prev-lvl').onclick = () => startGameWithLoading(currentLevelIndex - 1);
+    document.getElementById('btn-next-lvl').onclick = () => startGameWithLoading(currentLevelIndex + 1);
+    document.getElementById('btn-reset').onclick = () => loadLevel(currentLevelIndex, false);
+
+    let cameraMode = simSettings.defaultCamera;
+    const camBtn = document.getElementById('btn-cam');
+    const reticle = document.getElementById('reticle');
+
+    function applyCameraMode(mode) {
+      cameraMode = mode;
       if (cameraMode === 'chase') {
-        const idealOffset = forwardDir.clone().multiplyScalar(-4.2).add(new THREE.Vector3(0, 1.85, 0));
-        const targetCamPos = droneState.pos.clone().add(idealOffset);
-        if (targetCamPos.y < 0.6) targetCamPos.y = 0.6;
-
-        camera.position.lerp(targetCamPos, Math.min(1, dt * 10));
-        const lookAtTarget = droneState.pos.clone().addScaledVector(forwardDir, 4.0);
-        camera.lookAt(lookAtTarget);
+        camBtn.textContent = '🎥 Камера: 3-е лицо';
+        reticle.style.opacity = '0';
       } else if (cameraMode === 'fpv') {
-        const camPos = droneState.pos.clone().addScaledVector(forwardDir, 0.35);
-        camera.position.copy(camPos);
-
-        const euler = new THREE.Euler(droneState.pitch * 0.85, droneState.yaw, droneState.roll * 0.85, 'YXZ');
-        camera.quaternion.setFromEuler(euler);
-      } else if (cameraMode === 'top') {
-        camera.position.lerp(new THREE.Vector3(droneState.pos.x, droneState.pos.y + 14, droneState.pos.z + 6), Math.min(1, dt * 6));
-        camera.lookAt(droneState.pos);
+        camBtn.textContent = '🎥 Камера: FPV';
+        reticle.style.opacity = isInLobby ? '0' : '0.9';
+      } else {
+        camBtn.textContent = '🎥 Камера: Сверху';
+        reticle.style.opacity = '0';
       }
+    }
+
+    function cycleCameraMode() {
+      if (cameraMode === 'chase') applyCameraMode('fpv');
+      else if (cameraMode === 'fpv') applyCameraMode('top');
+      else applyCameraMode('chase');
+    }
+
+    camBtn.onclick = cycleCameraMode;
+
+    const cinePill = document.getElementById('cine-state-pill');
+    const cineTimeLabel = document.getElementById('cine-time-scale');
+
+    function updateLobbyCinematic(rawDt) {
+      lobbyCineTime += rawDt;
+
+      const cycleDuration = 12.0;
+      const tCycle = lobbyCineTime % cycleDuration;
+
+      let timeScale = 1.0;
+      if (tCycle >= 2.2 && tCycle <= 5.4) {
+        const u = (tCycle - 2.2) / 3.2;
+        const slowFactor = Math.sin(u * Math.PI);
+        timeScale = 1.0 - 0.72 * slowFactor;
+        cinePill.textContent = 'СЛОУ-МО ПРОЛЁТ';
+        cinePill.classList.add('slowmo');
+      } else if (tCycle < 2.2) {
+        cinePill.textContent = 'СКОРОСТНОЙ ПОДЛЁТ';
+        cinePill.classList.remove('slowmo');
+      } else {
+        cinePill.textContent = 'ПАТРУЛИРОВАНИЕ';
+        cinePill.classList.remove('slowmo');
+      }
+      cineTimeLabel.textContent = `Время: ${timeScale.toFixed(2)}x`;
+
+      const effDt = rawDt * timeScale;
+
+      if (tCycle < 4.4) {
+        const p = tCycle / 4.4;
+        const ease = 1 - Math.pow(1 - p, 3);
+        const angle = -0.35 + ease * 0.95;
+        const radius = 32 * (1 - ease) + 6.5 * ease;
+
+        drone.pos.set(
+          Math.sin(angle) * radius,
+          14.5 * (1 - ease) + 2.35 * ease,
+          -24 * (1 - ease) + 0.5 * ease
+        );
+
+        const nextP = Math.min(1, p + 0.02);
+        const nextEase = 1 - Math.pow(1 - nextP, 3);
+        const nextAngle = -0.35 + nextEase * 0.95;
+        const nextRadius = 32 * (1 - nextEase) + 6.5 * nextEase;
+        const nextX = Math.sin(nextAngle) * nextRadius;
+        const nextZ = -24 * (1 - nextEase) + 0.5 * nextEase;
+
+        drone.yaw = Math.atan2(-(nextX - drone.pos.x), -(nextZ - drone.pos.z));
+        drone.pitch = -0.26 * (1 - ease) - 0.04 * ease;
+        drone.roll = -0.32 * Math.sin(p * Math.PI);
+      } else {
+        const orbitT = tCycle - 4.4;
+        const omega = 0.68;
+        const ang = 0.6 + orbitT * omega;
+        const rad = 6.5;
+
+        drone.pos.set(
+          Math.sin(ang) * rad,
+          2.35 + Math.sin(orbitT * 1.6) * 0.35,
+          Math.cos(ang) * rad
+        );
+        drone.yaw = ang + Math.PI / 2;
+        drone.pitch = -0.10;
+        drone.roll = 0.16;
+      }
+
+      drone.motorRPM = 0.88;
+      for (const prop of propellers) {
+        if (prop.axis === 'z') {
+          prop.mesh.rotation.z += prop.dir * 38 * effDt;
+        } else {
+          prop.mesh.rotation.y += prop.dir * 38 * effDt;
+        }
+      }
+
+      droneRoot.position.copy(drone.pos);
+      droneRoot.rotation.order = 'YXZ';
+      droneRoot.rotation.y = drone.yaw + lobbyInspectYawOffset;
+      droneRoot.rotation.x = drone.pitch;
+      droneRoot.rotation.z = drone.roll;
+
+      gimbalGroup.rotation.x = -drone.pitch * 0.8;
+      gimbalGroup.rotation.z = -drone.roll * 0.8;
+
+      groundMarker.visible = true;
+      groundMarker.position.set(drone.pos.x, 0.15, drone.pos.z);
+
+      const isCustomOpen = customModal.classList.contains('open');
+      if (isCustomOpen) {
+        const camOffset = new THREE.Vector3(-1.35, 0.72, 2.55);
+        const desiredCam = drone.pos.clone().add(camOffset);
+        camera.position.lerp(desiredCam, Math.min(1, rawDt * 7.0));
+        const lookPt = drone.pos.clone().add(new THREE.Vector3(-0.75, 0.05, 0));
+        camera.lookAt(lookPt);
+      } else {
+        const camOffset = new THREE.Vector3(-3.2, 1.35, 3.8).applyAxisAngle(new THREE.Vector3(0, 1, 0), drone.yaw * 0.45);
+        const desiredCam = drone.pos.clone().add(camOffset);
+        camera.position.lerp(desiredCam, Math.min(1, rawDt * 5.5));
+        const lookPt = drone.pos.clone().add(new THREE.Vector3(-1.1, 0.15, 0));
+        camera.lookAt(lookPt);
+      }
+    }
+
+    function updateCamera(dt) {
+      if (cameraMode === 'chase') {
+        const offset = new THREE.Vector3(0, 1.85, 4.7).applyAxisAngle(new THREE.Vector3(0, 1, 0), drone.yaw);
+        const targetCamPos = drone.pos.clone().add(offset);
+        camera.position.lerp(targetCamPos, Math.min(1, 9.5 * dt));
+
+        const lookAhead = new THREE.Vector3(0, 0.45, -7).applyAxisAngle(new THREE.Vector3(0, 1, 0), drone.yaw);
+        camera.lookAt(drone.pos.clone().add(lookAhead));
+      } else if (cameraMode === 'fpv') {
+        const fpvOffset = new THREE.Vector3(0, 0.0, -0.36);
+        fpvOffset.applyEuler(new THREE.Euler(drone.pitch, drone.yaw, drone.roll, 'YXZ'));
+        camera.position.copy(drone.pos).add(fpvOffset);
+
+        camera.rotation.order = 'YXZ';
+        camera.rotation.y = drone.yaw;
+        camera.rotation.x = drone.pitch;
+        camera.rotation.z = drone.roll;
+      } else if (cameraMode === 'top') {
+        const targetTop = new THREE.Vector3(drone.pos.x, drone.pos.y + 13, drone.pos.z + 2.2);
+        camera.position.lerp(targetTop, Math.min(1, 7 * dt));
+        camera.lookAt(drone.pos);
+      }
+    }
+
+    const hudAlt = document.getElementById('hud-alt');
+    const hudSpd = document.getElementById('hud-spd');
+    const hudHdg = document.getElementById('hud-hdg');
+    const hudTimer = document.getElementById('hud-timer');
+    const horizonBar = document.getElementById('horizon-bar');
+
+    function updateHUD() {
+      const altitude = Math.max(0, drone.pos.y - 0.22);
+      const speedKmh = Math.round(drone.vel.length() * 3.6);
+      let heading = Math.round(((-drone.yaw * 180 / Math.PI) % 360 + 360) % 360);
+
+      hudAlt.textContent = `${altitude.toFixed(1)} м`;
+      hudSpd.textContent = `${speedKmh} км/ч`;
+      hudHdg.textContent = `${heading}°`;
+
+      if (raceStartTime !== null && !raceFinished) {
+        const sec = (performance.now() - raceStartTime) / 1000;
+        const mins = Math.floor(sec / 60);
+        const rem = (sec % 60).toFixed(1).padStart(4, '0');
+        hudTimer.textContent = `Время: 0${mins}:${rem}`;
+      }
+
+      if (cameraMode === 'fpv') {
+        const rollDeg = -drone.roll * (180 / Math.PI);
+        const pitchPx = -drone.pitch * 130;
+        horizonBar.style.transform = `translateY(${pitchPx}px) rotate(${rollDeg}deg)`;
+      }
+    }
+
+    // =========================================================================
+    // 13. ГЛАВНЫЙ ЦИКЛ ОТРИСОВКИ
+    // =========================================================================
+    let lastTime = performance.now();
+    let totalTime = 0;
+
+    function animate(now) {
+      requestAnimationFrame(animate);
+
+      const dt = Math.min((now - lastTime) / 1000, 0.05);
+      lastTime = now;
+      totalTime += dt;
+
+      pollGamepadCalibration();
+
+      cloudsGroup.rotation.y += 0.004 * dt;
+      if (spawnGraceTimer > 0) spawnGraceTimer -= dt;
+
+      if (isInLobby) {
+        updateLobbyCinematic(dt);
+      } else {
+        for (const prop of propellers) {
+          if (prop.axis === 'z') {
+            prop.mesh.rotation.z += prop.dir * (38 * drone.motorRPM) * dt;
+          } else {
+            prop.mesh.rotation.y += prop.dir * (38 * drone.motorRPM) * dt;
+          }
+        }
+        updateDynamicObstacles(totalTime, dt);
+        updatePhysics(dt);
+        checkCollisions();
+        updateDebris(dt);
+        updateCamera(dt);
+        updateHUD();
+      }
+
+      renderer.render(scene, camera);
     }
 
     window.addEventListener('resize', () => {
@@ -5844,21 +5880,9 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    // Инициализация сцены (фон работает за экраном выбора устройства)
-    loadLevel(0, false);
+    loadLevel(0, true);
     buildLevelGrids();
-    renderBindingLists();
-    renderCustomizationUI();
-    updateLobbyDronePill();
-
-    function animate() {
-      requestAnimationFrame(animate);
-      const dt = Math.min(clock.getDelta(), 0.05);
-      updatePhysics(dt);
-      renderer.render(scene, camera);
-    }
-
-    animate();
+    requestAnimationFrame(animate);
   </script>
 </body>
 </html>
