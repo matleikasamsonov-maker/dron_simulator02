@@ -2918,29 +2918,211 @@
     droneRoot.add(droneBody);
     scene.add(droneRoot);
 
-    const bodyShellMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.32, metalness: 0.45 });
-    const carbonFrameMat = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.28, metalness: 0.75 });
-    const titaniumAccentMat = new THREE.MeshStandardMaterial({ color: 0x0ea5e9, roughness: 0.24, metalness: 0.78 });
-    const copperCoilMat = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.25, metalness: 0.9 });
-    const orangeTipMat = new THREE.MeshStandardMaterial({ color: 0xf97316, emissive: 0xf97316, emissiveIntensity: 0.25, roughness: 0.3 });
-    const sensorLensMat = new THREE.MeshStandardMaterial({ color: 0x05080f, roughness: 0.05, metalness: 0.95 });
+    // Процедурные PBR-текстуры высокой детализации для моделей БПЛА
+    function createDroneProceduralTextures() {
+      // 1. 3K Twill Карбон (диффузия + bump)
+      const cCanv = document.createElement('canvas');
+      cCanv.width = 128;
+      cCanv.height = 128;
+      const cCtx = cCanv.getContext('2d');
+
+      const bCanv = document.createElement('canvas');
+      bCanv.width = 128;
+      bCanv.height = 128;
+      const bCtx = bCanv.getContext('2d');
+
+      cCtx.fillStyle = '#0f141d';
+      cCtx.fillRect(0, 0, 128, 128);
+      bCtx.fillStyle = '#606060';
+      bCtx.fillRect(0, 0, 128, 128);
+
+      const cell = 16;
+      for (let y = 0; y < 128; y += cell) {
+        for (let x = 0; x < 128; x += cell) {
+          const diag = ((x / cell) + (y / cell)) % 2 === 0;
+          const grad = cCtx.createLinearGradient(x, y, x + cell, y + cell);
+          if (diag) {
+            grad.addColorStop(0, '#2a3342');
+            grad.addColorStop(0.5, '#171e29');
+            grad.addColorStop(1, '#0b0f17');
+            bCtx.fillStyle = '#b8b8b8';
+          } else {
+            grad.addColorStop(0, '#10151f');
+            grad.addColorStop(0.5, '#222b38');
+            grad.addColorStop(1, '#121822');
+            bCtx.fillStyle = '#828282';
+          }
+          cCtx.fillStyle = grad;
+          cCtx.fillRect(x + 1, y + 1, cell - 2, cell - 2);
+          bCtx.fillRect(x + 1, y + 1, cell - 2, cell - 2);
+        }
+      }
+      const carbonMap = new THREE.CanvasTexture(cCanv);
+      carbonMap.wrapS = carbonMap.wrapT = THREE.RepeatWrapping;
+      carbonMap.repeat.set(6, 6);
+      carbonMap.anisotropy = 8;
+
+      const carbonBump = new THREE.CanvasTexture(bCanv);
+      carbonBump.wrapS = carbonBump.wrapT = THREE.RepeatWrapping;
+      carbonBump.repeat.set(6, 6);
+
+      // 2. Авиационная расшивка панелей и заклёпки (bump-карта для корпуса)
+      const pCanv = document.createElement('canvas');
+      pCanv.width = 256;
+      pCanv.height = 256;
+      const pCtx = pCanv.getContext('2d');
+      pCtx.fillStyle = '#808080';
+      pCtx.fillRect(0, 0, 256, 256);
+
+      pCtx.strokeStyle = '#3a3a3a';
+      pCtx.lineWidth = 2;
+      pCtx.strokeRect(8, 8, 240, 240);
+      pCtx.beginPath();
+      pCtx.moveTo(8, 128); pCtx.lineTo(248, 128);
+      pCtx.moveTo(128, 8); pCtx.lineTo(128, 248);
+      pCtx.stroke();
+
+      pCtx.strokeStyle = '#a8a8a8';
+      pCtx.lineWidth = 1;
+      pCtx.strokeRect(10, 10, 236, 236);
+
+      // Микро-заклёпки
+      pCtx.fillStyle = '#d0d0d0';
+      for (let i = 20; i <= 236; i += 24) {
+        pCtx.beginPath(); pCtx.arc(i, 16, 1.8, 0, Math.PI * 2); pCtx.fill();
+        pCtx.beginPath(); pCtx.arc(i, 240, 1.8, 0, Math.PI * 2); pCtx.fill();
+        pCtx.beginPath(); pCtx.arc(16, i, 1.8, 0, Math.PI * 2); pCtx.fill();
+        pCtx.beginPath(); pCtx.arc(240, i, 1.8, 0, Math.PI * 2); pCtx.fill();
+      }
+      const panelBump = new THREE.CanvasTexture(pCanv);
+      panelBump.wrapS = panelBump.wrapT = THREE.RepeatWrapping;
+      panelBump.repeat.set(2, 2);
+
+      // 3. Текстура радиального размытия вращающихся винтов
+      const rCanv = document.createElement('canvas');
+      rCanv.width = 256;
+      rCanv.height = 256;
+      const rCtx = rCanv.getContext('2d');
+      rCtx.clearRect(0, 0, 256, 256);
+
+      const rGrad = rCtx.createRadialGradient(128, 128, 18, 128, 128, 126);
+      rGrad.addColorStop(0.0, 'rgba(148, 163, 184, 0.0)');
+      rGrad.addColorStop(0.25, 'rgba(203, 213, 225, 0.24)');
+      rGrad.addColorStop(0.78, 'rgba(226, 232, 240, 0.28)');
+      rGrad.addColorStop(0.93, 'rgba(248, 250, 252, 0.45)');
+      rGrad.addColorStop(1.0, 'rgba(255, 255, 255, 0.0)');
+      rCtx.fillStyle = rGrad;
+      rCtx.beginPath();
+      rCtx.arc(128, 128, 126, 0, Math.PI * 2);
+      rCtx.fill();
+
+      for (let a = 0; a < 6; a++) {
+        const startA = (a / 6) * Math.PI * 2;
+        rCtx.strokeStyle = 'rgba(255, 255, 255, 0.24)';
+        rCtx.lineWidth = 4;
+        rCtx.beginPath();
+        rCtx.arc(128, 128, 92 - (a % 2) * 24, startA, startA + 0.65);
+        rCtx.stroke();
+      }
+      const propBlurMap = new THREE.CanvasTexture(rCanv);
+
+      // 4. Текстура аккумулятора 6S LiPo
+      const lCanv = document.createElement('canvas');
+      lCanv.width = 256;
+      lCanv.height = 128;
+      const lCtx = lCanv.getContext('2d');
+      lCtx.fillStyle = '#18181b';
+      lCtx.fillRect(0, 0, 256, 128);
+      lCtx.fillStyle = '#27272a';
+      lCtx.fillRect(8, 8, 240, 112);
+      lCtx.fillStyle = '#0ea5e9';
+      lCtx.fillRect(8, 8, 240, 18);
+      lCtx.fillStyle = '#f59e0b';
+      lCtx.fillRect(16, 98, 224, 10);
+      lCtx.fillStyle = '#f8fafc';
+      lCtx.font = 'bold 24px sans-serif';
+      lCtx.fillText('6S HV 5200mAh', 22, 66);
+      lCtx.fillStyle = '#94a3b8';
+      lCtx.font = 'bold 14px sans-serif';
+      lCtx.fillText('22.2V • HIGH DISCHARGE', 24, 88);
+      const lipoMap = new THREE.CanvasTexture(lCanv);
+      lipoMap.anisotropy = 4;
+
+      // 5. Текстура вентиляционных жалюзи охлаждения
+      const vCanv = document.createElement('canvas');
+      vCanv.width = 128;
+      vCanv.height = 128;
+      const vCtx = vCanv.getContext('2d');
+      vCtx.fillStyle = '#090d16';
+      vCtx.fillRect(0, 0, 128, 128);
+      for (let y = 8; y < 124; y += 14) {
+        vCtx.fillStyle = '#334155';
+        vCtx.fillRect(8, y, 112, 5);
+        vCtx.fillStyle = '#020617';
+        vCtx.fillRect(8, y + 5, 112, 7);
+      }
+      const ventMap = new THREE.CanvasTexture(vCanv);
+
+      return { carbonMap, carbonBump, panelBump, propBlurMap, lipoMap, ventMap };
+    }
+
+    const droneTex = createDroneProceduralTextures();
+
+    const bodyShellMat = new THREE.MeshStandardMaterial({
+      color: 0x334155,
+      bumpMap: droneTex.panelBump,
+      bumpScale: 0.008,
+      roughness: 0.32,
+      metalness: 0.45
+    });
+    const carbonFrameMat = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      map: droneTex.carbonMap,
+      bumpMap: droneTex.carbonBump,
+      bumpScale: 0.012,
+      roughness: 0.28,
+      metalness: 0.55
+    });
+    const titaniumAccentMat = new THREE.MeshStandardMaterial({ color: 0x0ea5e9, roughness: 0.22, metalness: 0.82 });
+    const copperCoilMat = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.24, metalness: 0.92 });
+    const orangeTipMat = new THREE.MeshStandardMaterial({ color: 0xf97316, emissive: 0xf97316, emissiveIntensity: 0.35, roughness: 0.28 });
+    const sensorLensMat = new THREE.MeshStandardMaterial({ color: 0x05080f, roughness: 0.06, metalness: 0.94 });
     const coatedGlassMat = new THREE.MeshStandardMaterial({
       color: 0x0c4a6e,
       emissive: 0x0284c7,
-      emissiveIntensity: 0.35,
+      emissiveIntensity: 0.42,
       roughness: 0.02,
       metalness: 0.98
     });
-    const propBladeMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.25, metalness: 0.3 });
+    const propBladeMat = new THREE.MeshStandardMaterial({
+      color: 0xd4dde8,
+      map: droneTex.carbonMap,
+      roughness: 0.22,
+      metalness: 0.35
+    });
     const blurDiscMat = new THREE.MeshBasicMaterial({
-      color: 0x94a3b8,
+      map: droneTex.propBlurMap,
       transparent: true,
-      opacity: 0.16,
+      opacity: 0.28,
+      depthWrite: false,
       side: THREE.DoubleSide
     });
+    const lipoMat = new THREE.MeshStandardMaterial({ map: droneTex.lipoMap, roughness: 0.42, metalness: 0.15 });
+    const ventMat = new THREE.MeshStandardMaterial({ map: droneTex.ventMap, roughness: 0.65, metalness: 0.4 });
+    const wireRedMat = new THREE.MeshStandardMaterial({ color: 0xdc2626, roughness: 0.45, metalness: 0.1 });
+    const wireBlackMat = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.5, metalness: 0.1 });
+    const rubberMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.9, metalness: 0.05 });
+    const strobeMat = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      emissive: 0xffffff,
+      emissiveIntensity: 0.9,
+      roughness: 0.1
+    });
+    const pcbMat = new THREE.MeshStandardMaterial({ color: 0x064e3b, roughness: 0.35, metalness: 0.3 });
 
     let gimbalGroup = new THREE.Group();
     const propellers = [];
+    const droneStrobes = [];
 
     function applyCustomMaterials() {
       bodyShellMat.color.set(droneCustom.primaryColor);
@@ -2966,55 +3148,210 @@
       }
     }
 
+    function disposeObjectGeometries(obj) {
+      obj.traverse(child => {
+        if (child.isMesh && child.geometry) {
+          child.geometry.dispose();
+        }
+      });
+    }
+
+    // Вспомогательная экструзия аэродинамических профилей (в плоскости XZ: -Z = нос, +Z = хвост)
+    function createExtrudedPlate(points2D, thickness, bevel = 0.008, bevelSegs = 3) {
+      const shape = new THREE.Shape();
+      shape.moveTo(points2D[0][0], points2D[0][1]);
+      for (let i = 1; i < points2D.length; i++) {
+        shape.lineTo(points2D[i][0], points2D[i][1]);
+      }
+      shape.closePath();
+      const geo = new THREE.ExtrudeGeometry(shape, {
+        depth: thickness,
+        bevelEnabled: bevel > 0,
+        bevelThickness: bevel,
+        bevelSize: bevel,
+        bevelSegments: bevelSegs,
+        curveSegments: 12
+      });
+      geo.translate(0, 0, -thickness / 2);
+      geo.rotateX(Math.PI / 2);
+      geo.computeVertexNormals();
+      return geo;
+    }
+
+    // Саблевидная изогнутая лопасть винта с переменным профилем
+    function createAirfoilBladeMesh(scale, dir) {
+      const len = 0.215 * scale;
+      const shape = new THREE.Shape();
+      shape.moveTo(0.012 * scale, -0.009 * scale);
+      shape.bezierCurveTo(len * 0.28, -0.023 * scale, len * 0.72, -0.019 * scale, len, -0.005 * scale);
+      shape.quadraticCurveTo(len * 1.03, 0.004 * scale, len * 0.94, 0.011 * scale);
+      shape.bezierCurveTo(len * 0.65, 0.017 * scale, len * 0.26, 0.014 * scale, 0.012 * scale, 0.008 * scale);
+      shape.closePath();
+
+      const bladeGeo = new THREE.ExtrudeGeometry(shape, {
+        depth: 0.0045 * scale,
+        bevelEnabled: true,
+        bevelThickness: 0.0015 * scale,
+        bevelSize: 0.0015 * scale,
+        bevelSegments: 2,
+        curveSegments: 10
+      });
+      bladeGeo.translate(0, 0, -0.0022 * scale);
+      bladeGeo.rotateX(Math.PI / 2);
+
+      const bladeGroup = new THREE.Group();
+      const bladeMesh = new THREE.Mesh(bladeGeo, propBladeMat);
+      bladeMesh.rotation.x = dir * 0.16;
+      bladeMesh.castShadow = true;
+      bladeGroup.add(bladeMesh);
+
+      // Законцовка лопасти с цветным индикатором
+      const tipGeo = new THREE.BoxGeometry(0.024 * scale, 0.0052 * scale, 0.016 * scale);
+      const tipMesh = new THREE.Mesh(tipGeo, orangeTipMat);
+      tipMesh.position.set(len * 0.94, 0, 0.002 * scale);
+      tipMesh.rotation.x = dir * 0.16;
+      tipMesh.rotation.y = -0.18;
+      bladeGroup.add(tipMesh);
+
+      return bladeGroup;
+    }
+
     function addRotorAssembly(parent, cfg, scale = 1.0, shrouded = false) {
-      const motorBase = new THREE.Mesh(new THREE.CylinderGeometry(0.050 * scale, 0.044 * scale, 0.034 * scale, 16), carbonFrameMat);
-      motorBase.position.set(cfg.x, cfg.y || 0.035, cfg.z);
-      parent.add(motorBase);
+      const baseY = cfg.y !== undefined ? cfg.y : 0.035;
+      const motorGroup = new THREE.Group();
+      motorGroup.position.set(cfg.x, baseY, cfg.z);
+      parent.add(motorGroup);
 
-      const copperRing = new THREE.Mesh(new THREE.CylinderGeometry(0.046 * scale, 0.046 * scale, 0.016 * scale, 16), copperCoilMat);
-      copperRing.position.set(cfg.x, (cfg.y || 0.035) + 0.017 * scale, cfg.z);
-      parent.add(copperRing);
+      // 1. Фрезерованная площадка двигателя с 4 болтами
+      const mount = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.056 * scale, 0.062 * scale, 0.018 * scale, 20),
+        carbonFrameMat
+      );
+      mount.castShadow = true;
+      motorGroup.add(mount);
 
-      const motorBell = new THREE.Mesh(new THREE.CylinderGeometry(0.052 * scale, 0.052 * scale, 0.030 * scale, 18), titaniumAccentMat);
-      motorBell.position.set(cfg.x, (cfg.y || 0.035) + 0.036 * scale, cfg.z);
-      motorBell.castShadow = true;
-      parent.add(motorBell);
-
-      if (shrouded) {
-        const shroud = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.24 * scale, 0.22 * scale, 0.085 * scale, 24, 1, true),
-          new THREE.MeshStandardMaterial({
-            color: bodyShellMat.color,
-            roughness: bodyShellMat.roughness,
-            metalness: bodyShellMat.metalness,
-            side: THREE.DoubleSide
-          })
-        );
-        shroud.position.set(cfg.x, (cfg.y || 0.035) + 0.048 * scale, cfg.z);
-        parent.add(shroud);
-
-        const shroudLip = new THREE.Mesh(
-          new THREE.TorusGeometry(0.24 * scale, 0.016 * scale, 10, 28),
+      for (let b = 0; b < 4; b++) {
+        const ba = (b / 4) * Math.PI * 2 + Math.PI / 4;
+        const bolt = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.006 * scale, 0.006 * scale, 0.008 * scale, 6),
           titaniumAccentMat
         );
-        shroudLip.rotation.x = Math.PI / 2;
-        shroudLip.position.set(cfg.x, (cfg.y || 0.035) + 0.088 * scale, cfg.z);
-        parent.add(shroudLip);
+        bolt.position.set(Math.cos(ba) * 0.043 * scale, 0.010 * scale, Math.sin(ba) * 0.043 * scale);
+        motorGroup.add(bolt);
       }
 
+      // 2. Открытый статор и 10-полюсная медная обмотка
+      const statorCore = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.044 * scale, 0.044 * scale, 0.024 * scale, 18),
+        carbonFrameMat
+      );
+      statorCore.position.y = 0.020 * scale;
+      motorGroup.add(statorCore);
+
+      for (let c = 0; c < 10; c++) {
+        const ca = (c / 10) * Math.PI * 2;
+        const coil = new THREE.Mesh(
+          new THREE.BoxGeometry(0.014 * scale, 0.018 * scale, 0.012 * scale),
+          copperCoilMat
+        );
+        coil.position.set(Math.cos(ca) * 0.042 * scale, 0.021 * scale, Math.sin(ca) * 0.042 * scale);
+        coil.rotation.y = -ca;
+        motorGroup.add(coil);
+      }
+
+      // 3. Точёный колокол ротора (LatheGeometry) с фаской и акцентом
+      const bellPts = [
+        new THREE.Vector2(0.053 * scale, 0.024 * scale),
+        new THREE.Vector2(0.054 * scale, 0.048 * scale),
+        new THREE.Vector2(0.046 * scale, 0.056 * scale),
+        new THREE.Vector2(0.018 * scale, 0.058 * scale),
+        new THREE.Vector2(0.0, 0.058 * scale)
+      ];
+      const motorBell = new THREE.Mesh(new THREE.LatheGeometry(bellPts, 24), titaniumAccentMat);
+      motorBell.castShadow = true;
+      motorGroup.add(motorBell);
+
+      const bellBand = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.0548 * scale, 0.0548 * scale, 0.008 * scale, 24),
+        bodyShellMat
+      );
+      bellBand.position.y = 0.036 * scale;
+      motorGroup.add(bellBand);
+
+      // 4. Аэродинамический профилированный импеллер (Вентури) для боевых/защищённых моделей
+      if (shrouded) {
+        const R = 0.242 * scale;
+        const ductPts = [
+          new THREE.Vector2(R - 0.012 * scale, -0.005 * scale),
+          new THREE.Vector2(R - 0.018 * scale, 0.045 * scale),
+          new THREE.Vector2(R - 0.008 * scale, 0.088 * scale),
+          new THREE.Vector2(R + 0.010 * scale, 0.095 * scale),
+          new THREE.Vector2(R + 0.020 * scale, 0.075 * scale),
+          new THREE.Vector2(R + 0.015 * scale, 0.015 * scale),
+          new THREE.Vector2(R, -0.008 * scale),
+          new THREE.Vector2(R - 0.012 * scale, -0.005 * scale)
+        ];
+        const ductMesh = new THREE.Mesh(new THREE.LatheGeometry(ductPts, 32), bodyShellMat);
+        ductMesh.castShadow = true;
+        motorGroup.add(ductMesh);
+
+        const ductLip = new THREE.Mesh(
+          new THREE.TorusGeometry(R + 0.005 * scale, 0.010 * scale, 10, 32),
+          titaniumAccentMat
+        );
+        ductLip.rotation.x = Math.PI / 2;
+        ductLip.position.y = 0.090 * scale;
+        motorGroup.add(ductLip);
+
+        // 4 несущих статорных ребра внутри кольца импеллера
+        for (let s = 0; s < 4; s++) {
+          const sa = (s / 4) * Math.PI * 2 + Math.PI / 4;
+          const vane = new THREE.Mesh(
+            new THREE.BoxGeometry(R * 0.85, 0.012 * scale, 0.018 * scale),
+            carbonFrameMat
+          );
+          vane.position.set(Math.cos(sa) * R * 0.52, 0.002 * scale, Math.sin(sa) * R * 0.52);
+          vane.rotation.y = -sa;
+          motorGroup.add(vane);
+        }
+      }
+
+      // 5. Интегрированный навигационный АНО-модуль с рассеивателем
       const ledColor = cfg.front ? 0x10b981 : 0xef4444;
-      const led = new THREE.Mesh(
-        new THREE.SphereGeometry(0.022 * scale, 10, 10),
+      const ledPod = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.032 * scale, 0.024 * scale, 0.018 * scale, 14),
+        rubberMat
+      );
+      ledPod.position.y = -0.016 * scale;
+      motorGroup.add(ledPod);
+
+      const ledCore = new THREE.Mesh(
+        new THREE.SphereGeometry(0.022 * scale, 12, 10),
         new THREE.MeshBasicMaterial({ color: ledColor })
       );
-      led.position.set(cfg.x, (cfg.y || 0.035) - 0.025 * scale, cfg.z);
-      parent.add(led);
+      ledCore.scale.set(1, 0.55, 1);
+      ledCore.position.y = -0.025 * scale;
+      motorGroup.add(ledCore);
 
+      const ledGlow = new THREE.Mesh(
+        new THREE.TorusGeometry(0.030 * scale, 0.004 * scale, 8, 20),
+        new THREE.MeshBasicMaterial({ color: ledColor, transparent: true, opacity: 0.75 })
+      );
+      ledGlow.rotation.x = Math.PI / 2;
+      ledGlow.position.y = -0.016 * scale;
+      motorGroup.add(ledGlow);
+
+      // 6. Узел воздушного винта с коком и саблевидными лопастями
       const propGroup = new THREE.Group();
-      propGroup.position.set(cfg.x, (cfg.y || 0.035) + 0.058 * scale, cfg.z);
+      propGroup.position.y = 0.062 * scale;
 
-      const hub = new THREE.Mesh(new THREE.ConeGeometry(0.024 * scale, 0.026 * scale, 14), titaniumAccentMat);
-      hub.position.y = 0.01 * scale;
+      const spinnerPts = [
+        new THREE.Vector2(0.026 * scale, 0.0),
+        new THREE.Vector2(0.024 * scale, 0.012 * scale),
+        new THREE.Vector2(0.014 * scale, 0.026 * scale),
+        new THREE.Vector2(0.0, 0.032 * scale)
+      ];
+      const hub = new THREE.Mesh(new THREE.LatheGeometry(spinnerPts, 18), titaniumAccentMat);
       propGroup.add(hub);
 
       const bladeCount = cfg.blades || 2;
@@ -3022,25 +3359,16 @@
         const angle = (b / bladeCount) * Math.PI * 2;
         const bWrap = new THREE.Group();
         bWrap.rotation.y = angle;
-
-        const blade = new THREE.Mesh(new THREE.BoxGeometry(0.20 * scale, 0.005, 0.032 * scale), propBladeMat);
-        blade.position.set(0.11 * scale, 0, 0);
-        blade.rotation.x = cfg.dir * 0.14;
-        bWrap.add(blade);
-
-        const tip = new THREE.Mesh(new THREE.BoxGeometry(0.028 * scale, 0.0055, 0.030 * scale), orangeTipMat);
-        tip.position.set(0.218 * scale, 0, 0);
-        tip.rotation.x = cfg.dir * 0.14;
-        bWrap.add(tip);
-
+        bWrap.add(createAirfoilBladeMesh(scale, cfg.dir));
         propGroup.add(bWrap);
       }
 
-      const disc = new THREE.Mesh(new THREE.RingGeometry(0.05 * scale, 0.23 * scale, 26), blurDiscMat);
+      const disc = new THREE.Mesh(new THREE.CircleGeometry(0.228 * scale, 32), blurDiscMat);
       disc.rotation.x = -Math.PI / 2;
+      disc.position.y = 0.002 * scale;
       propGroup.add(disc);
 
-      parent.add(propGroup);
+      motorGroup.add(propGroup);
       propellers.push({ mesh: propGroup, dir: cfg.dir, axis: 'y' });
     }
 
@@ -3052,150 +3380,447 @@
       parent.add(plate);
     }
 
-    function buildGimbalCamera(parent, x, y, z, scale = 1.0) {
+    // Детализированный 3-осевой подвес камеры (cinema или turret)
+    function buildGimbalCamera(parent, x, y, z, scale = 1.0, style = 'cinema') {
       const g = new THREE.Group();
       g.position.set(x, y, z);
       parent.add(g);
 
-      const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.14 * scale, 0.09 * scale, 0.08 * scale), carbonFrameMat);
-      g.add(bracket);
+      // Демпфирующая площадка + 4 резиновых виброизолятора
+      const dampPlate = new THREE.Mesh(new THREE.BoxGeometry(0.14 * scale, 0.014 * scale, 0.11 * scale), carbonFrameMat);
+      dampPlate.position.y = 0.055 * scale;
+      g.add(dampPlate);
 
-      const camBody = new THREE.Mesh(new THREE.BoxGeometry(0.115 * scale, 0.105 * scale, 0.11 * scale), bodyShellMat);
-      camBody.position.set(0, -0.01 * scale, -0.05 * scale);
-      camBody.castShadow = true;
-      g.add(camBody);
+      [[-0.05, -0.035], [0.05, -0.035], [-0.05, 0.035], [0.05, 0.035]].forEach(([dx, dz]) => {
+        const ball = new THREE.Mesh(new THREE.SphereGeometry(0.012 * scale, 10, 10), rubberMat);
+        ball.position.set(dx * scale, 0.040 * scale, dz * scale);
+        g.add(ball);
+      });
 
-      const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.045 * scale, 0.047 * scale, 0.044 * scale, 20), titaniumAccentMat);
-      lens.rotation.x = Math.PI / 2;
-      lens.position.set(0, -0.01 * scale, -0.112 * scale);
-      g.add(lens);
+      const yawMotor = new THREE.Mesh(new THREE.CylinderGeometry(0.028 * scale, 0.028 * scale, 0.024 * scale, 16), titaniumAccentMat);
+      yawMotor.position.y = 0.024 * scale;
+      g.add(yawMotor);
 
-      const glass = new THREE.Mesh(new THREE.CylinderGeometry(0.037 * scale, 0.037 * scale, 0.008, 20), coatedGlassMat);
-      glass.rotation.x = Math.PI / 2;
-      glass.position.set(0, -0.01 * scale, -0.132 * scale);
-      g.add(glass);
+      if (style === 'turret') {
+        // Военная сферическая ОЭС-турель (FLIR Ball)
+        const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.036 * scale, 0.044 * scale, 0.035 * scale, 18), carbonFrameMat);
+        neck.position.y = 0.005 * scale;
+        g.add(neck);
+
+        const ballHousing = new THREE.Mesh(new THREE.SphereGeometry(0.078 * scale, 24, 18), bodyShellMat);
+        ballHousing.position.set(0, -0.045 * scale, -0.015 * scale);
+        ballHousing.castShadow = true;
+        g.add(ballHousing);
+
+        const visorBand = new THREE.Mesh(new THREE.BoxGeometry(0.11 * scale, 0.058 * scale, 0.04 * scale), carbonFrameMat);
+        visorBand.position.set(0, -0.045 * scale, -0.072 * scale);
+        g.add(visorBand);
+
+        // Главная оптическая апертура + лазерный дальномер
+        const mainBezel = new THREE.Mesh(new THREE.CylinderGeometry(0.026 * scale, 0.028 * scale, 0.022 * scale, 20), titaniumAccentMat);
+        mainBezel.rotation.x = Math.PI / 2;
+        mainBezel.position.set(-0.022 * scale, -0.045 * scale, -0.092 * scale);
+        g.add(mainBezel);
+
+        const mainGlass = new THREE.Mesh(new THREE.SphereGeometry(0.021 * scale, 16, 12), coatedGlassMat);
+        mainGlass.scale.set(1, 1, 0.4);
+        mainGlass.position.set(-0.022 * scale, -0.045 * scale, -0.102 * scale);
+        g.add(mainGlass);
+
+        const irBezel = new THREE.Mesh(new THREE.CylinderGeometry(0.017 * scale, 0.018 * scale, 0.02 * scale, 16), copperCoilMat);
+        irBezel.rotation.x = Math.PI / 2;
+        irBezel.position.set(0.026 * scale, -0.045 * scale, -0.090 * scale);
+        g.add(irBezel);
+
+        const irGlass = new THREE.Mesh(new THREE.CylinderGeometry(0.013 * scale, 0.013 * scale, 0.008 * scale, 16), sensorLensMat);
+        irGlass.rotation.x = Math.PI / 2;
+        irGlass.position.set(0.026 * scale, -0.045 * scale, -0.098 * scale);
+        g.add(irGlass);
+      } else {
+        // Профессиональный 3-осевой киноподвес
+        const rollArm = new THREE.Mesh(new THREE.BoxGeometry(0.022 * scale, 0.068 * scale, 0.024 * scale), carbonFrameMat);
+        rollArm.position.set(0.052 * scale, -0.015 * scale, 0.01 * scale);
+        g.add(rollArm);
+
+        const crossArm = new THREE.Mesh(new THREE.BoxGeometry(0.075 * scale, 0.018 * scale, 0.024 * scale), carbonFrameMat);
+        crossArm.position.set(0.025 * scale, 0.014 * scale, 0.01 * scale);
+        g.add(crossArm);
+
+        const pitchMotor = new THREE.Mesh(new THREE.CylinderGeometry(0.020 * scale, 0.020 * scale, 0.018 * scale, 16), titaniumAccentMat);
+        pitchMotor.rotation.z = Math.PI / 2;
+        pitchMotor.position.set(0.062 * scale, -0.036 * scale, -0.01 * scale);
+        g.add(pitchMotor);
+
+        // Скруглённый корпус камеры (ExtrudeGeometry)
+        const camShape = new THREE.Shape();
+        const cw = 0.052 * scale, ch = 0.045 * scale, cr = 0.012 * scale;
+        camShape.moveTo(-cw + cr, -ch);
+        camShape.lineTo(cw - cr, -ch);
+        camShape.quadraticCurveTo(cw, -ch, cw, -ch + cr);
+        camShape.lineTo(cw, ch - cr);
+        camShape.quadraticCurveTo(cw, ch, cw - cr, ch);
+        camShape.lineTo(-cw + cr, ch);
+        camShape.quadraticCurveTo(-cw, ch, -cw, ch - cr);
+        camShape.lineTo(-cw, -ch + cr);
+        camShape.quadraticCurveTo(-cw, -ch, -cw + cr, -ch);
+        const camGeo = new THREE.ExtrudeGeometry(camShape, {
+          depth: 0.085 * scale,
+          bevelEnabled: true,
+          bevelThickness: 0.006 * scale,
+          bevelSize: 0.006 * scale,
+          bevelSegments: 2
+        });
+        camGeo.translate(0, 0, -0.0425 * scale);
+        const camBody = new THREE.Mesh(camGeo, bodyShellMat);
+        camBody.position.set(0, -0.036 * scale, -0.038 * scale);
+        camBody.castShadow = true;
+        g.add(camBody);
+
+        // Многоступенчатый объектив (LatheGeometry)
+        const lensPts = [
+          new THREE.Vector2(0.042 * scale, 0.0),
+          new THREE.Vector2(0.044 * scale, 0.018 * scale),
+          new THREE.Vector2(0.039 * scale, 0.022 * scale),
+          new THREE.Vector2(0.040 * scale, 0.040 * scale),
+          new THREE.Vector2(0.035 * scale, 0.042 * scale),
+          new THREE.Vector2(0.032 * scale, 0.030 * scale)
+        ];
+        const lensBarrel = new THREE.Mesh(new THREE.LatheGeometry(lensPts, 24), titaniumAccentMat);
+        lensBarrel.rotation.x = -Math.PI / 2;
+        lensBarrel.position.set(0, -0.036 * scale, -0.082 * scale);
+        g.add(lensBarrel);
+
+        const glass = new THREE.Mesh(new THREE.SphereGeometry(0.032 * scale, 20, 14), coatedGlassMat);
+        glass.scale.set(1, 1, 0.35);
+        glass.position.set(0, -0.036 * scale, -0.116 * scale);
+        g.add(glass);
+
+        const recLed = new THREE.Mesh(
+          new THREE.SphereGeometry(0.006 * scale, 8, 8),
+          new THREE.MeshBasicMaterial({ color: 0xef4444 })
+        );
+        recLed.position.set(0.038 * scale, -0.002 * scale, -0.084 * scale);
+        g.add(recLed);
+      }
 
       return g;
     }
 
-    function buildLandingSkids(parent, spanX = 0.15, dropY = 0.155, lenZ = 0.48) {
-      [-spanX, spanX].forEach(x => {
-        const skid = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, lenZ, 10), carbonFrameMat);
-        skid.rotation.x = Math.PI / 2;
-        skid.position.set(x, -dropY, 0.02);
-        skid.castShadow = true;
-        parent.add(skid);
+    // Изогнутые карбоновые посадочные полозья (TubeGeometry)
+    function buildLandingSkids(parent, spanX = 0.16, dropY = 0.165, lenZ = 0.50) {
+      [-1, 1].forEach(side => {
+        const sx = side * spanX;
+        const innerX = side * (spanX * 0.56);
 
-        [-lenZ * 0.3, lenZ * 0.32].forEach(z => {
-          const strut = new THREE.Mesh(new THREE.CylinderGeometry(0.011, 0.014, dropY * 0.85, 8), bodyShellMat);
-          strut.position.set(x, -dropY * 0.56, z);
-          strut.rotation.z = x > 0 ? -0.18 : 0.18;
-          parent.add(strut);
+        // Передняя и задняя изогнутые стойки + нижний полоз единым профилем
+        const curve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(innerX, -0.01, -lenZ * 0.30),
+          new THREE.Vector3(sx, -dropY * 0.52, -lenZ * 0.38),
+          new THREE.Vector3(sx, -dropY, -lenZ * 0.48),
+          new THREE.Vector3(sx, -dropY, 0.0),
+          new THREE.Vector3(sx, -dropY, lenZ * 0.48),
+          new THREE.Vector3(sx, -dropY * 0.52, lenZ * 0.38),
+          new THREE.Vector3(innerX, -0.01, lenZ * 0.30)
+        ]);
+        const skidMesh = new THREE.Mesh(new THREE.TubeGeometry(curve, 28, 0.0125, 10, false), carbonFrameMat);
+        skidMesh.castShadow = true;
+        parent.add(skidMesh);
+
+        // Резиновые амортизирующие накладки на концах полозьев
+        [-lenZ * 0.44, lenZ * 0.44].forEach(pz => {
+          const pad = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.055, 10), rubberMat);
+          pad.rotation.x = Math.PI / 2;
+          pad.position.set(sx, -dropY, pz);
+          parent.add(pad);
+        });
+
+        // Анодированные силовые муфты
+        [-lenZ * 0.28, lenZ * 0.28].forEach(pz => {
+          const clamp = new THREE.Mesh(new THREE.CylinderGeometry(0.017, 0.017, 0.026, 12), titaniumAccentMat);
+          clamp.rotation.x = Math.PI / 2;
+          clamp.position.set(sx, -dropY, pz);
+          parent.add(clamp);
         });
       });
     }
 
+    // Выносная RTK/GPS антенна-"гриб"
+    function buildGPSMast(parent, x, y, z, scale = 1.0) {
+      const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.008 * scale, 0.010 * scale, 0.075 * scale, 10), titaniumAccentMat);
+      mast.position.set(x, y + 0.036 * scale, z);
+      parent.add(mast);
+
+      const puckPts = [
+        new THREE.Vector2(0.0, 0.0),
+        new THREE.Vector2(0.044 * scale, 0.0),
+        new THREE.Vector2(0.048 * scale, 0.012 * scale),
+        new THREE.Vector2(0.038 * scale, 0.022 * scale),
+        new THREE.Vector2(0.0, 0.024 * scale)
+      ];
+      const puck = new THREE.Mesh(new THREE.LatheGeometry(puckPts, 20), bodyShellMat);
+      puck.position.set(x, y + 0.072 * scale, z);
+      parent.add(puck);
+
+      const gpsRing = new THREE.Mesh(
+        new THREE.TorusGeometry(0.045 * scale, 0.003 * scale, 8, 20),
+        new THREE.MeshBasicMaterial({ color: 0x38bdf8 })
+      );
+      gpsRing.rotation.x = Math.PI / 2;
+      gpsRing.position.set(x, y + 0.078 * scale, z);
+      parent.add(gpsRing);
+    }
+
+    // Две изогнутые дипольные антенны связи
+    function buildDiversityAntennas(parent, x, y, z, spread = 0.06) {
+      [-1, 1].forEach(side => {
+        const curve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(x + side * 0.015, y, z),
+          new THREE.Vector3(x + side * spread * 0.7, y + 0.05, z + 0.03),
+          new THREE.Vector3(x + side * spread, y + 0.095, z + 0.05)
+        ]);
+        const ant = new THREE.Mesh(new THREE.TubeGeometry(curve, 10, 0.0045, 6, false), rubberMat);
+        parent.add(ant);
+
+        const tip = new THREE.Mesh(new THREE.SphereGeometry(0.007, 8, 8), titaniumAccentMat);
+        tip.position.set(x + side * spread, y + 0.095, z + 0.05);
+        parent.add(tip);
+      });
+    }
+
+    // Изогнутый силовой кабель (XT60 / ESC)
+    function addPowerCable(parent, pts, radius, mat) {
+      const curve = new THREE.CatmullRomCurve3(pts.map(p => new THREE.Vector3(p[0], p[1], p[2])));
+      const mesh = new THREE.Mesh(new THREE.TubeGeometry(curve, 12, radius, 8, false), mat);
+      parent.add(mesh);
+    }
+
+    // Стробоскоп (проблесковый маячок)
+    function addAntiCollisionStrobe(parent, x, y, z, radius = 0.015) {
+      const base = new THREE.Mesh(new THREE.CylinderGeometry(radius * 1.2, radius * 1.4, radius * 0.6, 12), carbonFrameMat);
+      base.position.set(x, y, z);
+      parent.add(base);
+
+      const dome = new THREE.Mesh(new THREE.SphereGeometry(radius, 12, 10), strobeMat);
+      dome.position.set(x, y + radius * 0.5, z);
+      parent.add(dome);
+      droneStrobes.push(dome);
+    }
+
+    // Общий строитель профилированного луча с рёбрами жёсткости и блоком ESC
+    function buildSculptedArm(parent, x1, z1, x2, z2, y = 0.02, width = 0.044, thickness = 0.028, useCarbon = false) {
+      const dx = x2 - x1, dz = z2 - z1;
+      const len = Math.hypot(dx, dz);
+      const ang = Math.atan2(dx, dz);
+
+      const armGroup = new THREE.Group();
+      armGroup.position.set((x1 + x2) * 0.5, y, (z1 + z2) * 0.5);
+      armGroup.rotation.y = ang;
+      parent.add(armGroup);
+
+      // Основной профиль луча
+      const mainBeam = new THREE.Mesh(
+        new THREE.BoxGeometry(width, thickness, len),
+        useCarbon ? carbonFrameMat : bodyShellMat
+      );
+      mainBeam.castShadow = true;
+      armGroup.add(mainBeam);
+
+      // Верхнее ребро с акцентной вставкой
+      const spine = new THREE.Mesh(
+        new THREE.BoxGeometry(width * 0.45, thickness * 0.45, len * 0.84),
+        titaniumAccentMat
+      );
+      spine.position.y = thickness * 0.55;
+      armGroup.add(spine);
+
+      // Нижний модуль регулятора ESC с радиатором
+      const escPod = new THREE.Mesh(
+        new THREE.BoxGeometry(width * 1.15, thickness * 0.65, len * 0.28),
+        carbonFrameMat
+      );
+      escPod.position.set(0, -thickness * 0.55, len * 0.05);
+      armGroup.add(escPod);
+
+      const escSink = new THREE.Mesh(
+        new THREE.PlaneGeometry(width * 0.9, len * 0.22),
+        ventMat
+      );
+      escSink.rotation.x = Math.PI / 2;
+      escSink.position.set(0, -thickness * 0.89, len * 0.05);
+      armGroup.add(escSink);
+    }
+
     function rebuildDroneModel() {
+      disposeObjectGeometries(droneBody);
       while (droneBody.children.length > 0) {
         droneBody.remove(droneBody.children[0]);
       }
       propellers.length = 0;
+      droneStrobes.length = 0;
       applyCustomMaterials();
 
       const type = droneCustom.type;
 
       if (type === 'quad') {
-        // 1. КВАДРОКОПТЕР X4
-        const lowerCore = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.10, 0.56), carbonFrameMat);
-        lowerCore.castShadow = true;
-        droneBody.add(lowerCore);
+        // =====================================================================
+        // 1. КВАДРОКОПТЕР X4 (Аэродинамический монокок + LiPo + RTK + 3-осевой подвес)
+        // =====================================================================
+        const lowerGeo = createExtrudedPlate([
+          [0, -0.34], [0.13, -0.26], [0.17, -0.06], [0.16, 0.20],
+          [0.10, 0.30], [-0.10, 0.30], [-0.16, 0.20], [-0.17, -0.06], [-0.13, -0.26]
+        ], 0.055, 0.016);
+        const lowerHull = new THREE.Mesh(lowerGeo, carbonFrameMat);
+        lowerHull.position.y = -0.015;
+        lowerHull.castShadow = true;
+        droneBody.add(lowerHull);
 
-        const upperShell = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.08, 0.50), bodyShellMat);
-        upperShell.position.set(0, 0.075, 0.02);
-        upperShell.castShadow = true;
-        droneBody.add(upperShell);
+        const upperGeo = createExtrudedPlate([
+          [0, -0.32], [0.115, -0.24], [0.155, -0.04], [0.145, 0.18],
+          [0.085, 0.27], [-0.085, 0.27], [-0.145, 0.18], [-0.155, -0.04], [-0.115, -0.24]
+        ], 0.058, 0.018);
+        const upperHull = new THREE.Mesh(upperGeo, bodyShellMat);
+        upperHull.position.y = 0.048;
+        upperHull.castShadow = true;
+        droneBody.add(upperHull);
 
-        const noseCone = new THREE.Mesh(new THREE.SphereGeometry(0.155, 20, 16), bodyShellMat);
-        noseCone.scale.set(1.0, 0.58, 1.15);
-        noseCone.position.set(0, 0.04, -0.24);
-        droneBody.add(noseCone);
+        // Передний глянцевый визор стерео-сенсоров облёта препятствий
+        const visor = new THREE.Mesh(new THREE.BoxGeometry(0.19, 0.042, 0.04), sensorLensMat);
+        visor.position.set(0, 0.038, -0.31);
+        droneBody.add(visor);
 
-        [-0.075, 0.075].forEach(sx => {
-          const ring = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.02, 12), titaniumAccentMat);
-          ring.rotation.x = Math.PI / 2;
-          ring.position.set(sx, 0.045, -0.38);
-          droneBody.add(ring);
-          const eye = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.024, 12), sensorLensMat);
-          eye.rotation.x = Math.PI / 2;
-          eye.position.set(sx, 0.045, -0.383);
+        [-0.062, 0.062].forEach(sx => {
+          const bezel = new THREE.Mesh(new THREE.CylinderGeometry(0.020, 0.020, 0.016, 14), titaniumAccentMat);
+          bezel.rotation.x = Math.PI / 2;
+          bezel.position.set(sx, 0.038, -0.326);
+          droneBody.add(bezel);
+          const eye = new THREE.Mesh(new THREE.SphereGeometry(0.015, 12, 10), coatedGlassMat);
+          eye.position.set(sx, 0.038, -0.332);
           droneBody.add(eye);
         });
 
-        const batteryPack = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.055, 0.32), titaniumAccentMat);
-        batteryPack.position.set(0, 0.125, 0.05);
-        droneBody.add(batteryPack);
+        // Нижние сонары и камера оптического потока
+        const bellySensor = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.042, 0.016, 16), carbonFrameMat);
+        bellySensor.position.set(0, -0.055, 0.06);
+        droneBody.add(bellySensor);
+        const optFlow = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.018, 12), coatedGlassMat);
+        optFlow.position.set(0, -0.057, 0.06);
+        droneBody.add(optFlow);
 
-        addDroneLogoPlate(droneBody, 0, 0.156, 0.05, 0.21, 0.12);
-        gimbalGroup = buildGimbalCamera(droneBody, 0, -0.04, -0.32, 1.0);
-        buildLandingSkids(droneBody, 0.14, 0.155, 0.48);
+        // Боковые вентиляционные решётки охлаждения
+        [-1, 1].forEach(side => {
+          const vent = new THREE.Mesh(new THREE.PlaneGeometry(0.14, 0.035), ventMat);
+          vent.position.set(side * 0.168, 0.042, 0.05);
+          vent.rotation.y = side * Math.PI / 2;
+          droneBody.add(vent);
+        });
+
+        // Быстросъёмный аккумуляторный блок 6S сверху с индикатором заряда
+        const battGeo = createExtrudedPlate([
+          [0.095, -0.14], [0.095, 0.14], [-0.095, 0.14], [-0.095, -0.14]
+        ], 0.048, 0.010);
+        const batt = new THREE.Mesh(battGeo, titaniumAccentMat);
+        batt.position.set(0, 0.105, 0.04);
+        batt.castShadow = true;
+        droneBody.add(batt);
+
+        for (let b = 0; b < 4; b++) {
+          const led = new THREE.Mesh(
+            new THREE.BoxGeometry(0.016, 0.008, 0.008),
+            new THREE.MeshBasicMaterial({ color: 0x34d399 })
+          );
+          led.position.set(-0.03 + b * 0.02, 0.135, 0.14);
+          droneBody.add(led);
+        }
+
+        addDroneLogoPlate(droneBody, 0, 0.139, 0.02, 0.19, 0.105);
+        buildGPSMast(droneBody, 0, 0.088, 0.21, 0.85);
+        buildDiversityAntennas(droneBody, 0, 0.06, 0.25, 0.07);
+        addAntiCollisionStrobe(droneBody, 0, 0.09, -0.17, 0.014);
+
+        gimbalGroup = buildGimbalCamera(droneBody, 0, -0.048, -0.27, 1.02, 'cinema');
+        buildLandingSkids(droneBody, 0.15, 0.162, 0.48);
 
         const arms = [
-          { x: -0.44, z: -0.38, front: true, dir: 1 },
-          { x:  0.44, z: -0.38, front: true, dir: -1 },
-          { x: -0.42, z:  0.40, front: false, dir: -1 },
-          { x:  0.42, z:  0.40, front: false, dir: 1 }
+          { x: -0.45, z: -0.37, front: true, dir: 1 },
+          { x:  0.45, z: -0.37, front: true, dir: -1 },
+          { x: -0.43, z:  0.39, front: false, dir: -1 },
+          { x:  0.43, z:  0.39, front: false, dir: 1 }
         ];
         arms.forEach(cfg => {
-          const dx = cfg.x * 0.82, dz = cfg.z * 0.78;
-          const arm = new THREE.Mesh(new THREE.BoxGeometry(0.052, 0.036, Math.hypot(dx, dz)), bodyShellMat);
-          arm.position.set(dx * 0.52, 0.02, dz * 0.52);
-          arm.rotation.y = Math.atan2(dx, dz);
-          arm.castShadow = true;
-          droneBody.add(arm);
-          addRotorAssembly(droneBody, cfg, 1.0, false);
+          buildSculptedArm(droneBody, Math.sign(cfg.x) * 0.12, Math.sign(cfg.z) * 0.12, cfg.x, cfg.z, 0.022, 0.046, 0.028, false);
+          addRotorAssembly(droneBody, { x: cfg.x, y: 0.036, z: cfg.z, front: cfg.front, dir: cfg.dir }, 1.02, false);
         });
 
       } else if (type === 'hexa') {
-        // 2. ГЕКСАКОПТЕР X6 (6 ЛУЧЕЙ)
-        const hexHull = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.28, 0.12, 6), carbonFrameMat);
-        hexHull.castShadow = true;
-        droneBody.add(hexHull);
+        // =====================================================================
+        // 2. ГЕКСАКОПТЕР X6 (Промышленный 6-лучевой карбоновый носитель + 2 АКБ)
+        // =====================================================================
+        const hexPts = [];
+        for (let i = 0; i < 6; i++) {
+          const a = (i * Math.PI) / 3;
+          hexPts.push([Math.cos(a) * 0.26, Math.sin(a) * 0.26]);
+        }
+        const botPlate = new THREE.Mesh(createExtrudedPlate(hexPts, 0.024, 0.008), carbonFrameMat);
+        botPlate.position.y = -0.02;
+        botPlate.castShadow = true;
+        droneBody.add(botPlate);
 
-        const hexDome = new THREE.Mesh(new THREE.CylinderGeometry(0.20, 0.25, 0.09, 6), bodyShellMat);
-        hexDome.position.y = 0.09;
+        const midPlate = new THREE.Mesh(createExtrudedPlate(hexPts, 0.022, 0.008), carbonFrameMat);
+        midPlate.position.y = 0.055;
+        droneBody.add(midPlate);
+
+        // 6 алюминиевых стоек рамы между пластинами
+        for (let i = 0; i < 6; i++) {
+          const a = (i * Math.PI) / 3 + Math.PI / 6;
+          const post = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.07, 8), titaniumAccentMat);
+          post.position.set(Math.cos(a) * 0.19, 0.018, Math.sin(a) * 0.19);
+          droneBody.add(post);
+        }
+
+        // Верхний бронеколпак авионики (LatheGeometry)
+        const domePts = [
+          new THREE.Vector2(0.22, 0.0),
+          new THREE.Vector2(0.21, 0.04),
+          new THREE.Vector2(0.16, 0.075),
+          new THREE.Vector2(0.06, 0.088),
+          new THREE.Vector2(0.0, 0.09)
+        ];
+        const hexDome = new THREE.Mesh(new THREE.LatheGeometry(domePts, 6), bodyShellMat);
+        hexDome.position.y = 0.065;
         hexDome.castShadow = true;
         droneBody.add(hexDome);
 
-        const topDeck = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.04, 0.34), titaniumAccentMat);
-        topDeck.position.set(0, 0.145, 0.02);
-        droneBody.add(topDeck);
+        // Две боковые высокоёмкие батареи 6S LiPo + кабели XT60
+        [-0.21, 0.21].forEach(bx => {
+          const pack = new THREE.Mesh(new THREE.BoxGeometry(0.085, 0.068, 0.22), lipoMat);
+          pack.position.set(bx, 0.025, 0.02);
+          pack.castShadow = true;
+          droneBody.add(pack);
 
-        addDroneLogoPlate(droneBody, 0, 0.168, 0.02, 0.25, 0.14);
-        gimbalGroup = buildGimbalCamera(droneBody, 0, -0.05, -0.28, 1.1);
-        buildLandingSkids(droneBody, 0.18, 0.18, 0.52);
+          addPowerCable(droneBody, [
+            [bx, 0.05, 0.12],
+            [bx * 0.72, 0.08, 0.15],
+            [bx * 0.35, 0.04, 0.11]
+          ], 0.009, bx < 0 ? wireRedMat : wireBlackMat);
+        });
 
-        const radius = 0.54;
+        addDroneLogoPlate(droneBody, 0, 0.157, 0.0, 0.22, 0.12);
+        buildGPSMast(droneBody, -0.09, 0.135, 0.10, 1.0);
+        buildDiversityAntennas(droneBody, 0.08, 0.12, 0.14, 0.065);
+        addAntiCollisionStrobe(droneBody, 0, 0.156, -0.11, 0.015);
+
+        gimbalGroup = buildGimbalCamera(droneBody, 0, -0.065, -0.25, 1.12, 'cinema');
+        buildLandingSkids(droneBody, 0.19, 0.19, 0.54);
+
+        const radius = 0.55;
         for (let i = 0; i < 6; i++) {
           const ang = (i * Math.PI) / 3 + Math.PI / 6;
           const ax = Math.cos(ang) * radius;
           const az = Math.sin(ang) * radius;
-
-          const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.026, radius * 0.86, 10), bodyShellMat);
-          arm.position.set(ax * 0.52, 0.025, az * 0.52);
-          arm.rotation.z = Math.PI / 2;
-          arm.rotation.y = -ang;
-          arm.castShadow = true;
-          droneBody.add(arm);
-
-          const stripe = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.06, 10), titaniumAccentMat);
-          stripe.position.set(ax * 0.72, 0.025, az * 0.72);
-          stripe.rotation.z = Math.PI / 2;
-          stripe.rotation.y = -ang;
-          droneBody.add(stripe);
-
+          buildSculptedArm(droneBody, Math.cos(ang) * 0.19, Math.sin(ang) * 0.19, ax, az, 0.024, 0.042, 0.026, true);
           addRotorAssembly(droneBody, {
             x: ax,
-            y: 0.04,
+            y: 0.040,
             z: az,
             front: az < 0,
             dir: i % 2 === 0 ? 1 : -1
@@ -3203,38 +3828,77 @@
         }
 
       } else if (type === 'octo') {
-        // 3. ОКТОКОПТЕР X8
-        const centerDrum = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.31, 0.13, 8), carbonFrameMat);
-        centerDrum.castShadow = true;
-        droneBody.add(centerDrum);
+        // =====================================================================
+        // 3. ОКТОКОПТЕР X8 (Тяжёлый промышленный дрон с LiDAR и силовой фермой)
+        // =====================================================================
+        const octoPts = [];
+        for (let i = 0; i < 8; i++) {
+          const a = (i * Math.PI) / 4 + Math.PI / 8;
+          octoPts.push([Math.cos(a) * 0.30, Math.sin(a) * 0.30]);
+        }
+        const octoBase = new THREE.Mesh(createExtrudedPlate(octoPts, 0.028, 0.008), carbonFrameMat);
+        octoBase.position.y = -0.02;
+        octoBase.castShadow = true;
+        droneBody.add(octoBase);
 
-        const upperCap = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.28, 0.09, 8), bodyShellMat);
-        upperCap.position.y = 0.10;
-        droneBody.add(upperCap);
+        const octoTop = new THREE.Mesh(createExtrudedPlate(octoPts.map(p => [p[0]*0.86, p[1]*0.86]), 0.022, 0.008), bodyShellMat);
+        octoTop.position.y = 0.072;
+        octoTop.castShadow = true;
+        droneBody.add(octoTop);
 
-        const logoPlateBase = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.03, 0.22), titaniumAccentMat);
-        logoPlateBase.position.y = 0.155;
-        droneBody.add(logoPlateBase);
+        // Внутренний отсек с двойным АКБ-блоком
+        const dualBatt = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.068, 0.24), lipoMat);
+        dualBatt.position.set(0, 0.028, 0.02);
+        droneBody.add(dualBatt);
 
-        addDroneLogoPlate(droneBody, 0, 0.173, 0, 0.27, 0.15);
-        gimbalGroup = buildGimbalCamera(droneBody, 0, -0.06, -0.31, 1.15);
-        buildLandingSkids(droneBody, 0.20, 0.19, 0.56);
+        // Вращающийся 360° LiDAR-сканер на крыше
+        const lidarBase = new THREE.Mesh(new THREE.CylinderGeometry(0.068, 0.075, 0.022, 20), titaniumAccentMat);
+        lidarBase.position.set(0, 0.095, -0.06);
+        droneBody.add(lidarBase);
 
-        const radius = 0.58;
+        const lidarGlass = new THREE.Mesh(new THREE.CylinderGeometry(0.062, 0.062, 0.036, 24), sensorLensMat);
+        lidarGlass.position.set(0, 0.124, -0.06);
+        droneBody.add(lidarGlass);
+
+        const lidarCap = new THREE.Mesh(new THREE.CylinderGeometry(0.056, 0.062, 0.014, 24), bodyShellMat);
+        lidarCap.position.set(0, 0.148, -0.06);
+        droneBody.add(lidarCap);
+
+        addDroneLogoPlate(droneBody, 0, 0.096, 0.12, 0.24, 0.13);
+        buildGPSMast(droneBody, -0.14, 0.082, 0.10, 0.92);
+        buildGPSMast(droneBody,  0.14, 0.082, 0.10, 0.92);
+        addAntiCollisionStrobe(droneBody, 0, 0.160, -0.06, 0.016);
+
+        // Защитная круговая карбоновая рама-ферма вокруг роторов (оплёт 360°)
+        const radius = 0.59;
+        const ringFrame = new THREE.Mesh(new THREE.TorusGeometry(radius + 0.20, 0.012, 8, 48), carbonFrameMat);
+        ringFrame.rotation.x = Math.PI / 2;
+        ringFrame.position.y = 0.042;
+        droneBody.add(ringFrame);
+
+        // Подвесной замок груза под брюхом
+        const cargoHook = new THREE.Mesh(new THREE.TorusGeometry(0.032, 0.008, 8, 16), titaniumAccentMat);
+        cargoHook.position.set(0, -0.062, 0.08);
+        droneBody.add(cargoHook);
+
+        gimbalGroup = buildGimbalCamera(droneBody, 0, -0.072, -0.28, 1.15, 'cinema');
+        buildLandingSkids(droneBody, 0.21, 0.20, 0.56);
+
         for (let i = 0; i < 8; i++) {
           const ang = (i * Math.PI) / 4 + Math.PI / 8;
           const ax = Math.cos(ang) * radius;
           const az = Math.sin(ang) * radius;
+          buildSculptedArm(droneBody, Math.cos(ang) * 0.23, Math.sin(ang) * 0.23, ax, az, 0.024, 0.036, 0.024, true);
 
-          const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.019, 0.022, radius * 0.88, 8), bodyShellMat);
-          arm.position.set(ax * 0.52, 0.025, az * 0.52);
-          arm.rotation.z = Math.PI / 2;
-          arm.rotation.y = -ang;
-          droneBody.add(arm);
+          // Связка с внешним защитным кольцом
+          const outerBridge = new THREE.Mesh(new THREE.BoxGeometry(0.022, 0.016, 0.20), titaniumAccentMat);
+          outerBridge.position.set(Math.cos(ang) * (radius + 0.10), 0.042, Math.sin(ang) * (radius + 0.10));
+          outerBridge.rotation.y = Math.atan2(ax, az);
+          droneBody.add(outerBridge);
 
           addRotorAssembly(droneBody, {
             x: ax,
-            y: 0.04,
+            y: 0.040,
             z: az,
             front: az < 0,
             dir: i % 2 === 0 ? 1 : -1
@@ -3242,39 +3906,88 @@
         }
 
       } else if (type === 'combat') {
-        // 4. БОЕВОЙ / ТАКТИЧЕСКИЙ БПЛА «БЕРКУТ»
-        const armorHull = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.13, 0.68), bodyShellMat);
+        // =====================================================================
+        // 4. БОЕВОЙ СТЕЛС БПЛА «БЕРКУТ» (Гранёный фюзеляж + Импеллеры + Подвесы)
+        // =====================================================================
+        const stealthBodyGeo = createExtrudedPlate([
+          [0, -0.44], [0.14, -0.28], [0.24, -0.08], [0.24, 0.18],
+          [0.16, 0.36], [0.06, 0.40], [-0.06, 0.40], [-0.16, 0.36],
+          [-0.24, 0.18], [-0.24, -0.08], [-0.14, -0.28]
+        ], 0.085, 0.024, 2);
+        const armorHull = new THREE.Mesh(stealthBodyGeo, bodyShellMat);
+        armorHull.position.y = 0.01;
         armorHull.castShadow = true;
         droneBody.add(armorHull);
 
-        const stealthSpine = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.22, 0.54, 4), titaniumAccentMat);
-        stealthSpine.rotation.x = Math.PI / 2;
-        stealthSpine.rotation.y = Math.PI / 4;
-        stealthSpine.position.set(0, 0.095, 0.03);
+        // Верхний гранёный стелс-хребет с воздухозаборником
+        const spineGeo = createExtrudedPlate([
+          [0, -0.32], [0.11, -0.14], [0.12, 0.22], [0.05, 0.35],
+          [-0.05, 0.35], [-0.12, 0.22], [-0.11, -0.14]
+        ], 0.065, 0.020, 1);
+        const stealthSpine = new THREE.Mesh(spineGeo, titaniumAccentMat);
+        stealthSpine.position.y = 0.082;
         stealthSpine.castShadow = true;
         droneBody.add(stealthSpine);
 
-        const noseWedge = new THREE.Mesh(new THREE.ConeGeometry(0.21, 0.28, 4), bodyShellMat);
-        noseWedge.rotation.x = -Math.PI / 2;
-        noseWedge.rotation.z = Math.PI / 4;
-        noseWedge.scale.set(1.1, 1.0, 0.65);
-        noseWedge.position.set(0, 0.02, -0.46);
-        droneBody.add(noseWedge);
+        // Воздухозаборник турбины на спине
+        const intakeFrame = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.042, 0.06), carbonFrameMat);
+        intakeFrame.position.set(0, 0.105, -0.12);
+        droneBody.add(intakeFrame);
+        const intakeGrill = new THREE.Mesh(new THREE.PlaneGeometry(0.11, 0.032), ventMat);
+        intakeGrill.position.set(0, 0.105, -0.152);
+        droneBody.add(intakeGrill);
 
-        [-0.23, 0.23].forEach(sx => {
-          const sidePod = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.07, 0.44), carbonFrameMat);
-          sidePod.position.set(sx, -0.02, 0.02);
-          droneBody.add(sidePod);
+        // Носовая трубка Пито (ПВД)
+        const pitot = new THREE.Mesh(new THREE.CylinderGeometry(0.004, 0.008, 0.14, 8), titaniumAccentMat);
+        pitot.rotation.x = Math.PI / 2;
+        pitot.position.set(0, 0.01, -0.49);
+        droneBody.add(pitot);
 
-          const vTail = new THREE.Mesh(new THREE.BoxGeometry(0.022, 0.18, 0.16), titaniumAccentMat);
-          vTail.position.set(sx * 0.75, 0.11, 0.30);
-          vTail.rotation.z = sx > 0 ? -0.28 : 0.28;
+        // Заднее реактивное сопло со светящейся полосой форсажа
+        const nozzle = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.072, 0.09, 16), carbonFrameMat);
+        nozzle.rotation.x = Math.PI / 2;
+        nozzle.position.set(0, 0.025, 0.40);
+        droneBody.add(nozzle);
+
+        const afterburner = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.042, 0.018, 16), orangeTipMat);
+        afterburner.rotation.x = Math.PI / 2;
+        afterburner.position.set(0, 0.025, 0.442);
+        droneBody.add(afterburner);
+
+        // Стреловидные V-кили и боковые тактические подвесы с микро-ракетами
+        [-1, 1].forEach(side => {
+          const sx = side * 0.25;
+
+          const vTailGeo = createExtrudedPlate([
+            [0, -0.09], [0.02, 0.08], [-0.02, 0.10], [-0.02, -0.06]
+          ], 0.18, 0.005);
+          const vTail = new THREE.Mesh(vTailGeo, titaniumAccentMat);
+          vTail.position.set(side * 0.16, 0.13, 0.28);
+          vTail.rotation.z = -side * 0.35;
+          vTail.castShadow = true;
           droneBody.add(vTail);
+
+          // Пилон и тактический контейнер-ракета под спонсоном
+          const pylon = new THREE.Mesh(new THREE.BoxGeometry(0.022, 0.055, 0.18), carbonFrameMat);
+          pylon.position.set(sx * 0.92, -0.055, 0.02);
+          droneBody.add(pylon);
+
+          const missileBody = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.024, 0.32, 12), carbonFrameMat);
+          missileBody.rotation.x = Math.PI / 2;
+          missileBody.position.set(sx * 0.92, -0.092, 0.0);
+          droneBody.add(missileBody);
+
+          const missileNose = new THREE.Mesh(new THREE.ConeGeometry(0.024, 0.065, 12), orangeTipMat);
+          missileNose.rotation.x = -Math.PI / 2;
+          missileNose.position.set(sx * 0.92, -0.092, -0.19);
+          droneBody.add(missileNose);
         });
 
-        addDroneLogoPlate(droneBody, 0, 0.155, 0.04, 0.24, 0.13);
-        gimbalGroup = buildGimbalCamera(droneBody, 0, -0.08, -0.34, 1.15);
-        buildLandingSkids(droneBody, 0.16, 0.16, 0.52);
+        addDroneLogoPlate(droneBody, 0, 0.138, 0.05, 0.22, 0.115);
+        addAntiCollisionStrobe(droneBody, 0, 0.145, 0.24, 0.014);
+
+        gimbalGroup = buildGimbalCamera(droneBody, 0, -0.055, -0.27, 1.08, 'turret');
+        buildLandingSkids(droneBody, 0.16, 0.165, 0.50);
 
         const tacticalArms = [
           { x: -0.45, z: -0.34, front: true, dir: 1, blades: 3 },
@@ -3283,113 +3996,261 @@
           { x:  0.45, z:  0.34, front: false, dir: 1, blades: 3 }
         ];
         tacticalArms.forEach(cfg => {
-          const pylon = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.045, 0.11), carbonFrameMat);
-          pylon.position.set(cfg.x * 0.58, 0.02, cfg.z);
-          droneBody.add(pylon);
-          addRotorAssembly(droneBody, cfg, 0.96, true);
+          buildSculptedArm(droneBody, Math.sign(cfg.x) * 0.18, cfg.z * 0.62, cfg.x, cfg.z, 0.022, 0.062, 0.032, true);
+          addRotorAssembly(droneBody, { x: cfg.x, y: 0.024, z: cfg.z, front: cfg.front, dir: cfg.dir, blades: 3 }, 0.94, true);
         });
 
       } else if (type === 'racer') {
-        // 5. ГОНОЧНЫЙ FPV DRONE 5"
-        const carbonPlate = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.04, 0.42), carbonFrameMat);
-        carbonPlate.castShadow = true;
-        droneBody.add(carbonPlate);
+        // =====================================================================
+        // 5. ГОНОЧНЫЙ FPV 5" (Карбоновая рама + PCB-стек + ActionCam + LiPo)
+        // =====================================================================
+        const botPlateGeo = createExtrudedPlate([
+          [0, -0.23], [0.10, -0.17], [0.11, 0.17], [0.06, 0.24],
+          [-0.06, 0.24], [-0.11, 0.17], [-0.10, -0.17]
+        ], 0.012, 0.003);
+        const botPlate = new THREE.Mesh(botPlateGeo, carbonFrameMat);
+        botPlate.position.y = -0.015;
+        botPlate.castShadow = true;
+        droneBody.add(botPlate);
 
-        const aeroCanopy = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.09, 0.34), bodyShellMat);
-        aeroCanopy.position.set(0, 0.065, 0.02);
-        aeroCanopy.castShadow = true;
-        droneBody.add(aeroCanopy);
+        const topPlateGeo = createExtrudedPlate([
+          [0.085, -0.18], [0.092, 0.18], [-0.092, 0.18], [-0.085, -0.18]
+        ], 0.010, 0.003);
+        const topPlate = new THREE.Mesh(topPlateGeo, bodyShellMat);
+        topPlate.position.y = 0.062;
+        topPlate.castShadow = true;
+        droneBody.add(topPlate);
 
-        const dorsalFin = new THREE.Mesh(new THREE.BoxGeometry(0.024, 0.11, 0.22), titaniumAccentMat);
-        dorsalFin.position.set(0, 0.13, 0.06);
-        dorsalFin.rotation.x = -0.25;
-        droneBody.add(dorsalFin);
+        // 6 анодированных гексагональных стоек
+        [[-0.075, -0.15], [0.075, -0.15], [-0.082, 0.0], [0.082, 0.0], [-0.075, 0.15], [0.075, 0.15]].forEach(([sx, sz]) => {
+          const standoff = new THREE.Mesh(new THREE.CylinderGeometry(0.009, 0.009, 0.068, 6), titaniumAccentMat);
+          standoff.position.set(sx, 0.024, sz);
+          droneBody.add(standoff);
+        });
 
-        const tailBar = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.025, 0.02), orangeTipMat);
-        tailBar.position.set(0, 0.05, 0.22);
-        droneBody.add(tailBar);
+        // Внутренний электронный стек (4-in-1 ESC + Flight Controller PCB + конденсатор)
+        const escBoard = new THREE.Mesh(new THREE.BoxGeometry(0.115, 0.010, 0.115), pcbMat);
+        escBoard.position.set(0, 0.006, 0.0);
+        droneBody.add(escBoard);
 
-        addDroneLogoPlate(droneBody, 0, 0.112, 0.01, 0.16, 0.09);
-        gimbalGroup = buildGimbalCamera(droneBody, 0, 0.04, -0.21, 0.85);
+        const fcBoard = new THREE.Mesh(new THREE.BoxGeometry(0.105, 0.010, 0.105), pcbMat);
+        fcBoard.position.set(0, 0.028, 0.0);
+        droneBody.add(fcBoard);
+
+        const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.036, 12), copperCoilMat);
+        cap.rotation.x = Math.PI / 2;
+        cap.position.set(0.04, 0.015, 0.09);
+        droneBody.add(cap);
+
+        // Аккумулятор 6S LiPo сверху + ремешок липучка + кабель XT60
+        const lipoPack = new THREE.Mesh(new THREE.BoxGeometry(0.115, 0.056, 0.21), lipoMat);
+        lipoPack.position.set(0, 0.096, 0.02);
+        lipoPack.castShadow = true;
+        droneBody.add(lipoPack);
+
+        const strap = new THREE.Mesh(new THREE.BoxGeometry(0.125, 0.062, 0.034), titaniumAccentMat);
+        strap.position.set(0, 0.095, 0.02);
+        droneBody.add(strap);
+
+        addPowerCable(droneBody, [
+          [-0.04, 0.09, 0.12],
+          [-0.07, 0.05, 0.16],
+          [-0.02, 0.01, 0.11]
+        ], 0.008, wireRedMat);
+        addPowerCable(droneBody, [
+          [0.04, 0.09, 0.12],
+          [0.07, 0.05, 0.16],
+          [0.02, 0.01, 0.11]
+        ], 0.008, wireBlackMat);
+
+        // Передняя титановая клетка FPV-камеры + экшн-камера GoPro под углом 25°
+        [-0.058, 0.058].forEach(cx => {
+          const cageSide = new THREE.Mesh(new THREE.BoxGeometry(0.010, 0.072, 0.078), titaniumAccentMat);
+          cageSide.position.set(cx, 0.024, -0.175);
+          droneBody.add(cageSide);
+        });
+
+        const actionCam = new THREE.Mesh(new THREE.BoxGeometry(0.092, 0.068, 0.056), bodyShellMat);
+        actionCam.position.set(0, 0.102, -0.125);
+        actionCam.rotation.x = 0.42;
+        actionCam.castShadow = true;
+        droneBody.add(actionCam);
+
+        const actionLens = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.024, 0.020, 16), coatedGlassMat);
+        actionLens.rotation.x = Math.PI / 2 + 0.42;
+        actionLens.position.set(-0.022, 0.112, -0.155);
+        droneBody.add(actionLens);
+
+        // Задняя антенна-грибок VTX (LatheGeometry) + Immortal-T приёмник + LED-планка
+        const vtxStem = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.075, 8), copperCoilMat);
+        vtxStem.rotation.x = -0.45;
+        vtxStem.position.set(0, 0.088, 0.21);
+        droneBody.add(vtxStem);
+
+        const vtxHeadPts = [
+          new THREE.Vector2(0.0, 0.0),
+          new THREE.Vector2(0.026, 0.008),
+          new THREE.Vector2(0.028, 0.024),
+          new THREE.Vector2(0.016, 0.036),
+          new THREE.Vector2(0.0, 0.038)
+        ];
+        const vtxHead = new THREE.Mesh(new THREE.LatheGeometry(vtxHeadPts, 16), orangeTipMat);
+        vtxHead.rotation.x = -0.45;
+        vtxHead.position.set(0, 0.118, 0.228);
+        droneBody.add(vtxHead);
+
+        const immortalT = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.005, 0.26, 8), rubberMat);
+        immortalT.rotation.z = Math.PI / 2;
+        immortalT.position.set(0, 0.012, 0.255);
+        droneBody.add(immortalT);
+
+        const tailLedBar = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.018, 0.016), orangeTipMat);
+        tailLedBar.position.set(0, 0.035, 0.235);
+        droneBody.add(tailLedBar);
+
+        addDroneLogoPlate(droneBody, 0, 0.128, 0.02, 0.15, 0.08);
+        gimbalGroup = buildGimbalCamera(droneBody, 0, 0.045, -0.165, 0.72, 'cinema');
 
         const racerArms = [
-          { x: -0.36, z: -0.30, front: true, dir: 1, blades: 3 },
-          { x:  0.36, z: -0.30, front: true, dir: -1, blades: 3 },
-          { x: -0.36, z:  0.30, front: false, dir: -1, blades: 3 },
-          { x:  0.36, z:  0.30, front: false, dir: 1, blades: 3 }
+          { x: -0.37, z: -0.30, front: true, dir: 1, blades: 3 },
+          { x:  0.37, z: -0.30, front: true, dir: -1, blades: 3 },
+          { x: -0.37, z:  0.30, front: false, dir: -1, blades: 3 },
+          { x:  0.37, z:  0.30, front: false, dir: 1, blades: 3 }
         ];
         racerArms.forEach(cfg => {
-          const dx = cfg.x * 0.85, dz = cfg.z * 0.85;
-          const arm = new THREE.Mesh(new THREE.BoxGeometry(0.042, 0.024, Math.hypot(dx, dz)), carbonFrameMat);
-          arm.position.set(dx * 0.5, 0.01, dz * 0.5);
-          arm.rotation.y = Math.atan2(dx, dz);
-          droneBody.add(arm);
-          addRotorAssembly(droneBody, cfg, 0.90, false);
+          buildSculptedArm(droneBody, Math.sign(cfg.x) * 0.07, Math.sign(cfg.z) * 0.08, cfg.x, cfg.z, -0.004, 0.038, 0.018, true);
+          // Демпфирующая ножка-бампер под каждым мотором
+          const pad = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.022, 0.024, 10), rubberMat);
+          pad.position.set(cfg.x, -0.024, cfg.z);
+          droneBody.add(pad);
+
+          addRotorAssembly(droneBody, { x: cfg.x, y: 0.012, z: cfg.z, front: cfg.front, dir: cfg.dir, blades: 3 }, 0.90, false);
         });
 
       } else if (type === 'vtol') {
-        // 6. КОНВЕРТОПЛАН / КРЫЛАТЫЙ БПЛА VTOL «СОКОЛ»
-        const fuselage = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.13, 0.72, 16), bodyShellMat);
-        fuselage.rotation.x = Math.PI / 2;
+        // =====================================================================
+        // 6. КОНВЕРТОПЛАН VTOL «СОКОЛ» (Обтекаемый фюзеляж + Стреловидное крыло + Винглеты)
+        // =====================================================================
+        const fusePts = [
+          new THREE.Vector2(0.0, -0.44),
+          new THREE.Vector2(0.045, -0.38),
+          new THREE.Vector2(0.095, -0.24),
+          new THREE.Vector2(0.118, -0.05),
+          new THREE.Vector2(0.112, 0.14),
+          new THREE.Vector2(0.082, 0.29),
+          new THREE.Vector2(0.046, 0.39),
+          new THREE.Vector2(0.0, 0.40)
+        ];
+        const fuseGeo = new THREE.LatheGeometry(fusePts, 24);
+        fuseGeo.rotateX(Math.PI / 2);
+        const fuselage = new THREE.Mesh(fuseGeo, bodyShellMat);
+        fuselage.scale.set(1.05, 0.85, 1.0);
         fuselage.castShadow = true;
         droneBody.add(fuselage);
 
-        const nose = new THREE.Mesh(new THREE.SphereGeometry(0.11, 16, 14), titaniumAccentMat);
-        nose.scale.set(1, 0.9, 1.4);
-        nose.position.set(0, 0, -0.38);
-        droneBody.add(nose);
+        // Обтекатель фонаря/сенсоров с тонированным стеклом
+        const canopy = new THREE.Mesh(new THREE.SphereGeometry(0.088, 18, 14), coatedGlassMat);
+        canopy.scale.set(0.88, 0.56, 1.65);
+        canopy.position.set(0, 0.062, -0.14);
+        droneBody.add(canopy);
 
-        const mainWing = new THREE.Mesh(new THREE.BoxGeometry(1.42, 0.028, 0.24), bodyShellMat);
-        mainWing.position.set(0, 0.03, 0.02);
+        // Носовая трубка Пито
+        const vtolPitot = new THREE.Mesh(new THREE.CylinderGeometry(0.003, 0.006, 0.11, 8), titaniumAccentMat);
+        vtolPitot.rotation.x = Math.PI / 2;
+        vtolPitot.position.set(0, 0.0, -0.48);
+        droneBody.add(vtolPitot);
+
+        // Стреловидное трапециевидное крыло (ExtrudeGeometry) + законцовки-винглеты
+        const wingGeo = createExtrudedPlate([
+          [-0.76, 0.09], [-0.76, -0.04], [-0.14, -0.13], [0.14, -0.13],
+          [0.76, -0.04], [0.76, 0.09], [0.14, 0.11], [-0.14, 0.11]
+        ], 0.022, 0.008, 3);
+        const mainWing = new THREE.Mesh(wingGeo, bodyShellMat);
+        mainWing.position.set(0, 0.032, 0.0);
         mainWing.castShadow = true;
         droneBody.add(mainWing);
 
-        const wingTrim = new THREE.Mesh(new THREE.BoxGeometry(1.44, 0.032, 0.045), titaniumAccentMat);
-        wingTrim.position.set(0, 0.03, -0.09);
-        droneBody.add(wingTrim);
+        // Передняя акцентная кромка крыла и винглеты
+        [-1, 1].forEach(side => {
+          const leadEdge = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.018, 0.026), titaniumAccentMat);
+          leadEdge.position.set(side * 0.44, 0.032, -0.088);
+          leadEdge.rotation.y = side * -0.145;
+          droneBody.add(leadEdge);
 
-        [-0.36, 0.36].forEach(bx => {
-          const boom = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.76, 10), carbonFrameMat);
+          const wingletGeo = createExtrudedPlate([
+            [0, -0.04], [0.015, 0.09], [-0.015, 0.10], [-0.015, -0.02]
+          ], 0.12, 0.004);
+          const winglet = new THREE.Mesh(wingletGeo, titaniumAccentMat);
+          winglet.position.set(side * 0.77, 0.082, 0.03);
+          winglet.rotation.z = -side * 0.25;
+          winglet.castShadow = true;
+          droneBody.add(winglet);
+
+          // Две карбоновые хвостовые балки + кили
+          const boom = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.76, 12), carbonFrameMat);
           boom.rotation.x = Math.PI / 2;
-          boom.position.set(bx, 0.02, 0.04);
+          boom.position.set(side * 0.36, 0.022, 0.04);
+          boom.castShadow = true;
           droneBody.add(boom);
 
-          const fin = new THREE.Mesh(new THREE.BoxGeometry(0.018, 0.14, 0.12), titaniumAccentMat);
-          fin.position.set(bx, 0.09, 0.38);
+          const finGeo = createExtrudedPlate([
+            [0, -0.06], [0.015, 0.07], [-0.015, 0.08], [-0.015, -0.04]
+          ], 0.14, 0.004);
+          const fin = new THREE.Mesh(finGeo, titaniumAccentMat);
+          fin.position.set(side * 0.36, 0.095, 0.37);
           droneBody.add(fin);
         });
 
-        const hTail = new THREE.Mesh(new THREE.BoxGeometry(0.74, 0.02, 0.11), bodyShellMat);
-        hTail.position.set(0, 0.15, 0.40);
+        // Горизонтальный стабилизатор
+        const hTailGeo = createExtrudedPlate([
+          [-0.38, 0.04], [-0.36, -0.05], [0.36, -0.05], [0.38, 0.04]
+        ], 0.018, 0.005);
+        const hTail = new THREE.Mesh(hTailGeo, bodyShellMat);
+        hTail.position.set(0, 0.155, 0.40);
         droneBody.add(hTail);
 
-        addDroneLogoPlate(droneBody, -0.50, 0.047, 0.03, 0.24, 0.13);
-        addDroneLogoPlate(droneBody,  0.50, 0.047, 0.03, 0.24, 0.13);
+        addDroneLogoPlate(droneBody, -0.52, 0.052, 0.02, 0.24, 0.125);
+        addDroneLogoPlate(droneBody,  0.52, 0.052, 0.02, 0.24, 0.125);
+        buildGPSMast(droneBody, 0, 0.092, 0.06, 0.78);
+        addAntiCollisionStrobe(droneBody, 0, 0.168, 0.40, 0.013);
 
-        gimbalGroup = buildGimbalCamera(droneBody, 0, -0.08, -0.28, 0.95);
-        buildLandingSkids(droneBody, 0.14, 0.15, 0.44);
+        gimbalGroup = buildGimbalCamera(droneBody, 0, -0.078, -0.23, 0.95, 'turret');
+        buildLandingSkids(droneBody, 0.15, 0.165, 0.44);
 
         const vtolRotors = [
-          { x: -0.36, y: 0.04, z: -0.30, front: true, dir: 1 },
-          { x:  0.36, y: 0.04, z: -0.30, front: true, dir: -1 },
-          { x: -0.36, y: 0.04, z:  0.34, front: false, dir: -1 },
-          { x:  0.36, y: 0.04, z:  0.34, front: false, dir: 1 }
+          { x: -0.36, y: 0.042, z: -0.30, front: true, dir: 1 },
+          { x:  0.36, y: 0.042, z: -0.30, front: true, dir: -1 },
+          { x: -0.36, y: 0.042, z:  0.34, front: false, dir: -1 },
+          { x:  0.36, y: 0.042, z:  0.34, front: false, dir: 1 }
         ];
         vtolRotors.forEach(cfg => addRotorAssembly(droneBody, cfg, 0.78, false));
 
+        // Задний маршевый 3-лопастной толкающий винт с коком
         const pusherGroup = new THREE.Group();
-        pusherGroup.position.set(0, 0.0, 0.38);
-        const pHub = new THREE.Mesh(new THREE.ConeGeometry(0.026, 0.04, 12), titaniumAccentMat);
+        pusherGroup.position.set(0, 0.0, 0.415);
+
+        const pSpinnerPts = [
+          new THREE.Vector2(0.032, 0.0),
+          new THREE.Vector2(0.028, 0.018),
+          new THREE.Vector2(0.014, 0.042),
+          new THREE.Vector2(0.0, 0.050)
+        ];
+        const pHub = new THREE.Mesh(new THREE.LatheGeometry(pSpinnerPts, 18), titaniumAccentMat);
         pHub.rotation.x = Math.PI / 2;
         pusherGroup.add(pHub);
-        [-1, 1].forEach(side => {
-          const pBlade = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.028, 0.006), propBladeMat);
-          pBlade.position.x = side * 0.12;
-          pusherGroup.add(pBlade);
-          const pTip = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.028, 0.007), orangeTipMat);
-          pTip.position.x = side * 0.24;
-          pusherGroup.add(pTip);
-        });
+
+        for (let b = 0; b < 3; b++) {
+          const pWrap = new THREE.Group();
+          pWrap.rotation.z = (b / 3) * Math.PI * 2;
+          const pBlade = createAirfoilBladeMesh(0.85, 1);
+          pBlade.rotation.x = Math.PI / 2;
+          pWrap.add(pBlade);
+          pusherGroup.add(pWrap);
+        }
+
+        const pBlur = new THREE.Mesh(new THREE.CircleGeometry(0.195, 24), blurDiscMat);
+        pusherGroup.add(pBlur);
+
         droneBody.add(pusherGroup);
         propellers.push({ mesh: pusherGroup, dir: 1, axis: 'z' });
       }
@@ -5931,6 +6792,9 @@
       }
 
       drone.motorRPM = 0.88;
+      blurDiscMat.opacity = 0.28;
+      const lobbyStrobeOn = (lobbyCineTime % 1.1) < 0.14;
+      strobeMat.emissiveIntensity = lobbyStrobeOn ? 1.8 : 0.18;
       for (const prop of propellers) {
         if (prop.axis === 'z') {
           prop.mesh.rotation.z += prop.dir * 38 * effDt;
@@ -6036,6 +6900,9 @@
       if (isInLobby) {
         updateLobbyCinematic(dt);
       } else {
+        blurDiscMat.opacity = THREE.MathUtils.clamp((drone.motorRPM - 0.18) * 0.36, 0.03, 0.32);
+        const gameStrobeOn = (totalTime % 1.1) < 0.14;
+        strobeMat.emissiveIntensity = gameStrobeOn ? 1.8 : 0.18;
         for (const prop of propellers) {
           if (prop.axis === 'z') {
             prop.mesh.rotation.z += prop.dir * (38 * drone.motorRPM) * dt;
